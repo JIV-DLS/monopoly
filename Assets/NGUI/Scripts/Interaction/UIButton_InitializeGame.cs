@@ -80,12 +80,12 @@ public class UIButton_InitializeGame : UIButtonColor
 	{
 		get
 		{
-			Collider col = collider;
+			Collider col = GetComponent<Collider>();
 			return col && col.enabled;
 		}
 		set
 		{
-			Collider col = collider;
+			Collider col = GetComponent<Collider>();
 			if (!col) return;
 
 			if (col.enabled != value)
