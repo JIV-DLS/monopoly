@@ -160,6 +160,7 @@ public class UIButton_DoMove : UIButtonColor
 	}	
 	
 	private bool isGoingToJail(){
+		
 		//check if the player's current position is at jail
 		print (currPlayer.getName() + " checking...");
 		if (currPlayer.currentSpaceNum == 30) {

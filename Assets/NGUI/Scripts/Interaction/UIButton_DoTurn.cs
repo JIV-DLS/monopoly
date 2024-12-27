@@ -18,6 +18,8 @@ public class UIButton_DoTurn : UIButtonColor
 	
 	public PlayController monopolyGame;
 	public UIButton_DoMove playerMoves;
+	public DiceRoller dice1;
+	public DiceRoller dice2;
 	private ArrayList playerList;
 
 	public Color disabledColor = Color.grey;
@@ -34,12 +36,13 @@ public class UIButton_DoTurn : UIButtonColor
 
 	public override void OnHover (bool isOver) { if (isEnabled) base.OnHover(isOver); }
 	public override void OnPress (bool isPressed) { 
-		if (isEnabled) base.OnPress(isPressed); 
-		
-		if (Input.GetMouseButtonUp (0)) {
+		if (isEnabled) base.OnPress(isPressed);
+		dice1.ThrowDice();
+		dice2.ThrowDice();
+		/*if (Input.GetMouseButtonUp (0)) {
 			playerList = monopolyGame.GetPlayerList();
 			runPlayerTurns();
-		}
+		}*/
 	}
 
 	public void runPlayerTurns (){
