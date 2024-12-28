@@ -18,6 +18,8 @@ public class DiceRoller : MonoBehaviour
     readonly List<string> FaceRepresent = new List<string>() {"", "1", "2", "3", "4", "5", "6"};
     private DateTime _lastActionTime;
     private readonly TimeSpan _cooldownPeriod = TimeSpan.FromSeconds(2); // 2-second cooldown
+    // List to store currently collided objects
+    private List<GameObject> currentCollisions = new List<GameObject>();
     void Start()
     {
         id = UnityEngine.Random.Range(1, 7);
@@ -28,11 +30,50 @@ public class DiceRoller : MonoBehaviour
         }
         OpposingDirectionValues = 7 * Vector3Int.one - DirectionValues;
     }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        GameObject collidedObject = collision.gameObject;
+
+        // Add to the list if not already present
+        if (!currentCollisions.Contains(collidedObject))
+        {
+            currentCollisions.Add(collidedObject);
+            Debug.Log($"Started colliding with: {collidedObject.name}");
+        }
+    }
+
+    void OnCollisionStay(Collision collision)
+    {
+        // (Optional) Log ongoing collisions if needed
+        Debug.Log($"Continuing collision with: {collision.gameObject.name}");
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        GameObject collidedObject = collision.gameObject;
+
+        // Remove from the list when collision ends
+        if (currentCollisions.Contains(collidedObject))
+        {
+            currentCollisions.Remove(collidedObject);
+            Debug.Log($"Stopped colliding with: {collidedObject.name}");
+        }
+    }
+    public bool CanBeThrown(DateTime currentTime)
+    {
+        
+        return !(currentTime - _lastActionTime < _cooldownPeriod);
+    }
+    public bool CanBeThrown()
+    {
+        return CanBeThrown(DateTime.Now);
+    }
     public void ThrowDice()
     {
         DateTime currentTime = DateTime.Now;
         
-        if (currentTime - _lastActionTime < _cooldownPeriod)
+        if (!CanBeThrown(currentTime))
         {
             Console.WriteLine("Action is on cooldown. Please wait.");
             return;
@@ -44,6 +85,11 @@ public class DiceRoller : MonoBehaviour
         // Update the last action time
         _lastActionTime = currentTime;
     }
+
+    public void ThrowAnyway()
+    {
+        _ThrowDice();
+    }
     private void _ThrowDice()
     {
         //diceRigidbody.useGravity = true;
@@ -52,7 +98,7 @@ public class DiceRoller : MonoBehaviour
         ResetDice();
 
         // Random direction and torque
-        Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 1, UnityEngine.Random.Range(-1f, 1f)).normalized;
+        Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-10f, 10f), UnityEngine.Random.Range(10f, 40f), UnityEngine.Random.Range(-10f, 10f)).normalized;
         Vector3 randomTorque = new Vector3(UnityEngine.Random.Range(-torqueForce, torqueForce), UnityEngine.Random.Range(-torqueForce, torqueForce), UnityEngine.Random.Range(-torqueForce, torqueForce));
 
         // Apply force and torque
@@ -63,13 +109,29 @@ public class DiceRoller : MonoBehaviour
 
     void Update()
     {
+        // Display current collisions
+        if (currentCollisions.Count > 0)
+        {
+            Debug.Log("Currently colliding with:");
+            foreach (GameObject obj in currentCollisions)
+            {
+                Debug.Log(obj.name);
+            }
+        }
         // Debug.Log($"id {id}, velocity: {diceRigidbody.velocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
         string currentFace = GetFaceAccordingToXYZ();
-        if (diceRigidbody.velocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold && lastRoll != currentFace)
+        if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold && lastRoll != currentFace)
         {
-            lastRoll = currentFace;
-            Debug.Log("Dice stopped! Top face: " + lastRoll);
-            _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
+            if (currentCollisions.Count > 1)
+            {
+                ThrowAnyway();
+            }
+            else
+            {
+                lastRoll = currentFace;
+                Debug.Log("Dice stopped! Top face: " + lastRoll);
+                _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
+            }
         }
     }
 
@@ -122,7 +184,7 @@ public class DiceRoller : MonoBehaviour
     private void ResetDice()
     {
         // Reset dice position and state
-        diceRigidbody.velocity = Vector3.zero;
+        diceRigidbody.linearVelocity = Vector3.zero;
         diceRigidbody.angularVelocity = Vector3.zero;
         diceRigidbody.transform.position = startPosition;
         diceRigidbody.transform.rotation = Quaternion.identity;
@@ -154,5 +216,18 @@ public class DiceRoller : MonoBehaviour
         }
 
         return faceIndex;
+    }
+    public DiceRoller GetNewer(int index=1)
+    {
+
+        // Clone the GameObject associated with the element
+        GameObject original = gameObject;
+        GameObject clone = Instantiate(original, original.transform.parent);
+
+        // Optionally modify the clone (e.g., rename it or change its properties)
+        clone.name = original.name + index.ToString();
+
+        DiceRoller clonedComponent = clone.GetComponent<DiceRoller>();
+        return clonedComponent;
     }
 }

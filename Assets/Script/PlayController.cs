@@ -162,14 +162,15 @@ public class PlayController : MonoBehaviour {
 		Console_Text.text = consoleText;
 	}
 
-	private void updatePlayOrder(){
-		var thisPlayer = new PlayMoving();
+	private void updatePlayOrder()
+	{
+		/*var thisPlayer = new PlayMoving();
 		var tempText = "";
 		for (int i =0; i < PlayerList.Count; i++){
 			thisPlayer = (PlayMoving)PlayerList[i];
 			tempText += thisPlayer.getName() + " ";
 		}
-		PlayOrder.text = tempText;
+		PlayOrder.text = tempText;*/
 	}
 
 	public void updateGameStatus(bool newStatus){ gameContinue = newStatus;}

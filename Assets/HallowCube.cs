@@ -132,7 +132,7 @@ public class HollowCube : MonoBehaviour
     boxCollider.size = new Vector3(1f, 1f, 1f); // Default size (you can adjust based on your needs)
     
     // Create a Physics Material to control the bounciness
-    PhysicMaterial physMat = new PhysicMaterial();
+    PhysicsMaterial physMat = new PhysicsMaterial();
     physMat.bounciness = 0.8f;  // Control how much the object bounces
     physMat.dynamicFriction = 0f;  // Optional: Control friction (0f for no friction)
     physMat.staticFriction = 0f;   // Optional: Control static friction (0f for no friction)

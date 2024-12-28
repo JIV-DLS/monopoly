@@ -20,7 +20,7 @@ public class AdjustSleepThreeshold : MonoBehaviour
     void Update()
     {
         // Current velocity
-        Vector3 currentVelocity = rb.velocity;
+        Vector3 currentVelocity = rb.linearVelocity;
 
         // Speed is the magnitude of the velocity
         float speed = currentVelocity.magnitude;
@@ -38,7 +38,7 @@ public class AdjustSleepThreeshold : MonoBehaviour
         if ( acceleration < 0.5f)
         {
             Debug.Log($"changing because acceleration is: {acceleration} m/s²");
-            rb.velocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
             rb.Sleep(); // Optionally force it to sleep
         }
