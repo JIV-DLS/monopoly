@@ -109,15 +109,6 @@ public class DiceRoller : MonoBehaviour
 
     void Update()
     {
-        // Display current collisions
-        if (currentCollisions.Count > 0)
-        {
-            Debug.Log("Currently colliding with:");
-            foreach (GameObject obj in currentCollisions)
-            {
-                Debug.Log(obj.name);
-            }
-        }
         // Debug.Log($"id {id}, velocity: {diceRigidbody.velocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
         string currentFace = GetFaceAccordingToXYZ();
         if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold && lastRoll != currentFace)
