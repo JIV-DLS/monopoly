@@ -130,6 +130,14 @@ public class HollowCube : MonoBehaviour
     // Add a Box Collider to the rectangle
     BoxCollider boxCollider = rectangle.AddComponent<BoxCollider>();
     boxCollider.size = new Vector3(1f, 1f, 1f); // Default size (you can adjust based on your needs)
+    
+    // Create a Physics Material to control the bounciness
+    PhysicMaterial physMat = new PhysicMaterial();
+    physMat.bounciness = 0.8f;  // Control how much the object bounces
+    physMat.dynamicFriction = 0f;  // Optional: Control friction (0f for no friction)
+    physMat.staticFriction = 0f;   // Optional: Control static friction (0f for no friction)
+    boxCollider.material = physMat;
+
 }
         private static void CreateA3dRectangleAt(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4)
 {

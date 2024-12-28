@@ -1,14 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+using System;
 public class DiceRoller : MonoBehaviour
 {
     private int id;
+    private string lastRoll = "";
     private Rigidbody diceRigidbody; // Attach your dice Rigidbody
     public float throwForce = 100f;  // Adjustable force for throwing the dice
     public float torqueForce = 50f;  // Adjustable torque for random rotation
     public float stopThreshold = 5; // Threshold to consider the dice stopped
-    private bool isBeingThrown = false;
     public LayerMask groundMask; // Mask for ground detection (optional)
 
     private Vector3 startPosition;
@@ -16,10 +16,11 @@ public class DiceRoller : MonoBehaviour
     private Vector3Int OpposingDirectionValues;
 
     readonly List<string> FaceRepresent = new List<string>() {"", "1", "2", "3", "4", "5", "6"};
-
+    private DateTime _lastActionTime;
+    private readonly TimeSpan _cooldownPeriod = TimeSpan.FromSeconds(2); // 2-second cooldown
     void Start()
     {
-        id = Random.Range(1, 7);
+        id = UnityEngine.Random.Range(1, 7);
         diceRigidbody = GetComponent<Rigidbody>();
         if (diceRigidbody == null)
         {
@@ -29,19 +30,30 @@ public class DiceRoller : MonoBehaviour
     }
     public void ThrowDice()
     {
-        /*if (isBeingThrown)
+        DateTime currentTime = DateTime.Now;
+        
+        if (currentTime - _lastActionTime < _cooldownPeriod)
         {
+            Console.WriteLine("Action is on cooldown. Please wait.");
             return;
-        }*/
-        isBeingThrown = true;
+        }
+
+        // Perform the action
+        this._ThrowDice();
+
+        // Update the last action time
+        _lastActionTime = currentTime;
+    }
+    private void _ThrowDice()
+    {
         //diceRigidbody.useGravity = true;
         startPosition = diceRigidbody.transform.position;
         // Reset position and state
         ResetDice();
 
         // Random direction and torque
-        Vector3 randomDirection = new Vector3(Random.Range(-1f, 1f), 1, Random.Range(-1f, 1f)).normalized;
-        Vector3 randomTorque = new Vector3(Random.Range(-torqueForce, torqueForce), Random.Range(-torqueForce, torqueForce), Random.Range(-torqueForce, torqueForce));
+        Vector3 randomDirection = new Vector3(UnityEngine.Random.Range(-1f, 1f), 1, UnityEngine.Random.Range(-1f, 1f)).normalized;
+        Vector3 randomTorque = new Vector3(UnityEngine.Random.Range(-torqueForce, torqueForce), UnityEngine.Random.Range(-torqueForce, torqueForce), UnityEngine.Random.Range(-torqueForce, torqueForce));
 
         // Apply force and torque
         diceRigidbody.AddForce(randomDirection * throwForce, ForceMode.Impulse);
@@ -51,7 +63,18 @@ public class DiceRoller : MonoBehaviour
 
     void Update()
     {
-        
+        // Debug.Log($"id {id}, velocity: {diceRigidbody.velocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
+        string currentFace = GetFaceAccordingToXYZ();
+        if (diceRigidbody.velocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold && lastRoll != currentFace)
+        {
+            lastRoll = currentFace;
+            Debug.Log("Dice stopped! Top face: " + lastRoll);
+            _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
+        }
+    }
+
+    private string GetFaceAccordingToXYZ()
+    {
         if (transform.hasChanged)
         {
             if (  Vector3.Cross(Vector3.up, transform.right).magnitude < 0.5f) //x axis a.b.sin theta <45
@@ -59,46 +82,41 @@ public class DiceRoller : MonoBehaviour
             {
                 if (Vector3.Dot(Vector3.up, transform.right) > 0)
                 {
-                    Debug.Log(FaceRepresent[DirectionValues.x]);
+                    return FaceRepresent[DirectionValues.x];
                 }
                 else
                 {
-                    Debug.Log(FaceRepresent[OpposingDirectionValues.x]);
+                    return FaceRepresent[OpposingDirectionValues.x];
                 }
             }
             else if ( Vector3.Cross(Vector3.up, transform.up).magnitude <0.5f) //y axis
             {
                 if (Vector3.Dot(Vector3.up, transform.up) > 0)
                 {
-                    Debug.Log(FaceRepresent[DirectionValues.y]);
+                    return FaceRepresent[DirectionValues.y];
                 }
                 else
                 {
-                    Debug.Log(FaceRepresent[OpposingDirectionValues.y]);
+                    return FaceRepresent[OpposingDirectionValues.y];
                 }
             }
             else if ( Vector3.Cross(Vector3.up, transform.forward).magnitude <0.5f) //z axis
             {
                 if (Vector3.Dot(Vector3.up, transform.forward) > 0)
                 {
-                    Debug.Log(FaceRepresent[DirectionValues.z]);
+                   return FaceRepresent[DirectionValues.z];
                 }
                 else
                 {
-                    Debug.Log(FaceRepresent[OpposingDirectionValues.z]);
+                    return FaceRepresent[OpposingDirectionValues.z];
                 }
             }
 
 
             transform.hasChanged = false;
         }
-            // Debug.Log($"id {id}, velocity: {diceRigidbody.velocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
-            /*if (diceRigidbody.velocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold)
-            {
-                Debug.Log("Dice stopped! Top face: " + GetTopFace());
-                isBeingThrown = false;
-                // diceRigidbody.useGravity = false;
-            }*/
+
+        return "";
     }
 
     private void ResetDice()
