@@ -30,10 +30,10 @@ public class HollowCube : MonoBehaviour
 
        
         // Create spheres at each corner and set their color
-        foreach (var corner in corners)
+        /*foreach (var corner in corners)
         {
             CreateASphereAt(corner);
-        }
+        }*/
         
         // Create squares (quads) for each face of the cube with custom names and colors
         CreateA3dRectangleAt("SquareFront", corners[0], corners[1], corners[2], corners[3], Color.red, this.gameObject); // Front face
