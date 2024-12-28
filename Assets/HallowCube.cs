@@ -52,7 +52,7 @@ public class HollowCube : MonoBehaviour
     float fixedZ = p1.z;
 
     // Initialize width, height, and fixed depth
-    float width = 0f, height = 0f, depth = 0.8f; // Set depth to 0.8f for all cases
+    float width = 0f, height = 0f, depth = 0.1f; // Set depth to 0.8f for all cases
 
     // Check if x is the fixed coordinate
     if (p1.x == p2.x && p1.x == p3.x && p1.x == p4.x)
