@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System;
 public class DiceRoller : MonoBehaviour
 {
+    public DicesManager DicesManager;
     private int id;
-    private string lastRoll = "";
+    private int lastRoll = 0;
     private Rigidbody diceRigidbody; // Attach your dice Rigidbody
     public float throwForce = 100f;  // Adjustable force for throwing the dice
     public float torqueForce = 50f;  // Adjustable torque for random rotation
@@ -14,8 +15,12 @@ public class DiceRoller : MonoBehaviour
     private Vector3 startPosition;
     public Vector3Int DirectionValues;
     private Vector3Int OpposingDirectionValues;
+    private Vector3 previousPosition;
+    private Quaternion previousRotation;
 
-    readonly List<string> FaceRepresent = new List<string>() {"", "1", "2", "3", "4", "5", "6"};
+   private float timer = 0f;
+    private bool actionTriggered = false;
+     readonly List<int> FaceRepresent = new List<int>() {0, 1, 2, 3, 4, 5, 6};
     private DateTime _lastActionTime;
     private readonly TimeSpan _cooldownPeriod = TimeSpan.FromSeconds(2); // 2-second cooldown
     // List to store currently collided objects
@@ -29,6 +34,9 @@ public class DiceRoller : MonoBehaviour
             Debug.LogError("Assign the Rigidbody of the dice in the inspector.");
         }
         OpposingDirectionValues = 7 * Vector3Int.one - DirectionValues;
+        // Store the initial position and rotation
+        previousPosition = transform.position;
+        previousRotation = transform.rotation;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -39,14 +47,14 @@ public class DiceRoller : MonoBehaviour
         if (!currentCollisions.Contains(collidedObject))
         {
             currentCollisions.Add(collidedObject);
-            Debug.Log($"Started colliding with: {collidedObject.name}");
+            //Debug.Log($"Started colliding with: {collidedObject.name}");
         }
     }
 
     void OnCollisionStay(Collision collision)
     {
         // (Optional) Log ongoing collisions if needed
-        Debug.Log($"Continuing collision with: {collision.gameObject.name}");
+        //Debug.Log($"Continuing collision with: {collision.gameObject.name}");
     }
 
     void OnCollisionExit(Collision collision)
@@ -57,7 +65,7 @@ public class DiceRoller : MonoBehaviour
         if (currentCollisions.Contains(collidedObject))
         {
             currentCollisions.Remove(collidedObject);
-            Debug.Log($"Stopped colliding with: {collidedObject.name}");
+            //Debug.Log($"Stopped colliding with: {collidedObject.name}");
         }
     }
     public bool CanBeThrown(DateTime currentTime)
@@ -109,24 +117,58 @@ public class DiceRoller : MonoBehaviour
 
     void Update()
     {
-        // Debug.Log($"id {id}, velocity: {diceRigidbody.velocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
-        string currentFace = GetFaceAccordingToXYZ();
-        if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold && lastRoll != currentFace)
-        {
+        
+        if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold)
+        {        
+            // Debug.Log($"id {id}, velocity: {diceRigidbody.linearVelocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
+
             if (currentCollisions.Count > 1)
             {
                 ThrowAnyway();
             }
             else
             {
-                lastRoll = currentFace;
-                Debug.Log("Dice stopped! Top face: " + lastRoll);
-                _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
-            }
-        }
+                // Check if position and rotation have remained the same for 1 second
+                if (transform.position == previousPosition && transform.rotation == previousRotation)
+                {
+                    timer += Time.deltaTime; // Accumulate time
+                    // Debug.Log($"id {id} all position is good {timer} {actionTriggered}");
+
+                    if (timer >= 1f && !actionTriggered)
+                    {
+                        // Trigger the action if 1 second has passed
+                        DoDieMovementEndedAction(); 
+                        actionTriggered = true; // Prevent multiple triggers
+                    }
+                }
+                else
+                {
+                    // Reset the timer if position or rotation changes
+                    timer = 0f;
+                    actionTriggered = false;
+                }
+             }
+        }        
+        // Store the initial position and rotation
+        previousPosition = transform.position;
+        previousRotation = transform.rotation;
+    
+    }
+    void DoDieMovementEndedAction()
+    {
+        lastRoll = GetFaceAccordingToXYZ();;                
+        Debug.Log($"Dice stopped! Top face: {lastRoll}") ;
+        _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
+        DicesManager.NotifyResponse(this);
     }
 
-    private string GetFaceAccordingToXYZ()
+    public int LastRoll()
+    {
+        
+        Debug.Assert(lastRoll > 0, "The value must be greater than 0");
+        return lastRoll;
+    }
+    private int GetFaceAccordingToXYZ()
     {
         if (transform.hasChanged)
         {
@@ -169,7 +211,7 @@ public class DiceRoller : MonoBehaviour
             transform.hasChanged = false;
         }
 
-        return "";
+        return 0;
     }
 
     private void ResetDice()

@@ -1,15 +1,22 @@
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
+using System;
+using System.Threading;
 public class DicesManager : MonoBehaviour
 {
     // Create a public array of the custom class
-    private DiceRoller[] dices;
+    public MonopolyGameManager monopolyGameManager;
+    private bool isWaitingForRollResponse=false;
+    private static readonly object lockObject = new object();
+
+    private List<DiceRoller> dices = new List<DiceRoller>();
+    private HashSet<DiceRoller> dicesResponses = new HashSet<DiceRoller>();
     public int dicesTargetNumber=2;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
-        dices = new DiceRoller[dicesTargetNumber];
         // Get the first child that has MyCustomClass attached
         DiceRoller initialDieRoller = GetComponentInChildren<DiceRoller>();
 
@@ -23,21 +30,59 @@ public class DicesManager : MonoBehaviour
             Debug.Log("No child with MyCustomClass found.");
         }
 
-        dices[0] = initialDieRoller;
+        dices.Add(initialDieRoller);
         for (int i = 1; i < dicesTargetNumber; i++)
         {
-            dices[i] = initialDieRoller.GetNewer(i);
+            dices.Add(initialDieRoller.GetNewer(i));
         }
     }
 
+    // Method called by children
+    public void NotifyResponse(DiceRoller diceRoller)
+    {
+        lock (lockObject)
+        {
+            if (dices.Contains(diceRoller))
+                    {
+                        dicesResponses.Add(diceRoller);
+                        Debug.Log($"Received response from: {diceRoller}");
+                        
+                        // Check if all responses are received
+                        if (dicesResponses.SetEquals(dices))
+                        {
+                            AllResponsesReceived();
+                        }
+                    }
+        }
+        
+    }
+
+    private void AllResponsesReceived()
+    {
+        try
+        {
+            if (isWaitingForRollResponse)
+            {
+                // Code that might throw an exception
+                monopolyGameManager.DicesRoll(dicesResponses.Sum(die => die.LastRoll()));
+                isWaitingForRollResponse = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Code that runs if an exception occurs
+            // You can access the exception details through 'ex'
+            Debug.Log($"An error occurred: {ex.Message}");
+        }
+        dicesResponses.Clear();
+        // Perform the next action here
+    }
     public void ThrowDice()
     {
+        isWaitingForRollResponse = true;
         if (dices != null && dices.All(die => die.CanBeThrown())) // Check for null and that all dices can be thrown
         {
-            for (int i = 0; i < dices.Length; i++) // Iterate through all dices
-            {
-                dices[i].ThrowDice(); // Throw each dice
-            }
+            dices.ForEach(die=>die.ThrowDice());
         }
         else
         {

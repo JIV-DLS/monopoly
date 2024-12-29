@@ -139,7 +139,7 @@ public class HollowCube : MonoBehaviour
     boxCollider.material = physMat;
 
 }
-        private static void CreateA3dRectangleAt(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4)
+        private void CreateA3dRectangleAt(Vector3 p1, Vector3 p2, Vector3 p3, Vector3 p4)
 {
     // Determine which coordinate (x, y, or z) is fixed across the four points
     float fixedX = p1.x;
@@ -181,7 +181,10 @@ public class HollowCube : MonoBehaviour
 
     // Create the rectangle (a cube with varying dimensions)
     GameObject rectangle = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    rectangle.transform.SetParent(gameObject.transform);
     rectangle.transform.position = center;
+
+    rectangle.name = "CubeWall";
     Debug.Log("Rectangle Center: " + center);
 
     // Set the color to blue for the rectangle
