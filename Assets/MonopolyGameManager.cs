@@ -44,15 +44,134 @@ public class MonopolyGameManager : MonoBehaviour
         }*/
     }
 
-    public void DicesRoll(int rollResult)
+    public void DicesRoll(int rollResult, bool allEqual)
     {
-        // Get the GameObject by its name
-        GameObject myObject = GameObject.Find("ThrownResultValue");
+        showPlayerDiceResultToPanel(rollResult);
+        showPlayerEqualDicesToPanel(allEqual);
+        Debug.Log($"This is the dices roll result: {rollResult}");
+    }
 
-        if (myObject != null)
+    private void showPlayerEqualDicesToPanel(bool allEqual)
+    {
+        GameObject playerDicesThrownEqualValues = GameObject.Find("ThrownEqualDicesValue");
+
+        if (allEqual && playerDicesThrownEqualValues != null)
         {
             // Get the TextMeshProUGUI component
-            TextMeshProUGUI textComponent = myObject.GetComponent<TextMeshProUGUI>();
+            TextMeshProUGUI textComponent = playerDicesThrownEqualValues.GetComponent<TextMeshProUGUI>();
+
+            if (textComponent != null)
+            {
+                // Set the text of the TextMeshProUGUI component
+                int oldValue = -1;
+                if (int.TryParse(textComponent.text, out oldValue))
+                {
+                    if (oldValue < 3)
+                    {
+                        oldValue++;
+                        textComponent.text = oldValue.ToString();
+                    }
+                    else
+                    {
+                        CurrentPlayerThrownEqualDicesThreeTimes();
+                        textComponent.text = "0";
+                    }
+                }else
+                {
+                    Debug.LogError("Fail to parse text component.");
+                }
+                
+            }
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found on the GameObject.");
+            }
+        }
+        else
+        {
+            Debug.LogError("GameObject not found with the specified name.");
+        }
+    }
+
+    private void CurrentPlayerThrownEqualDicesThreeTimes()
+    {
+        GoToPrison();
+    }
+
+    private void IsYourTour()
+    {
+        CountPrison();
+    }
+    private void GoToPrison()
+    {
+        GameObject prisonValues = GameObject.Find("PrisonValue");
+
+        if (prisonValues != null)
+        {
+            // Get the TextMeshProUGUI component
+            TextMeshProUGUI textComponent = prisonValues.GetComponent<TextMeshProUGUI>();
+
+            if (textComponent != null)
+            {
+                // Set the text of the TextMeshProUGUI component
+                textComponent.text = "3";
+
+            }
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found on the GameObject.");
+            }
+        }
+        else
+        {
+            Debug.LogError("GameObject not found with the specified name.");
+        }
+    }
+    private void CountPrison()
+    {
+        GameObject prisonValues = GameObject.Find("PrisonValue");
+
+        if (prisonValues != null)
+        {
+            // Get the TextMeshProUGUI component
+            TextMeshProUGUI textComponent = prisonValues.GetComponent<TextMeshProUGUI>();
+
+            if (textComponent != null)
+            {
+                // Set the text of the TextMeshProUGUI component
+                int oldValue = -1;
+                if (int.TryParse(textComponent.text, out oldValue))
+                {
+                    if (oldValue > 0)
+                    {
+                        oldValue--;
+                        textComponent.text = oldValue.ToString();
+                    }
+                }else
+                {
+                    Debug.LogError("Fail to parse text component.");
+                }
+                
+            }
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found on the GameObject.");
+            }
+        }
+        else
+        {
+            Debug.LogError("GameObject not found with the specified name.");
+        }
+    }
+    private static void showPlayerDiceResultToPanel(int rollResult)
+    {
+        // Get the GameObject by its name
+        GameObject playerDicesThrownResultValue = GameObject.Find("ThrownResultValue");
+
+        if (playerDicesThrownResultValue != null)
+        {
+            // Get the TextMeshProUGUI component
+            TextMeshProUGUI textComponent = playerDicesThrownResultValue.GetComponent<TextMeshProUGUI>();
 
             if (textComponent != null)
             {
@@ -68,8 +187,8 @@ public class MonopolyGameManager : MonoBehaviour
         {
             Debug.LogError("GameObject not found with the specified name.");
         }
-        Debug.Log($"This is the dices roll result: {rollResult}");
     }
+
     private void RollDice()
     {
         int roll = dice.Roll();
@@ -107,20 +226,25 @@ public class MonopolyGameManager : MonoBehaviour
     }
 }
 
-public class Player
+
+public class Player : MonoBehaviour
 {
-    public string name;
+    [SerializeField] private string playerName; // Exposed to Unity Editor
     public int Position { get; private set; }
 
     public void ResetPosition()
     {
         Position = 0;
+        transform.position = Vector3.zero; // Reset Unity world position
     }
 
     public void MoveToPosition(int newPosition, System.Action onMoveComplete)
     {
         Position = newPosition;
-        // Optionally animate the movement
+        // Optional: Update Unity position here if needed
+        // For example: transform.position = new Vector3(newPosition, transform.position.y, transform.position.z);
+
+        // Call the callback after completing the movement
         onMoveComplete?.Invoke();
     }
 }

@@ -64,7 +64,8 @@ public class DicesManager : MonoBehaviour
             if (isWaitingForRollResponse)
             {
                 // Code that might throw an exception
-                monopolyGameManager.DicesRoll(dicesResponses.Sum(die => die.LastRoll()));
+                monopolyGameManager.DicesRoll(dicesResponses.Sum(die => die.LastRoll()), 
+                    dicesResponses.All(die=>die.LastRoll()==dicesResponses.First().LastRoll()));
                 isWaitingForRollResponse = false;
             }
         }
