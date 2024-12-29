@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-
+using TMPro;
 public class MonopolyGameManager : MonoBehaviour
 {
     public List<Player> players;
@@ -46,7 +46,28 @@ public class MonopolyGameManager : MonoBehaviour
 
     public void DicesRoll(int rollResult)
     {
-        
+        // Get the GameObject by its name
+        GameObject myObject = GameObject.Find("ThrownResultValue");
+
+        if (myObject != null)
+        {
+            // Get the TextMeshProUGUI component
+            TextMeshProUGUI textComponent = myObject.GetComponent<TextMeshProUGUI>();
+
+            if (textComponent != null)
+            {
+                // Set the text of the TextMeshProUGUI component
+                textComponent.text = $"{rollResult}";
+            }
+            else
+            {
+                Debug.LogError("TextMeshProUGUI component not found on the GameObject.");
+            }
+        }
+        else
+        {
+            Debug.LogError("GameObject not found with the specified name.");
+        }
         Debug.Log($"This is the dices roll result: {rollResult}");
     }
     private void RollDice()
