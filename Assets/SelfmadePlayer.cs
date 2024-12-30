@@ -2,30 +2,39 @@ using UnityEngine;
 using System.Collections;
 public class SelfmadePlayer : MonoBehaviour
 {
+    private int Money=0;
+    public PlayerContent playerContent;
     public MonopolyGameManager monopolyGameManager;
     public bool HasPerformedAction { get; private set; } = false;
     
     float timer = 0f;
     private bool HasPlayed = false;
-    private bool isTriggerPlayed = false;
 
     public BoardTile tile { get; private set; }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        playerContent.SetSelfMadePlayer(this);
     }
 
+    public void incrementMoneyWith(int amount)
+    {
+        Money += amount;
+        playerContent.updateMoney(Money);
+    }
     public void MoveTo(BoardTile tile)
     {
         this.tile = tile;
         Debug.Log($"assigning tile {tile.tileGameObject}");
         transform.position = new Vector3(tile.getTransform().position.x,
             transform.position.y, tile.getTransform().position.z);
+        playerContent.UpdateTile(tile);
+
     }
-    public void DicesRoll(int rollResult)
+    public void DicesRoll(int rollResult, bool allEqual)
     {
         HasPerformedAction = true;
+        playerContent.SetDicesRolled(rollResult, allEqual);
     }
     // Update is called once per frame
     void Update()
@@ -36,27 +45,48 @@ public class SelfmadePlayer : MonoBehaviour
     // The method that each player will call during their turn
     public IEnumerator TriggerPlay(float actionTimeout)
     {
-        if (isTriggerPlayed)
-        {
-            yield break;
-        }
-        HasPerformedAction = false;
-        
-        isTriggerPlayed = true;
-        
+        yield return HandlePlayerRollDice(actionTimeout);
+        yield return HandleUserDoAction(actionTimeout);
+    }
+
+    private IEnumerator HandleUserDoAction(float actionTimeout)
+    {
         timer = 0f;
 
-        Debug.Log("TriggerPlay");
+        Debug.Log("Waiting for action");
+        if (tile.CanBeBought() && tile.getPrice()<=Money)
+        {
+            playerContent.EnableBuyAction(tile.getPrice());
+        }else
+        {
+            timer = actionTimeout;
+        }
         // Wait for the player to perform an action or timeout
         while (timer < actionTimeout)
         {
-            // Simulate action input, e.g., pressing a key (space bar for example)
-            if (Input.GetKeyDown(KeyCode.Space)) // You can replace this with actual gameplay input
+
+            timer += Time.deltaTime;
+            
+            yield return null; // Wait until the next frame
+        }
+
+        playerContent.DisableBuyAction();
+    }
+
+    private IEnumerator HandlePlayerRollDice(float actionTimeout)
+    {
+        HasPerformedAction = false;
+        timer = 0f;
+
+        Debug.Log("TriggerPlay");
+        playerContent.EnableRollDiceAction();
+        // Wait for the player to perform an action or timeout
+        while (timer < actionTimeout)
+        {
+            if (HasPerformedAction)
             {
-                yield return StartCoroutine(Play());
                 break;
             }
-
             timer += Time.deltaTime;
             
             yield return null; // Wait until the next frame
@@ -71,6 +101,7 @@ public class SelfmadePlayer : MonoBehaviour
 
     private IEnumerator Play()
     {
+        playerContent.DisableAllActionButtons();
         HasPerformedAction = false;
         Debug.Log("asked for roll dice");
         monopolyGameManager.PlayerRollDice(this);
@@ -80,7 +111,6 @@ public class SelfmadePlayer : MonoBehaviour
             yield return null; 
         }
         HasPerformedAction = false;
-        isTriggerPlayed = false;
     }
 }
 public class Player : MonoBehaviour

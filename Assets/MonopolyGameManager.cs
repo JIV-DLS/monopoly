@@ -29,21 +29,45 @@ public class MonopolyGameManager : MonoBehaviour
     {
         // InitializeGame();
         CreateBoard();
+        MoveAPlayerToATile(localPlayer, board.GetTile(0), false);
         currentPlayer = localPlayer;
         // Start the waiting process
         StartCoroutine(GameLoop());
     }
-    
+
+    public void MoveAPlayerToATile(SelfmadePlayer player, BoardTile tile, bool passHome)
+    {
+        if (tile is StartTile || passHome)
+        {
+            player.incrementMoneyWith(StartTile.GetStartReward());
+            //player.incrementMoneyWith(((StartTile)tile).GetStartReward());
+        }
+        player.MoveTo(tile);
+
+    }
 
     private IEnumerator<Coroutine> GameLoop()
     {
         while (isGameRunning)
         {
-            // Call the player's Play method to start their turn
-            yield return StartCoroutine(currentPlayer.TriggerPlay(actionTimeout));
+            switch (gameState)
+            {
+                case GameState.WaitingForRoll:
+                    
+                    // Call the player's Play method to start their turn
+                    yield return StartCoroutine(currentPlayer.TriggerPlay(actionTimeout));
 
-            // Switch to the next player
-            // currentPlayer = (currentPlayer == player1) ? player2 : player1;
+                    // Switch to the next player
+                    // currentPlayer = (currentPlayer == player1) ? player2 : player1;
+                    break;
+
+                case GameState.MovingPiece:
+                    break;
+
+                case GameState.TurnEnd:
+                    AdvanceToNextPlayer();
+                    break;
+            }
 
             // Optionally add a delay between turns
             yield return null; // 1 second delay before next turn
@@ -237,8 +261,7 @@ public class MonopolyGameManager : MonoBehaviour
     }
     public void DicesRoll(SelfmadePlayer player, int rollResult, bool allEqual)
     {
-        Debug.Log($"Player {player.name} Roll Result: {rollResult} {board} {board.GetTile(0)}");
-        player.DicesRoll(rollResult);
+        player.DicesRoll(rollResult, allEqual);
         BoardTile playerTile = player.tile;
         if (playerTile == null)
         {
@@ -246,12 +269,11 @@ public class MonopolyGameManager : MonoBehaviour
         }
 
         bool passHome = false;
-        player.MoveTo(board.GetTile(board.MoveFromTile(playerTile, rollResult, out passHome)));
+        MoveAPlayerToATile(player, board.GetTile(board.MoveFromTile(playerTile, rollResult, out passHome)), passHome);
         player.tile.OnPlayerLanded(player);
         
         //showPlayerDiceResultToPanel(rollResult);
         //showPlayerEqualDicesToPanel(allEqual);
-        Debug.Log($"This is the dices roll result: {rollResult}");
     }
 
     private void showPlayerEqualDicesToPanel(bool allEqual)
@@ -400,7 +422,6 @@ public class MonopolyGameManager : MonoBehaviour
 
     public void DiceThrownResult(int roll)
     {
-        Debug.Log($"Player {currentPlayerIndex + 1} rolled {roll}");
         //MovePlayer(players[currentPlayerIndex], roll);
     }
 
@@ -417,14 +438,12 @@ public class MonopolyGameManager : MonoBehaviour
 
     private void HandleLanding(Player player, BoardTile tile)
     {
-        Debug.Log($"Player {player.name} landed on {tile}");
         // Implement property buying, paying rent, etc.
     }
 
     private void AdvanceToNextPlayer()
     {
         currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
-        Debug.Log($"Player {currentPlayerIndex + 1}'s turn!");
         gameState = GameState.WaitingForRoll;
     }
 }
@@ -637,7 +656,6 @@ public class Board
                     throw new InvalidOperationException($"Unknown case: {i}"); 
             }
 
-            Debug.Log($"adding {boardTile.tileGameObject} at index {index}");
             tiles[index] = boardTile;
             tileLookup[index] = boardTile;
             indexLookup[boardTile] = index;
@@ -652,7 +670,6 @@ public class Board
     public int GetTileIndex(BoardTile tile)
     {
         int x = indexLookup.TryGetValue(tile, out var index) ? index : -1;
-        Debug.Log($"Tile {tile} is at index {x}");
         return x;
     }
 
@@ -667,7 +684,6 @@ public class Board
 
         // Calculate the new index after the move
         int newIndex = currentIndex + moveCount;
-        Debug.Log($"Moving from {currentIndex} to {newIndex} with {moveCount} moves");
         // Check if modulo is needed to wrap around the board
         moduloApplied = false;
 
@@ -682,7 +698,6 @@ public class Board
             moduloApplied = true;
         }
         
-        Debug.Log($"Final new index {newIndex} {GetTile(newIndex).tileGameObject}");
         return newIndex;
     }
 }
@@ -701,12 +716,19 @@ public class BoardTile
     {
         return tileGameObject.transform;
     }
-    
-    
-    
+
+    public bool CanBeBought()
+    {
+        return false;
+    }
+
+    public virtual int getPrice()
+    {
+        return 0;
+    }
     public void OnPlayerLanded(SelfmadePlayer player)
     {
-        Debug.Log($"Player {player} landed on {TileName}.");
+        // Debug.Log($"Player {player} landed on {TileName}.");
     }
 }
 
@@ -725,7 +747,22 @@ public class PurchasableTile : BoardTile
     private int Price { get; }
     private int MortgageCost { get; }
     private int MortgageFinishedCost { get;  }
-
+    private bool IsMortgaged { get;  }
+    
+    private SelfmadePlayer player;
+    public bool CanBeBought()
+    {
+        if (player != null)
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public override int getPrice()
+    {
+        return Price;
+    }
     protected PurchasableTile(GameObject tileGameObject, string name, int[] costs, int price,
         int mortgageCost, int mortgageFinishedCost)
         : base(tileGameObject, name)
@@ -776,6 +813,9 @@ public class WaterPumpTile : PublicServiceTile
 }
 public class StartTile : CornerTile
 {
+    public static int GetStartReward(){
+        return 200;
+    }
     public StartTile(GameObject tileGameObject)
         : base(tileGameObject, "Depart")
     {
