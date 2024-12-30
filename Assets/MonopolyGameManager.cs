@@ -247,6 +247,8 @@ public class MonopolyGameManager : MonoBehaviour
 
         bool passHome = false;
         player.MoveTo(board.GetTile(board.MoveFromTile(playerTile, rollResult, out passHome)));
+        player.tile.OnPlayerLanded(player);
+        
         //showPlayerDiceResultToPanel(rollResult);
         //showPlayerEqualDicesToPanel(allEqual);
         Debug.Log($"This is the dices roll result: {rollResult}");
@@ -460,8 +462,9 @@ public class Board
     {
         for (int i = 0; i < side.Length; i++)
         {
+            int index = startIndex + i;
             BoardTile boardTile;
-            switch (i)
+            switch (index)
             {
                 case 0:
                     boardTile = new StartTile(side[i]);
@@ -634,7 +637,6 @@ public class Board
                     throw new InvalidOperationException($"Unknown case: {i}"); 
             }
 
-            int index = startIndex + i;
             Debug.Log($"adding {boardTile.tileGameObject} at index {index}");
             tiles[index] = boardTile;
             tileLookup[index] = boardTile;
