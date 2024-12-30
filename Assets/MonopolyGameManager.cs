@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 public class MonopolyGameManager : MonoBehaviour
 {
     public List<SelfmadePlayer> players;
@@ -433,7 +434,7 @@ public class Dice
 {
     public int Roll()
     {
-        return Random.Range(1, 7) + Random.Range(1, 7);
+        return UnityEngine.Random.Range(1, 7) + UnityEngine.Random.Range(1, 7);
     }
 }
 
@@ -460,7 +461,7 @@ public class Board
         for (int i = 0; i < side.Length; i++)
         {
             BoardTile boardTile;
-            switch (side)
+            switch (i)
             {
                 case 0:
                     boardTile = new StartTile(side[i]);
@@ -479,7 +480,7 @@ public class Board
                         50, 50, 60);
                     break;
                 case 4:
-                    boardTile = new TaxTile(side[i], "Impôts sur le revenu");
+                    boardTile = new TaxTile(side[i], "Impôts sur le revenu", 200);
                     break;
                 case 5:
                     boardTile = new RailroadTile(side[i], "Gare Mont-Parnasse");
@@ -621,7 +622,7 @@ public class Board
                     break;
                 case 38:
 
-                    boardTile = new TaxTile("Taxe de Luxe", 100);
+                    boardTile = new TaxTile(side[i], "Taxe de Luxe", 100);
                     break;
                 case 39:
                     
@@ -629,9 +630,10 @@ public class Board
                         new int[] { 50, 100, 200, 600, 1400, 1700, 2000 },
                         200, 200, 400);
                     break;
+                default:
+                    throw new InvalidOperationException($"Unknown case: {i}"); 
             }
 
-            var boardTile = new BoardTile(side[i]);
             int index = startIndex + i;
             Debug.Log($"adding {boardTile.tileGameObject} at index {index}");
             tiles[index] = boardTile;
@@ -698,15 +700,13 @@ public abstract class BoardTile
         return tileGameObject.transform;
     }
     
-    /// <summary>
-    /// Handles player interaction when they land on the tile.
-    /// This is an abstract method that each tile type will implement differently.
-    /// </summary>
-    public abstract void OnPlayerLanded(Player player);
-    // Add fields like property details, card effects, etc.
+    public void OnPlayerLanded(SelfmadePlayer player)
+    {
+        Debug.Log($"Player {player} landed on {TileName}.");
+    }
 }
 
-public class CornerTile : Tile
+public class CornerTile : BoardTile
 {
     
     public CornerTile(GameObject tileGameObject, string tileName)
@@ -718,27 +718,29 @@ public class CornerTile : Tile
     {
     }
 }
-public class PurchasableTile : Tile
+public class PurchasableTile : BoardTile
 {
     private int[] Costs { get; }
-    private int price {get}
-    private int mortgageCost {get}
-    private int mortgageFinishedCost {get}
+    private int Price { get; }
+    private int MortgageCost { get; }
+    private int MortgageFinishedCost { get;  }
 
-    protected PurchasableTile(GameObject tileGameObject, string name, int[] Costs, int price,
+    protected PurchasableTile(GameObject tileGameObject, string name, int[] costs, int price,
         int mortgageCost, int mortgageFinishedCost)
         : base(tileGameObject, name)
     {
-        this.Costs = Costs;
-        this.price = price;
-        this.mortgageCost = mortgageCost;
-        this.mortgageFinishedCost = mortgageFinishedCost;
+        Costs = costs;
+        Price = price;
+        MortgageCost = mortgageCost;
+        MortgageFinishedCost = mortgageFinishedCost;
     }
-    protected PurchasableTile(GameObject tileGameObject, string name, int[] Costs, int price)
-        : base(tileGameObject, name)
+
+    protected PurchasableTile(GameObject tileGameObject, string name, int[] costs, int price)
+        : this(tileGameObject, name, costs, price, price / 2, price / 2 + (int)Math.Round(price / 20.0))
     {
-        int mortgageCost = price / 2;
-        PurchasableTile(Costs, price, mortgageCost, mortgageCost + (int)Math.Round(mortgageCost / 10));
+    }
+    public override void OnPlayerLanded(Player player)
+    {
     }
 }
 public abstract class PublicServiceTile : PurchasableTile
@@ -750,7 +752,7 @@ public abstract class PublicServiceTile : PurchasableTile
         : base(tileGameObject, name, costs, price)
     {
     }
-    public PublicServiceTile(GameObject tileGameObject, string name, int[] costs)
+    public PublicServiceTile(GameObject tileGameObject, string name)
         : base(tileGameObject, name, new int[] { 4, 10 }, 150)
     {
     }
@@ -759,12 +761,12 @@ public abstract class PublicServiceTile : PurchasableTile
     {
         if (Owner == null)
         {
-            Console.WriteLine($"{player.Name} can buy {TileName}.");
+            //Console.WriteLine($"{player.Name} can buy {TileName}.");
         }
         else
         {
             // Implement rent logic for public services
-            Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
+            //Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
             // For example, rent is based on dice rolls or number of houses owned
         }
     }
@@ -782,11 +784,11 @@ public class ElectricityTile : PublicServiceTile
     {
         if (Owner == null)
         {
-            Console.WriteLine($"{player.Name} can buy {TileName}.");
+            ////Console.WriteLine($"{player.Name} can buy {TileName}.");
         }
         else
         {
-            Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
+            ////Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
             // Rent could be based on the dice roll or another player’s ownership of other utilities
         }
     }
@@ -804,11 +806,11 @@ public class WaterPumpTile : PublicServiceTile
     {
         if (Owner == null)
         {
-            Console.WriteLine($"{player.Name} can buy {TileName}.");
+            //Console.WriteLine($"{player.Name} can buy {TileName}.");
         }
         else
         {
-            Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
+            //Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
             // Rent calculation logic similar to electricity
         }
     }
@@ -822,12 +824,12 @@ public class StartTile : CornerTile
 
     public override void OnPlayerLanded(Player player)
     {
-        Console.WriteLine($"{player.Name} passed the start tile and collects $200!");
+        //Console.WriteLine($"{player.Name} passed the start tile and collects $200!");
     }
 }
-public class PrisonOrVisiteTile : CornerTile
+public class PrisonOrVisitTile : CornerTile
 {
-    public StartTile(GameObject tileGameObject)
+    public PrisonOrVisitTile(GameObject tileGameObject)
         : base(tileGameObject, "Simple Visite/En Prison")
     {
     }
@@ -835,7 +837,7 @@ public class PrisonOrVisiteTile : CornerTile
 }
 public class FreeParcTile : CornerTile
 {
-    public StartTile(GameObject tileGameObject)
+    public FreeParcTile(GameObject tileGameObject)
         : base(tileGameObject, "Parc Gratuit")
     {
     }
@@ -843,7 +845,7 @@ public class FreeParcTile : CornerTile
 }
 public class GoInPrisonTile : CornerTile
 {
-    public StartTile(GameObject tileGameObject)
+    public GoInPrisonTile(GameObject tileGameObject)
         : base(tileGameObject, "Allez en prison")
     {
     }
@@ -853,14 +855,13 @@ public class PropertyTile : PurchasableTile
 {
     private int HouseCost { get; }
     private int HotelCost { get; }
-    private string Owner { get; private set; }
+    public string Owner { get; private set; }
 
     public PropertyTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost,
         int price,
         int mortgageCost, int mortgageFinishedCost)
         : base(tileGameObject, name, costs, price, mortgageCost, mortgageFinishedCost)
     {
-        RentCosts = rentCosts;
         HouseCost = houseCost;
         HotelCost = hotelCost;
         Owner = null; // No owner initially
@@ -869,7 +870,6 @@ public class PropertyTile : PurchasableTile
         int price)
         : base(tileGameObject, name, costs, price)
     {
-        RentCosts = rentCosts;
         HouseCost = houseCost;
         HotelCost = hotelCost;
         Owner = null; // No owner initially
@@ -879,11 +879,11 @@ public class PropertyTile : PurchasableTile
     {
         if (Owner == null)
         {
-            Console.WriteLine($"{player.Name} can buy {Name}.");
+            //Console.WriteLine($"{player.Name} can buy {Name}.");
         }
         else
         {
-            Console.WriteLine($"{player.Name} pays rent to {Owner}.");
+            //Console.WriteLine($"{player.Name} pays rent to {Owner}.");
             // Implement rent logic
         }
     }
@@ -904,15 +904,15 @@ public class RailroadTile : PurchasableTile
 
     public override void OnPlayerLanded(Player player)
     {
-        if (Owner == null)
+        /*if (Owner == null)
         {
-            Console.WriteLine($"{player.Name} can buy {Name}.");
+            //Console.WriteLine($"{player.Name} can buy {Name}.");
         }
         else
         {
-            Console.WriteLine($"{player.Name} pays rent to {Owner}.");
+            //Console.WriteLine($"{player.Name} pays rent to {Owner}.");
             // Implement rent logic based on railroads owned
-        }
+        }*/
     }
 }
 
@@ -928,7 +928,7 @@ public class TaxTile : BoardTile
 
     public override void OnPlayerLanded(Player player)
     {
-        Console.WriteLine($"{player.Name} pays a tax of {TaxAmount}.");
+        //Console.WriteLine($"{player.Name} pays a tax of {TaxAmount}.");
         // Deduct tax from player's balance
     }
 }
@@ -942,7 +942,7 @@ public class ChanceTile : BoardTile
 
     public override void OnPlayerLanded(Player player)
     {
-        Console.WriteLine($"{player.Name} lands on Chance. Draw a card!");
+        //Console.WriteLine($"{player.Name} lands on Chance. Draw a card!");
         // Implement Chance card logic (move player, collect money, etc.)
     }
 
@@ -957,7 +957,7 @@ public class CommunityTile : BoardTile
 
     public override void OnPlayerLanded(Player player)
     {
-        Console.WriteLine($"{player.Name} lands on Community. Draw a card!");
+        //Console.WriteLine($"{player.Name} lands on Community. Draw a card!");
         // Implement Community card logic (move player, collect money, etc.)
     }
 
