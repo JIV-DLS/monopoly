@@ -7,7 +7,7 @@ public class DicesManager : MonoBehaviour
 {
     // Create a public array of the custom class
     public MonopolyGameManager monopolyGameManager;
-    private bool isWaitingForRollResponse=false;
+    private SelfmadePlayer playerWaitingForResult;
     private static readonly object lockObject = new object();
 
     private List<DiceRoller> dices = new List<DiceRoller>();
@@ -61,26 +61,29 @@ public class DicesManager : MonoBehaviour
     {
         try
         {
-            if (isWaitingForRollResponse)
+            if (playerWaitingForResult)
             {
                 // Code that might throw an exception
-                monopolyGameManager.DicesRoll(dicesResponses.Sum(die => die.LastRoll()), 
+                Debug.Log($"Calling Dices roll {playerWaitingForResult.gameObject.name} {monopolyGameManager}");
+                monopolyGameManager.DicesRoll(playerWaitingForResult,
+                    dicesResponses.Sum(die => die.LastRoll()), 
                     dicesResponses.All(die=>die.LastRoll()==dicesResponses.First().LastRoll()));
-                isWaitingForRollResponse = false;
+                playerWaitingForResult = null;
             }
         }
         catch (Exception ex)
         {
             // Code that runs if an exception occurs
             // You can access the exception details through 'ex'
-            Debug.Log($"An error occurred: {ex.Message}");
+            Debug.Log($"An error occurred: {ex.Message} {ex.StackTrace}");
         }
         dicesResponses.Clear();
         // Perform the next action here
     }
-    public void ThrowDice()
+    public void ThrowDice(SelfmadePlayer player)
     {
-        isWaitingForRollResponse = true;
+        Debug.Log("thrown");
+        playerWaitingForResult = player;
         if (dices != null && dices.All(die => die.CanBeThrown())) // Check for null and that all dices can be thrown
         {
             dices.ForEach(die=>die.ThrowDice());

@@ -133,11 +133,15 @@ public class DiceRoller : MonoBehaviour
                 {
                     timer += Time.deltaTime; // Accumulate time
                     // Debug.Log($"id {id} all position is good {timer} {actionTriggered}");
-
-                    if (timer >= 1f && !actionTriggered)
+                    int _lastRoll = GetFaceAccordingToXYZ();
+                    if (_lastRoll == 0)
+                    {
+                        ThrowAnyway();
+                    }
+                    else if (timer >= 1f && !actionTriggered)
                     {
                         // Trigger the action if 1 second has passed
-                        DoDieMovementEndedAction(); 
+                        DoDieMovementEndedAction(_lastRoll); 
                         actionTriggered = true; // Prevent multiple triggers
                     }
                 }
@@ -154,9 +158,10 @@ public class DiceRoller : MonoBehaviour
         previousRotation = transform.rotation;
     
     }
-    void DoDieMovementEndedAction()
+    void DoDieMovementEndedAction(int gottenFace)
     {
-        lastRoll = GetFaceAccordingToXYZ();;                
+
+        lastRoll = gottenFace;
         Debug.Log($"Dice stopped! Top face: {lastRoll}") ;
         _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
         DicesManager.NotifyResponse(this);
