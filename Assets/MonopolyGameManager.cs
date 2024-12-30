@@ -497,130 +497,133 @@ public class Board
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
                         50, 50, 100);
                     break;
-                case 8:
+                case 9:
                     boardTile = new PropertyTile(side[i], "Avenue de la Republique",
                         new int[] { 8, 16, 40, 100, 300, 450, 600 },
                         50, 50, 120);
                     break;
-                case 9:
+                case 10:
                     boardTile = new PrisonOrVisitTile(side[i]);
                     break;
-                case 10:
+                case 11:
                     boardTile = new PropertyTile(side[i], "Boulevard de Villette",
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
                         100, 100, 140);
                     break;
-                case 11:
+                case 12:
                     boardTile = new ElectricityTile(side[i]);
                     break;
-                case 12:
+                case 13:
                     boardTile = new PropertyTile(side[i], "Avenue de Neuilly",
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
                         100, 100, 140);
                     break;
-                case 13:
+                case 14:
                     boardTile = new PropertyTile(side[i], "Rue de Paradis",
                         new int[] { 12, 24, 60, 180, 500, 700, 900 },
                         100, 100, 160);
                     break;
-                case 14:
+                case 15:
                     boardTile = new RailroadTile(side[i], "Gare de Lyon");
                     break;
-                case 15:
+                case 16:
                     boardTile = new PropertyTile(side[i], "Avenue Mozart",
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
                         100, 100, 180);
                     break;
-                case 16:
+                case 17:
                     boardTile = new CommunityTile(side[i]);
                     break;
-                case 17:
+                case 18:
                     boardTile = new PropertyTile(side[i], "Boulevard Saint-Michel",
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
                         100, 100, 180);
                     break;
-                case 17:
+                case 19:
                     boardTile = new PropertyTile(side[i], "Place Pigalle",
                         new int[] { 16, 32, 80, 220, 600, 800, 1000 },
                         100, 100, 200);
                     break;
-                case 18:
+                case 20:
                     boardTile = new FreeParcTile(side[i]);
                     break;
-                case 19:
+                case 21:
                     boardTile = new PropertyTile(side[i], "Avenue Matignon",
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
                         150, 150, 220);
                     break;
-                case 20:
+                case 22:
                     boardTile = new ChanceTile(side[i]);
                     break;
-                case 21:
+                case 23:
                     boardTile = new PropertyTile(side[i], "Boulevard Malesherbes",
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
                         150, 150, 220);
                     break;
-                case 22:
+                case 24:
                     boardTile = new PropertyTile(side[i], "Avenue Henri-Martin",
                         new int[] { 20, 40, 100, 300, 750, 925, 1100 },
                         150, 150, 240);
                     break;
-                case 23:
+                case 25:
                     boardTile = new RailroadTile(side[i], "Gare du Nord");
                     break;
-                case 24:
+                case 26:
                     boardTile = new PropertyTile(side[i], "Faubourg Saint-Honoré",
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
                         150, 150, 260);
                     break;
-                case 25:
+                case 27:
                     boardTile = new PropertyTile(side[i], "Place de la Bourse",
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
                         150, 150, 260);
                     break;
-                case 26:
+                case 28:
                     boardTile = new WaterPumpTile(side[i]);
                     break;
-                case 27:
+                case 29:
                     boardTile = new PropertyTile(side[i], "Rue de la Fayette",
                         new int[] { 24, 48, 120, 360, 850, 1025, 1200 },
                         150, 150, 280);
                     break;
-                case 28:
+                case 30:
+                    boardTile = new GoInPrisonTile(side[i]);
+                    break;
+                case 31:
                     boardTile = new PropertyTile(side[i], "Avenue de Breteuil",
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
                         200, 200, 300);
                     break;
-                case 29:
+                case 32:
                     boardTile = new PropertyTile(side[i], "Avenue Foch",
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
                         200, 200, 300);
                     break;
-                case 30:
+                case 33:
                     boardTile = new CommunityTile(side[i]);
                     break;
-                case 31:
+                case 34:
                     boardTile = new PropertyTile(side[i], "Boulvard des Capucines",
                         new int[] { 28, 56, 150, 450, 1000, 1200, 1400 },
                         200, 200, 320);
                     break;
-                case 32:
+                case 35:
                     boardTile = new RailroadTile(side[i], "Gare Saint Lazarre");
                     break;
-                case 33:
+                case 36:
                     boardTile = new ChanceTile(side[i]);
                     break;
-                case 34:
+                case 37:
                     
                     boardTile = new PropertyTile(side[i], "Avenue des Champs-Elysées",
                         new int[] { 35, 70, 175, 500, 1100, 1300, 1500 },
                         200, 200, 350);
                     break;
-                case 35:
+                case 38:
 
                     boardTile = new TaxTile("Taxe de Luxe", 100);
                     break;
-                case 36:
+                case 39:
                     
                     boardTile = new PropertyTile(side[i], "Rue de la Paix",
                         new int[] { 50, 100, 200, 600, 1400, 1700, 2000 },
