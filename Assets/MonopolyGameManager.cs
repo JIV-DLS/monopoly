@@ -685,7 +685,7 @@ public class Board
     }
 }
 
-public abstract class BoardTile
+public class BoardTile
 {
     public string TileName { get; }
     public GameObject tileGameObject { get; private set; }
@@ -699,6 +699,8 @@ public abstract class BoardTile
     {
         return tileGameObject.transform;
     }
+    
+    
     
     public void OnPlayerLanded(SelfmadePlayer player)
     {
@@ -714,9 +716,6 @@ public class CornerTile : BoardTile
     {
     }
     
-    public override void OnPlayerLanded(Player player)
-    {
-    }
 }
 public class PurchasableTile : BoardTile
 {
@@ -739,9 +738,6 @@ public class PurchasableTile : BoardTile
         : this(tileGameObject, name, costs, price, price / 2, price / 2 + (int)Math.Round(price / 20.0))
     {
     }
-    public override void OnPlayerLanded(Player player)
-    {
-    }
 }
 public abstract class PublicServiceTile : PurchasableTile
 {
@@ -757,19 +753,6 @@ public abstract class PublicServiceTile : PurchasableTile
     {
     }
 
-    public override void OnPlayerLanded(Player player)
-    {
-        if (Owner == null)
-        {
-            //Console.WriteLine($"{player.Name} can buy {TileName}.");
-        }
-        else
-        {
-            // Implement rent logic for public services
-            //Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
-            // For example, rent is based on dice rolls or number of houses owned
-        }
-    }
 }
 
 public class ElectricityTile : PublicServiceTile
@@ -779,19 +762,6 @@ public class ElectricityTile : PublicServiceTile
     {
     }
 
-    // Override rent calculation if necessary (e.g., based on dice roll)
-    public override void OnPlayerLanded(Player player)
-    {
-        if (Owner == null)
-        {
-            ////Console.WriteLine($"{player.Name} can buy {TileName}.");
-        }
-        else
-        {
-            ////Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
-            // Rent could be based on the dice roll or another player’s ownership of other utilities
-        }
-    }
 }
 
 public class WaterPumpTile : PublicServiceTile
@@ -801,19 +771,6 @@ public class WaterPumpTile : PublicServiceTile
     {
     }
 
-    // Override rent calculation if necessary
-    public override void OnPlayerLanded(Player player)
-    {
-        if (Owner == null)
-        {
-            //Console.WriteLine($"{player.Name} can buy {TileName}.");
-        }
-        else
-        {
-            //Console.WriteLine($"{player.Name} pays rent to {Owner} for using {TileName}.");
-            // Rent calculation logic similar to electricity
-        }
-    }
 }
 public class StartTile : CornerTile
 {
@@ -822,10 +779,6 @@ public class StartTile : CornerTile
     {
     }
 
-    public override void OnPlayerLanded(Player player)
-    {
-        //Console.WriteLine($"{player.Name} passed the start tile and collects $200!");
-    }
 }
 public class PrisonOrVisitTile : CornerTile
 {
@@ -875,18 +828,6 @@ public class PropertyTile : PurchasableTile
         Owner = null; // No owner initially
     }
 
-    public override void OnPlayerLanded(Player player)
-    {
-        if (Owner == null)
-        {
-            //Console.WriteLine($"{player.Name} can buy {Name}.");
-        }
-        else
-        {
-            //Console.WriteLine($"{player.Name} pays rent to {Owner}.");
-            // Implement rent logic
-        }
-    }
 }
 
 
@@ -902,18 +843,6 @@ public class RailroadTile : PurchasableTile
     {
     }
 
-    public override void OnPlayerLanded(Player player)
-    {
-        /*if (Owner == null)
-        {
-            //Console.WriteLine($"{player.Name} can buy {Name}.");
-        }
-        else
-        {
-            //Console.WriteLine($"{player.Name} pays rent to {Owner}.");
-            // Implement rent logic based on railroads owned
-        }*/
-    }
 }
 
 public class TaxTile : BoardTile
@@ -926,11 +855,6 @@ public class TaxTile : BoardTile
         TaxAmount = taxAmount;
     }
 
-    public override void OnPlayerLanded(Player player)
-    {
-        //Console.WriteLine($"{player.Name} pays a tax of {TaxAmount}.");
-        // Deduct tax from player's balance
-    }
 }
 
 public class ChanceTile : BoardTile
@@ -940,11 +864,6 @@ public class ChanceTile : BoardTile
     {
     }
 
-    public override void OnPlayerLanded(Player player)
-    {
-        //Console.WriteLine($"{player.Name} lands on Chance. Draw a card!");
-        // Implement Chance card logic (move player, collect money, etc.)
-    }
 
 }
 
@@ -953,12 +872,6 @@ public class CommunityTile : BoardTile
     public CommunityTile(GameObject tileGameObject)
         : base(tileGameObject, "Community")
     {
-    }
-
-    public override void OnPlayerLanded(Player player)
-    {
-        //Console.WriteLine($"{player.Name} lands on Community. Draw a card!");
-        // Implement Community card logic (move player, collect money, etc.)
     }
 
 }
