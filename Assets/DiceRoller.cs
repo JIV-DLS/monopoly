@@ -162,7 +162,7 @@ public class DiceRoller : MonoBehaviour
     {
 
         lastRoll = gottenFace;
-        Debug.Log($"Dice stopped! Top face: {lastRoll}") ;
+        // Debug.Log($"Dice stopped! Top face: {lastRoll}") ;
         _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
         DicesManager.NotifyResponse(this);
     }

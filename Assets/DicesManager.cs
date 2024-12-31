@@ -45,7 +45,7 @@ public class DicesManager : MonoBehaviour
             if (dices.Contains(diceRoller))
                     {
                         dicesResponses.Add(diceRoller);
-                        Debug.Log($"Received response from: {diceRoller}");
+                        // Debug.Log($"Received response from: {diceRoller}");
                         
                         // Check if all responses are received
                         if (dicesResponses.SetEquals(dices))
@@ -82,7 +82,7 @@ public class DicesManager : MonoBehaviour
     }
     public void ThrowDice(SelfmadePlayer player)
     {
-        Debug.Log("thrown");
+        //Debug.Log("thrown");
         playerWaitingForResult = player;
         if (dices != null && dices.All(die => die.CanBeThrown())) // Check for null and that all dices can be thrown
         {

@@ -84,7 +84,7 @@ public class HollowCube : MonoBehaviour
     // Create the rectangle (a cube with varying dimensions)
     GameObject rectangle = GameObject.CreatePrimitive(PrimitiveType.Cube);
     rectangle.transform.position = center;
-    Debug.Log($"Rectangle Center ({planeName}): " + center);
+    // Debug.Log($"Rectangle Center ({planeName}): " + center);
 
     // Set the scale based on the calculated width, height, and fixed depth
     rectangle.transform.localScale = new Vector3(width, height, depth);
@@ -185,7 +185,7 @@ public class HollowCube : MonoBehaviour
     rectangle.transform.position = center;
 
     rectangle.name = "CubeWall";
-    Debug.Log("Rectangle Center: " + center);
+    // Debug.Log("Rectangle Center: " + center);
 
     // Set the color to blue for the rectangle
     Renderer rectangleRenderer = rectangle.GetComponent<Renderer>();

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 public class SelfmadePlayer : MonoBehaviour
 {
+    private bool askedPlayFromButton = false;
     private int Money=0;
     public PlayerContent playerContent;
     public MonopolyGameManager monopolyGameManager;
@@ -22,10 +23,15 @@ public class SelfmadePlayer : MonoBehaviour
         Money += amount;
         playerContent.updateMoney(Money);
     }
+    public void decrementMoneyWith(int amount)
+    {
+        Money -= amount;
+        playerContent.updateMoney(Money);
+    }
     public void MoveTo(BoardTile tile)
     {
         this.tile = tile;
-        Debug.Log($"assigning tile {tile.tileGameObject}");
+        // Debug.Log($"assigning tile {tile.tileGameObject}");
         transform.position = new Vector3(tile.getTransform().position.x,
             transform.position.y, tile.getTransform().position.z);
         playerContent.UpdateTile(tile);
@@ -53,7 +59,6 @@ public class SelfmadePlayer : MonoBehaviour
     {
         timer = 0f;
 
-        Debug.Log("Waiting for action");
         if (tile.CanBeBought() && tile.getPrice()<=Money)
         {
             playerContent.EnableBuyAction(tile.getPrice());
@@ -78,13 +83,16 @@ public class SelfmadePlayer : MonoBehaviour
         HasPerformedAction = false;
         timer = 0f;
 
-        Debug.Log("TriggerPlay");
         playerContent.EnableRollDiceAction();
         // Wait for the player to perform an action or timeout
         while (timer < actionTimeout)
         {
-            if (HasPerformedAction)
+            if (HasPerformedAction || askedPlayFromButton)
             {
+                if (askedPlayFromButton)
+                {
+                    askedPlayFromButton = false;
+                }
                 break;
             }
             timer += Time.deltaTime;
@@ -97,15 +105,18 @@ public class SelfmadePlayer : MonoBehaviour
         {
             yield return StartCoroutine(Play());
         }
+
     }
 
+    public void AskPlayFromButton()
+    {
+        askedPlayFromButton = true;
+    }
     private IEnumerator Play()
     {
         playerContent.DisableAllActionButtons();
         HasPerformedAction = false;
-        Debug.Log("asked for roll dice");
         monopolyGameManager.PlayerRollDice(this);
-        Debug.Log("after asked for roll dice");
         while (!HasPerformedAction)
         {
             yield return null; 

@@ -5,8 +5,13 @@ public class BaseTextHandler : MonoBehaviour
 {
     protected TextMeshProUGUI textComponent;
 
+    public void Enable()
+    {
+        gameObject.SetActive(true);
+    }
     protected virtual void Awake()
     {
+        
         // Get the Text component
         textComponent = GetComponent<TextMeshProUGUI>();
 

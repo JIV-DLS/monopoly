@@ -39,6 +39,7 @@ public class PlayerContent : MonoBehaviour
     {
         this.selfmadePlayer = selfmadePlayer;
         thrownEqualDicesValue.SetSelfMadePlayer(selfmadePlayer);
+        throwDices.SetSelfMadePlayer(selfmadePlayer);
     }
     private SelfmadePlayer selfmadePlayer;
     public void SetDicesRolled(int rollResult, bool allEqual)

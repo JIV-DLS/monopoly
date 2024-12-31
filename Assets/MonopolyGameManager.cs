@@ -4,6 +4,7 @@ using TMPro;
 using System;
 public class MonopolyGameManager : MonoBehaviour
 {
+    private GameEventsScrolls gameEventsScrolls;
     public List<SelfmadePlayer> players;
     public SelfmadePlayer localPlayer;
     private SelfmadePlayer currentPlayer; // The player whose turn it is
@@ -29,6 +30,7 @@ public class MonopolyGameManager : MonoBehaviour
     {
         // InitializeGame();
         CreateBoard();
+        gameEventsScrolls = GetComponentInChildren<GameEventsScrolls>();
         MoveAPlayerToATile(localPlayer, board.GetTile(0), false);
         currentPlayer = localPlayer;
         // Start the waiting process
@@ -42,7 +44,14 @@ public class MonopolyGameManager : MonoBehaviour
             player.incrementMoneyWith(StartTile.GetStartReward());
             //player.incrementMoneyWith(((StartTile)tile).GetStartReward());
         }
+
+        if (tile is TaxTile)
+        {
+            player.decrementMoneyWith(((TaxTile)tile).TaxAmount);
+        }
         player.MoveTo(tile);
+        
+        gameEventsScrolls.AddTextItem($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
 
     }
 
@@ -50,10 +59,11 @@ public class MonopolyGameManager : MonoBehaviour
     {
         while (isGameRunning)
         {
+            Debug.Log($"Game Loop {gameState}");
             switch (gameState)
             {
                 case GameState.WaitingForRoll:
-                    
+                    gameEventsScrolls.AddTextItem($"En attente du joueur {currentPlayer}");
                     // Call the player's Play method to start their turn
                     yield return StartCoroutine(currentPlayer.TriggerPlay(actionTimeout));
 
@@ -717,7 +727,7 @@ public class BoardTile
         return tileGameObject.transform;
     }
 
-    public bool CanBeBought()
+    public virtual bool CanBeBought()
     {
         return false;
     }
@@ -750,7 +760,7 @@ public class PurchasableTile : BoardTile
     private bool IsMortgaged { get;  }
     
     private SelfmadePlayer player;
-    public bool CanBeBought()
+    public override bool CanBeBought()
     {
         if (player != null)
         {
