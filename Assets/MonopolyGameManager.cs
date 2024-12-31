@@ -51,7 +51,7 @@ public class MonopolyGameManager : MonoBehaviour
         }
         player.MoveTo(tile);
         
-        gameEventsScrolls.AddTextItem($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
+        gameEventsScrolls.AddTextItem($"Le joueur s'est déplacé à {tile.TileName}");
 
     }
 
