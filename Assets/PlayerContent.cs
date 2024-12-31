@@ -50,7 +50,7 @@ public class PlayerContent : MonoBehaviour
             thrownEqualDicesValue.Happened();
         }
     }
-    private PlayerContentCardsScroll CardScroll;
+    private PlayerCardsScrolls CardScroll;
     private SoldValue MoneyValue;
     private PrisonValue prisonValue;
     private ThrowResultValue throwResultValue;
@@ -61,7 +61,7 @@ public class PlayerContent : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        CardScroll = GetComponentInChildren<PlayerContentCardsScroll>();
+        CardScroll = GetComponentInChildren<PlayerCardsScrolls>();
         MoneyValue = GetComponentInChildren<SoldValue>();
         prisonValue = GetComponentInChildren<PrisonValue>();
         throwResultValue = GetComponentInChildren<ThrowResultValue>();

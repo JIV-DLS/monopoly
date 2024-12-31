@@ -1,6 +1,6 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
-public class MainMenu : MonoBehaviour
+
+public class PlayerCardsScrolls : ScrollManager
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -12,10 +12,5 @@ public class MainMenu : MonoBehaviour
     void Update()
     {
         
-    }
-
-    public void PlayGame()
-    {
-        SceneManager.LoadSceneAsync("MonopolyMainScene");
     }
 }
