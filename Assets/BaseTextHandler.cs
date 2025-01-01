@@ -38,6 +38,10 @@ public class BaseTextHandler : MonoBehaviour
     {
         if (textComponent != null)
         {
+            if (textComponent.text.Length > 1)
+            {
+                additionalText = "\n\n" + additionalText;
+            }
             string combinedText = textComponent.text + additionalText;
             textComponent.text = TruncateToMaxLines(combinedText);
         }

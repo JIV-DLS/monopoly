@@ -17,6 +17,6 @@ public class ScrollManager : MonoBehaviour
 
     public void AddTextItem(string textContent)
     {
-        text.AppendText($"\n{textContent}");
+        text.AppendText(textContent);
     }
 }
