@@ -255,9 +255,8 @@ public class DiceRoller : MonoBehaviour
 
         return faceIndex;
     }
-    public DiceRoller GetNewer(int index=1)
+    public DiceRoller GetNewer(int index = 1)
     {
-
         // Clone the GameObject associated with the element
         GameObject original = gameObject;
         GameObject clone = Instantiate(original, original.transform.parent);
@@ -265,6 +264,14 @@ public class DiceRoller : MonoBehaviour
         // Optionally modify the clone (e.g., rename it or change its properties)
         clone.name = original.name + index.ToString();
 
+        // Get the stride value from the original object's scale
+        float stride = original.transform.localScale.x; // Assuming the cube's size is the same for x, y, and z
+
+        // Set the new position to avoid collision
+        Vector3 newPosition = original.transform.position + new Vector3(index * stride, 0, 0);
+        clone.transform.position = newPosition;
+
+        // Get the cloned component
         DiceRoller clonedComponent = clone.GetComponent<DiceRoller>();
         return clonedComponent;
     }

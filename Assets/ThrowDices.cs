@@ -11,7 +11,7 @@ public class ThrowDices : ButtonHandlerWithMonopolyPlayer
     // Method called when the button is clicked
     protected override void OnButtonClick()
     {
-        SelfMadePlayer.AskPlayFromButton();
+        MonopolyPlayer.AskPlayFromButton();
     }
     // Update is called once per frame
     void Update()

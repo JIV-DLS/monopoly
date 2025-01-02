@@ -41,32 +41,30 @@ public class MonopolyGameManager : MonoBehaviour
         {
             Debug.Log("Game events scrolls is not null");
         }*/
-        _playersHorizontalView  = FindObjectsByType<PlayersHorizontalView>(FindObjectsSortMode.InstanceID)[0];
+        _playersHorizontalView  = GetComponentInChildren<PlayersHorizontalView>();
         
         if (_playersHorizontalView == null)
         {
-            Debug.Log($"No PlayersHorizontalView {_playersHorizontalView}");
+            Debug.LogError($"No PlayersHorizontalView {_playersHorizontalView}");
         }
-        else
-        {
-            Debug.Log("PlayersHorizontalView is not null");
-        }
-        _playerPieceOnBoardBuilder  = FindObjectsByType<PlayerPieceOnBoardBuilder>(FindObjectsSortMode.InstanceID)[0];
+        
+        _playerPieceOnBoardBuilder  = GetComponentInChildren<PlayerPieceOnBoardBuilder>();
         if (_playerPieceOnBoardBuilder == null)
         {
-            Debug.Log("No PlayerPieceOnBoardBuilder");
+            Debug.LogError("No PlayerPieceOnBoardBuilder");
         }
-        else
-        {
-            Debug.Log("PlayerPieceOnBoardBuilder is not null");
-        }
+        
 
-        localPlayer = new MonopolyPlayer("Toi",_playersHorizontalView.CreateNewChildAtEnd(), _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.TopHat, transform) );
+        localPlayer = new MonopolyPlayer("Toi",_playersHorizontalView.CreateNewChildAtEnd(),
+            _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.TopHat, transform),
+            GetComponentInChildren<ThrowDices>(),
+            this
+            );
 
         MoveAPlayerToATile(localPlayer, board.GetTile(0), false);
         currentPlayer = localPlayer;
         // Start the waiting process
-        // StartCoroutine(GameLoop());
+        StartCoroutine(GameLoop());
     }
 
     private void Start()

@@ -4,21 +4,26 @@ using System.Collections;
 
 public class MonopolyPlayer
 {
-    public MonopolyPlayer(string playerName, PlayerSummaryButton playerSummaryButton, PlayerElementOnMap playerElementOnMap)
+    public MonopolyPlayer(string playerName, PlayerSummaryButton playerSummaryButton,
+        PlayerElementOnMap playerElementOnMap, ThrowDices throwDices,
+        MonopolyGameManager monopolyGameManager)
     {
         
         name = playerName;
         _playerSummaryButton = playerSummaryButton;
         _playerSummaryButton.setPlayer(this);
         _playerElementOnMap = playerElementOnMap;
+        _throwDices = throwDices;
+        _monopolyGameManager = monopolyGameManager;
     }
     
+    private ThrowDices _throwDices;
     public string name{get; private set;}
     private PlayerSummaryButton _playerSummaryButton;
     private PlayerElementOnMap _playerElementOnMap;
     public int money { get; private set; } = 0;
     public PlayerContent PlayerContent;
-    public MonopolyGameManager MonopolyGameManager;
+    private MonopolyGameManager _monopolyGameManager;
     private bool _askedPlayFromButton = false;
     public bool hasPerformedAction { get; private set; } = false;
 
@@ -66,7 +71,7 @@ public class MonopolyPlayer
     public IEnumerator TriggerPlay(float actionTimeout)
     {
         yield return HandlePlayerRollDice(actionTimeout);
-        yield return HandleUserDoAction(actionTimeout);
+        // yield return HandleUserDoAction(actionTimeout);
     }
 
     private IEnumerator HandleUserDoAction(float actionTimeout)
@@ -97,7 +102,7 @@ public class MonopolyPlayer
         hasPerformedAction = false;
         _timer = 0f;
 
-        PlayerContent.EnableRollDiceAction();
+        EnableRollDiceAction();
         // Wait for the player to perform an action or timeout
         while (_timer < actionTimeout)
         {
@@ -122,20 +127,30 @@ public class MonopolyPlayer
 
     }
 
+
     public void AskPlayFromButton()
     {
         _askedPlayFromButton = true;
     }
     private IEnumerator Play()
     {
-        PlayerContent.DisableAllActionButtons();
+        DisableAllActionButtons();
         hasPerformedAction = false;
-        MonopolyGameManager.PlayerRollDice(this);
+        _monopolyGameManager.PlayerRollDice(this);
         while (!hasPerformedAction)
         {
             yield return null; 
         }
         hasPerformedAction = false;
+    }
+
+    private void DisableAllActionButtons()
+    {
+        _throwDices.SetButtonInteractable(false);
+    }
+    private void EnableRollDiceAction()
+    {
+        _throwDices.SetButtonInteractable(true);
     }
 }
 

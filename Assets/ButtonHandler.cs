@@ -28,7 +28,7 @@ public class ButtonHandler : MonoBehaviour
 
         if (buttonText == null)
         {
-            Debug.LogError("Text component not found as a child of the Button!");
+            Debug.LogWarning("Text component not found as a child of the Button!");
         }
 
         // Add a listener to handle button clicks
@@ -77,10 +77,10 @@ public class ButtonHandler : MonoBehaviour
 public class ButtonHandlerWithMonopolyPlayer : ButtonHandler
 {
     
-    protected MonopolyPlayer SelfMadePlayer;
+    protected MonopolyPlayer MonopolyPlayer;
 
     public void SetSelfMadePlayer(MonopolyPlayer selfMadePlayer)
     {
-        SelfMadePlayer = selfMadePlayer;
+        MonopolyPlayer = selfMadePlayer;
     }
 }
