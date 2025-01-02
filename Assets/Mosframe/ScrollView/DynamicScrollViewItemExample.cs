@@ -22,9 +22,17 @@ namespace Mosframe {
 	    public Image background;
 
         public void onUpdateItem( int index ) {
-
+	        if (title != null)
+	        {
+		        
 		    this.title.text         = string.Format("Name{0:d3}", (index + 1) );
-		    this.background.color   = this.colors[Mathf.Abs(index) % this.colors.Length];
+	        }
+
+	        if (background != null)
+	        {
+		        
+		        this.background.color   = this.colors[Mathf.Abs(index) % this.colors.Length];
+	        }
         }
     }
 }

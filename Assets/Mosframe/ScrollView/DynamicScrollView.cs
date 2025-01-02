@@ -34,6 +34,7 @@
             var pos = itemLen * itemIndex;
             this.contentAnchoredPosition = -pos;
         }
+
         public void refresh () {
 
             var index = 0;
@@ -89,17 +90,9 @@
 
             var itemCount = (int)(this.viewportSize / this.itemSize) + 3;
 
-		    for( var i = 0; i < itemCount; ++i ) {
-
-			    var itemRect = Instantiate( this.itemPrototype );
-			    itemRect.SetParent( this.contentRect, false );
-			    itemRect.name = i.ToString();
-			    itemRect.anchoredPosition = this.direction == Direction.Vertical ? new Vector2(0, -this.itemSize * i) : new Vector2( this.itemSize * i, 0);
-                this.containers.AddLast( itemRect );
-
-			    itemRect.gameObject.SetActive( true );
-
-				this.updateItem( i, itemRect.gameObject );
+		    for( var i = 0; i < itemCount; ++i )
+		    {
+			    AddItemAt(i);
 		    }
 
 
@@ -108,8 +101,42 @@
 			this.resizeContent();
         }
 
+        public RectTransform AddNewItem()
+        {
+	        int newTarget = totalItemCount++;
+	        this.prevTotalItemCount = totalItemCount;
+	        return AddItemAt(newTarget, true);
+        }
 
-	    private void Update () {
+        private RectTransform AddItemAt(int i)
+        {
+	        return AddItemAt(i, false);
+        }
+        private RectTransform AddItemAt(int i, bool skip)
+        {
+	        if (indexToSkip.Contains(i))
+	        {
+		        return null;
+	        }
+	        // Debug.Log($"AddItemAt {i}...");
+	        var itemRect = Instantiate( this.itemPrototype );
+	        itemRect.SetParent( this.contentRect, false );
+	        itemRect.name = i.ToString();
+	        itemRect.anchoredPosition = this.direction == Direction.Vertical ? new Vector2(0, -this.itemSize * i) : new Vector2( this.itemSize * i, 0);
+	        this.containers.AddLast( itemRect );
+
+	        itemRect.gameObject.SetActive( true );
+
+	        this.updateItem( i, itemRect.gameObject );
+	        if (skip)
+	        {
+		        indexToSkip.Add(i);
+	        }
+	        return itemRect;
+        }
+
+
+        private void Update () {
 
             if( this.totalItemCount != this.prevTotalItemCount ) {
 
@@ -368,7 +395,8 @@
         protected ScrollRect                    scrollRect              = null;
         protected RectTransform                 viewportRect            = null;
         protected RectTransform                 contentRect             = null;
-
+		// Create a HashSet of integers
+        HashSet<int> indexToSkip = new HashSet<int>();
 
 
 

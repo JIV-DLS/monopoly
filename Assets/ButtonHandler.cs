@@ -53,7 +53,7 @@ public class ButtonHandler : MonoBehaviour
     // Example method to toggle the button's interactable property
     public void SetButtonInteractable(bool isInteractable)
     {
-        if (button != null)
+        if (!ReferenceEquals(button, null))
         {
             button.interactable = isInteractable;
         }
@@ -62,25 +62,25 @@ public class ButtonHandler : MonoBehaviour
     // Method to set the button's text
     public void SetButtonText(string text)
     {
-        if (buttonText != null)
+        if (!ReferenceEquals(buttonText, null))
         {
             buttonText.text = text;
         }
         else
         {
-            Debug.LogWarning("Button text component is not assigned!");
+            // Debug.LogWarning("Button text component is not assigned!");
         }
     }
 }
 
 
-public class ButtonHandlerWithSelfMadePlayer : ButtonHandler
+public class ButtonHandlerWithMonopolyPlayer : ButtonHandler
 {
     
-    protected SelfmadePlayer selfmadePlayer;
+    protected MonopolyPlayer SelfMadePlayer;
 
-    public void SetSelfMadePlayer(SelfmadePlayer selfmadePlayer)
+    public void SetSelfMadePlayer(MonopolyPlayer selfMadePlayer)
     {
-        this.selfmadePlayer = selfmadePlayer;
+        SelfMadePlayer = selfMadePlayer;
     }
 }

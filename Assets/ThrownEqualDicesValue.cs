@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ThrownEqualDicesValue : BaseTextHandlerWithSelfMadePlayer
+public class ThrownEqualDicesValue : BaseTextHandlerWithMonopolyPlayer
 {
     private int numberOfEqualThrown = 0;
     public void Happened()

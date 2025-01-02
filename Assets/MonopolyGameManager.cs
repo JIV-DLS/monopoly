@@ -5,9 +5,11 @@ using System;
 public class MonopolyGameManager : MonoBehaviour
 {
     private GameEventsScrolls gameEventsScrolls;
-    public List<SelfmadePlayer> players;
-    public SelfmadePlayer localPlayer;
-    private SelfmadePlayer currentPlayer; // The player whose turn it is
+    private PlayersHorizontalView _playersHorizontalView;
+    private PlayerPieceOnBoardBuilder _playerPieceOnBoardBuilder;
+    // public List<SelfmadePlayer> players;
+    private MonopolyPlayer localPlayer;
+    private MonopolyPlayer currentPlayer; // The player whose turn it is
 
     private Board board;
     public Dice dice;
@@ -25,33 +27,66 @@ public class MonopolyGameManager : MonoBehaviour
     private float actionTimeout = 5f; // Wait time of 5 seconds
     private bool isGameRunning = true;
 
-
-    private void Start()
+    private void Awake()
     {
+        
         // InitializeGame();
         CreateBoard();
-        gameEventsScrolls = GetComponentInChildren<GameEventsScrolls>();
+        //gameEventsScrolls = GetComponentInChildren<GameEventsScrolls>();
+        /*if (gameEventsScrolls == null)
+        {
+            Debug.LogError("Game events scrolls cannot be null");
+        }
+        else
+        {
+            Debug.Log("Game events scrolls is not null");
+        }*/
+        _playersHorizontalView  = FindObjectsByType<PlayersHorizontalView>(FindObjectsSortMode.InstanceID)[0];
+        
+        if (_playersHorizontalView == null)
+        {
+            Debug.Log($"No PlayersHorizontalView {_playersHorizontalView}");
+        }
+        else
+        {
+            Debug.Log("PlayersHorizontalView is not null");
+        }
+        _playerPieceOnBoardBuilder  = FindObjectsByType<PlayerPieceOnBoardBuilder>(FindObjectsSortMode.InstanceID)[0];
+        if (_playerPieceOnBoardBuilder == null)
+        {
+            Debug.Log("No PlayerPieceOnBoardBuilder");
+        }
+        else
+        {
+            Debug.Log("PlayerPieceOnBoardBuilder is not null");
+        }
+
+        localPlayer = new MonopolyPlayer("Toi",_playersHorizontalView.CreateNewChildAtEnd(), _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.TopHat, transform) );
+
         MoveAPlayerToATile(localPlayer, board.GetTile(0), false);
         currentPlayer = localPlayer;
         // Start the waiting process
-        StartCoroutine(GameLoop());
+        // StartCoroutine(GameLoop());
     }
 
-    public void MoveAPlayerToATile(SelfmadePlayer player, BoardTile tile, bool passHome)
+    private void Start()
+    {
+    }
+
+    public void MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool passHome)
     {
         if (tile is StartTile || passHome)
         {
-            player.incrementMoneyWith(StartTile.GetStartReward());
-            //player.incrementMoneyWith(((StartTile)tile).GetStartReward());
+            player.IncrementMoneyWith(StartTile.GetStartReward());
         }
 
         if (tile is TaxTile)
         {
-            player.decrementMoneyWith(((TaxTile)tile).TaxAmount);
+            player.DecrementMoneyWith(((TaxTile)tile).TaxAmount);
         }
         player.MoveTo(tile);
         
-        gameEventsScrolls.AddTextItem($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
+        // gameEventsScrolls.AddTextItem($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
 
     }
 
@@ -63,7 +98,7 @@ public class MonopolyGameManager : MonoBehaviour
             switch (gameState)
             {
                 case GameState.WaitingForRoll:
-                    gameEventsScrolls.AddTextItem($"En attente du joueur {currentPlayer}");
+                    // gameEventsScrolls.AddTextItem($"En attente du joueur {currentPlayer}");
                     // Call the player's Play method to start their turn
                     yield return StartCoroutine(currentPlayer.TriggerPlay(actionTimeout));
 
@@ -265,11 +300,11 @@ public class MonopolyGameManager : MonoBehaviour
         }*/
     }
 
-    public void PlayerRollDice(SelfmadePlayer player)
+    public void PlayerRollDice(MonopolyPlayer player)
     {
         dicesManager.ThrowDice(player);
     }
-    public void DicesRoll(SelfmadePlayer player, int rollResult, bool allEqual)
+    public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
     {
         player.DicesRoll(rollResult, allEqual);
         BoardTile playerTile = player.tile;
@@ -453,7 +488,7 @@ public class MonopolyGameManager : MonoBehaviour
 
     private void AdvanceToNextPlayer()
     {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
+        // currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
         gameState = GameState.WaitingForRoll;
     }
 }
@@ -736,7 +771,7 @@ public class BoardTile
     {
         return 0;
     }
-    public void OnPlayerLanded(SelfmadePlayer player)
+    public void OnPlayerLanded(MonopolyPlayer player)
     {
         // Debug.Log($"Player {player} landed on {TileName}.");
     }
@@ -759,7 +794,7 @@ public class PurchasableTile : BoardTile
     private int MortgageFinishedCost { get;  }
     private bool IsMortgaged { get;  }
     
-    private SelfmadePlayer player;
+    private MonopolyPlayer player;
     public override bool CanBeBought()
     {
         if (player != null)

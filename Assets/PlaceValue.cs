@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlaceValue : BaseTextHandlerWithSelfMadePlayer
+public class PlaceValue : BaseTextHandlerWithMonopolyPlayer
 {
     public void setTile(BoardTile tile)
     {

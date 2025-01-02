@@ -35,13 +35,13 @@ public class PlayerContent : MonoBehaviour
     {
         throwDices.SetButtonInteractable(false);
     }
-    public void SetSelfMadePlayer(SelfmadePlayer selfmadePlayer)
+    public void SetSelfMadePlayer(MonopolyPlayer selfMadePlayer)
     {
-        this.selfmadePlayer = selfmadePlayer;
-        thrownEqualDicesValue.SetSelfMadePlayer(selfmadePlayer);
-        throwDices.SetSelfMadePlayer(selfmadePlayer);
+        this._selfMadePlayer = selfMadePlayer;
+        thrownEqualDicesValue.SetSelfMadePlayer(selfMadePlayer);
+        throwDices.SetSelfMadePlayer(selfMadePlayer);
     }
-    private SelfmadePlayer selfmadePlayer;
+    private MonopolyPlayer _selfMadePlayer;
     public void SetDicesRolled(int rollResult, bool allEqual)
     {
         throwResultValue.SetText(rollResult.ToString());

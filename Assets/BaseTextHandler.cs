@@ -89,7 +89,7 @@ public class BaseTextHandler : MonoBehaviour
     }
     private string TruncateToMaxLines(string text)
     {
-        if (maxLines < 1 || textComponent == null)
+        if (maxLines < 1 )//|| textComponent == null
         {
             // No limit on lines
             return text;
@@ -99,7 +99,7 @@ public class BaseTextHandler : MonoBehaviour
         textComponent.text = text;
 
         // Force update to get accurate text info
-        textComponent.ForceMeshUpdate();
+        // textComponent.ForceMeshUpdate();
         int lineCount = textComponent.textInfo.lineCount;
 
         if (lineCount <= maxLines)
@@ -119,13 +119,13 @@ public class BaseTextHandler : MonoBehaviour
     }
 }
 
-public class BaseTextHandlerWithSelfMadePlayer : BaseTextHandler
+public class BaseTextHandlerWithMonopolyPlayer : BaseTextHandler
 {
     
-    protected SelfmadePlayer selfmadePlayer;
+    protected MonopolyPlayer SelfMadePlayer;
 
-    public void SetSelfMadePlayer(SelfmadePlayer selfmadePlayer)
+    public void SetSelfMadePlayer(MonopolyPlayer selfMadePlayer)
     {
-        this.selfmadePlayer = selfmadePlayer;
+        SelfMadePlayer = selfMadePlayer;
     }
 }

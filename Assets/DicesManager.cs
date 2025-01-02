@@ -7,7 +7,7 @@ public class DicesManager : MonoBehaviour
 {
     // Create a public array of the custom class
     public MonopolyGameManager monopolyGameManager;
-    private SelfmadePlayer playerWaitingForResult;
+    private MonopolyPlayer playerWaitingForResult;
     private static readonly object lockObject = new object();
 
     private List<DiceRoller> dices = new List<DiceRoller>();
@@ -61,10 +61,9 @@ public class DicesManager : MonoBehaviour
     {
         try
         {
-            if (playerWaitingForResult)
+            if (playerWaitingForResult!=null)
             {
                 // Code that might throw an exception
-                Debug.Log($"Calling Dices roll {playerWaitingForResult.gameObject.name} {monopolyGameManager}");
                 monopolyGameManager.DicesRoll(playerWaitingForResult,
                     dicesResponses.Sum(die => die.LastRoll()), 
                     dicesResponses.All(die=>die.LastRoll()==dicesResponses.First().LastRoll()));
@@ -80,7 +79,7 @@ public class DicesManager : MonoBehaviour
         dicesResponses.Clear();
         // Perform the next action here
     }
-    public void ThrowDice(SelfmadePlayer player)
+    public void ThrowDice(MonopolyPlayer player)
     {
         //Debug.Log("thrown");
         playerWaitingForResult = player;
