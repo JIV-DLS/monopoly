@@ -14,6 +14,7 @@ public class MonopolyPlayer
         _playerSummaryButton.setPlayer(this);
         _playerElementOnMap = playerElementOnMap;
         _throwDices = throwDices;
+        _throwDices.SetSelfMadePlayer(this);
         _monopolyGameManager = monopolyGameManager;
     }
     
