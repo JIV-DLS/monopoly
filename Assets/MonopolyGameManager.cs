@@ -534,6 +534,7 @@ public class Board
                     break;
                 case 1:
                     boardTile = new PropertyTile(side[i], "Boulevard de Belleville",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown),
                         new int[] { 2, 4, 10, 30, 90, 160, 250 },
                         50, 50, 60);
                     break;
@@ -542,6 +543,7 @@ public class Board
                     break;
                 case 3:
                     boardTile = new PropertyTile(side[i], "Rue Lecourbe",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown),
                         new int[] { 4, 8, 20, 60, 180, 320, 450 },
                         50, 50, 60);
                     break;
@@ -553,6 +555,7 @@ public class Board
                     break;
                 case 6:
                     boardTile = new PropertyTile(side[i], "Rue De Vaugirard",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
                         50, 50, 100);
                     break;
@@ -561,11 +564,13 @@ public class Board
                     break;
                 case 8:
                     boardTile = new PropertyTile(side[i], "Rue De Courcelles",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
                         50, 50, 100);
                     break;
                 case 9:
                     boardTile = new PropertyTile(side[i], "Avenue de la Republique",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
                         new int[] { 8, 16, 40, 100, 300, 450, 600 },
                         50, 50, 120);
                     break;
@@ -574,6 +579,7 @@ public class Board
                     break;
                 case 11:
                     boardTile = new PropertyTile(side[i], "Boulevard de Villette",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
                         100, 100, 140);
                     break;
@@ -582,11 +588,13 @@ public class Board
                     break;
                 case 13:
                     boardTile = new PropertyTile(side[i], "Avenue de Neuilly",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
                         100, 100, 140);
                     break;
                 case 14:
                     boardTile = new PropertyTile(side[i], "Rue de Paradis",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
                         new int[] { 12, 24, 60, 180, 500, 700, 900 },
                         100, 100, 160);
                     break;
@@ -595,6 +603,7 @@ public class Board
                     break;
                 case 16:
                     boardTile = new PropertyTile(side[i], "Avenue Mozart",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
                         100, 100, 180);
                     break;
@@ -603,11 +612,13 @@ public class Board
                     break;
                 case 18:
                     boardTile = new PropertyTile(side[i], "Boulevard Saint-Michel",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
                         100, 100, 180);
                     break;
                 case 19:
                     boardTile = new PropertyTile(side[i], "Place Pigalle",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
                         new int[] { 16, 32, 80, 220, 600, 800, 1000 },
                         100, 100, 200);
                     break;
@@ -616,6 +627,7 @@ public class Board
                     break;
                 case 21:
                     boardTile = new PropertyTile(side[i], "Avenue Matignon",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
                         150, 150, 220);
                     break;
@@ -624,11 +636,13 @@ public class Board
                     break;
                 case 23:
                     boardTile = new PropertyTile(side[i], "Boulevard Malesherbes",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
                         150, 150, 220);
                     break;
                 case 24:
                     boardTile = new PropertyTile(side[i], "Avenue Henri-Martin",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
                         new int[] { 20, 40, 100, 300, 750, 925, 1100 },
                         150, 150, 240);
                     break;
@@ -637,11 +651,13 @@ public class Board
                     break;
                 case 26:
                     boardTile = new PropertyTile(side[i], "Faubourg Saint-Honoré",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
                         150, 150, 260);
                     break;
                 case 27:
                     boardTile = new PropertyTile(side[i], "Place de la Bourse",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
                         150, 150, 260);
                     break;
@@ -650,6 +666,7 @@ public class Board
                     break;
                 case 29:
                     boardTile = new PropertyTile(side[i], "Rue de la Fayette",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
                         new int[] { 24, 48, 120, 360, 850, 1025, 1200 },
                         150, 150, 280);
                     break;
@@ -658,11 +675,13 @@ public class Board
                     break;
                 case 31:
                     boardTile = new PropertyTile(side[i], "Avenue de Breteuil",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
                         200, 200, 300);
                     break;
                 case 32:
                     boardTile = new PropertyTile(side[i], "Avenue Foch",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
                         200, 200, 300);
                     break;
@@ -671,6 +690,7 @@ public class Board
                     break;
                 case 34:
                     boardTile = new PropertyTile(side[i], "Boulvard des Capucines",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
                         new int[] { 28, 56, 150, 450, 1000, 1200, 1400 },
                         200, 200, 320);
                     break;
@@ -683,6 +703,7 @@ public class Board
                 case 37:
                     
                     boardTile = new PropertyTile(side[i], "Avenue des Champs-Elysées",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue),
                         new int[] { 35, 70, 175, 500, 1100, 1300, 1500 },
                         200, 200, 350);
                     break;
@@ -693,6 +714,7 @@ public class Board
                 case 39:
                     
                     boardTile = new PropertyTile(side[i], "Rue de la Paix",
+                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue),
                         new int[] { 50, 100, 200, 600, 1400, 1700, 2000 },
                         200, 200, 400);
                     break;
@@ -787,34 +809,30 @@ public class CornerTile : BoardTile
 }
 public class PurchasableTile : BoardTile
 {
-    private int[] Costs { get; }
-    private int Price { get; }
-    private int MortgageCost { get; }
-    private int MortgageFinishedCost { get;  }
-    private bool IsMortgaged { get;  }
+    public int[] costs { get; private set; }
+    private int price { get; set; }
+    public int mortgageCost { get; private set; }
+    public int mortgageFinishedCost { get; private set;  }
+    public bool isMortgaged { get; private set;  }
     
-    private MonopolyPlayer player;
+    private MonopolyPlayer _monopolyPlayer;
     public override bool CanBeBought()
     {
-        if (player != null)
-        {
-            return false;
-        }
-        return true;
+        return _monopolyPlayer == null;
     }
     
     public override int getPrice()
     {
-        return Price;
+        return price;
     }
     protected PurchasableTile(GameObject tileGameObject, string name, int[] costs, int price,
         int mortgageCost, int mortgageFinishedCost)
         : base(tileGameObject, name)
     {
-        Costs = costs;
-        Price = price;
-        MortgageCost = mortgageCost;
-        MortgageFinishedCost = mortgageFinishedCost;
+        this.costs = costs;
+        this.price = price;
+        this.mortgageCost = mortgageCost;
+        this.mortgageFinishedCost = mortgageFinishedCost;
     }
 
     protected PurchasableTile(GameObject tileGameObject, string name, int[] costs, int price)
@@ -892,26 +910,19 @@ public class GoInPrisonTile : CornerTile
 }
 public class PropertyTile : PurchasableTile
 {
-    private int HouseCost { get; }
-    private int HotelCost { get; }
-    public string Owner { get; private set; }
+    public int houseCost { get; private set; }
+    public int hotelCost { get; private set; }
+    public string owner { get; private set; }
+    public Color color { get; set; }
 
-    public PropertyTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost,
-        int price,
-        int mortgageCost, int mortgageFinishedCost)
-        : base(tileGameObject, name, costs, price, mortgageCost, mortgageFinishedCost)
-    {
-        HouseCost = houseCost;
-        HotelCost = hotelCost;
-        Owner = null; // No owner initially
-    }
-    public PropertyTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost,
+    public PropertyTile(GameObject tileGameObject, string name, Color color, int[] costs, int houseCost, int hotelCost,
         int price)
         : base(tileGameObject, name, costs, price)
     {
-        HouseCost = houseCost;
-        HotelCost = hotelCost;
-        Owner = null; // No owner initially
+        this.houseCost = houseCost;
+        this.hotelCost = hotelCost;
+        this.color = color;
+        owner = null; // No owner initially
     }
 
 }

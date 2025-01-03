@@ -8,13 +8,13 @@ public class RailRoadCard : MonoBehaviour
     private BaseTextHandler _rentWith3TrainsStationValueBaseTextHandler;
     private BaseTextHandler _rentWith4TrainsStationValueBaseTextHandler;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
         _railroadNameValue = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RailroadNameValue");
 
         if (_railroadNameValue == null)
         {
-            Debug.LogError("Title deed value not found");
+            Debug.LogError("Rail road name value not found");
         }
         _rentValueBaseTextHandler = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RentValue");
         if (_rentValueBaseTextHandler == null)
@@ -39,4 +39,12 @@ public class RailRoadCard : MonoBehaviour
         
     }
 
+    public void UpdateTile(RailroadTile railroadTile)
+    {
+        _railroadNameValue.SetText(railroadTile.TileName);
+        _rentValueBaseTextHandler.SetText($"{railroadTile.costs[0]}M");
+        _rentWith2TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[1]}M");
+        _rentWith3TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[2]}M");
+        _rentWith4TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[3]}M");
+    }
 }

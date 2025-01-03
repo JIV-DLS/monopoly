@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.UI; // Required for the Image component
 
 public class TitleDeedCard : MonoBehaviour
 {
+    private Image _cardHeaderImage;
     private BaseTextHandler _titleDeedValueBaseTextHandler;
     private BaseTextHandler _rentValueBaseTextHandler;
     private BaseTextHandler _rentFullGroupValueBaseTextHandler;
@@ -13,8 +15,15 @@ public class TitleDeedCard : MonoBehaviour
     private BaseTextHandler _houseCostValueBaseTextHandler;
     private BaseTextHandler _hotelCostValueBaseTextHandler;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
+        // Use the utility method to get the Image component from a child named "ChildWithImage"
+        _cardHeaderImage = ChildUtility.GetChildComponentByName<Image>(transform, "ChildWithImage");
+
+        if (_cardHeaderImage == null)
+        {
+            Debug.LogError("Title deed value not found");
+        }
         _titleDeedValueBaseTextHandler = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "TitleDeedValue");
 
         if (_titleDeedValueBaseTextHandler == null)
@@ -68,4 +77,18 @@ public class TitleDeedCard : MonoBehaviour
         }
     }
 
+    public void UpdateTile(PropertyTile propertyTile)
+    {
+        _cardHeaderImage.color = propertyTile.color;
+        _titleDeedValueBaseTextHandler.SetText(propertyTile.TileName);
+        _rentValueBaseTextHandler.SetText($"{propertyTile.costs[0]}M");
+        _rentFullGroupValueBaseTextHandler.SetText($"{propertyTile.costs[1]}M");
+        _rentWith1HouseValueBaseTextHandler.SetText($"{propertyTile.costs[2]}M");
+        _rentWith2HousesValueBaseTextHandler.SetText($"{propertyTile.costs[3]}M");
+        _rentWith3HousesValueBaseTextHandler.SetText($"{propertyTile.costs[4]}M");
+        _rentWith4HousesValueBaseTextHandler.SetText($"{propertyTile.costs[5]}M");
+        _rentWith1HotelValueBaseTextHandler.SetText($"{propertyTile.costs[6]}M");
+        _houseCostValueBaseTextHandler.SetText($"{propertyTile.houseCost} M chacune");
+        _hotelCostValueBaseTextHandler.SetText($"{propertyTile.hotelCost} M chacun (Plus 4 maisons)");
+    }
 }
