@@ -60,7 +60,7 @@ public class MonopolyPlayer
     public void DicesRoll(int rollResult, bool allEqual)
     {
         hasPerformedAction = true;
-        PlayerContent.SetDicesRolled(rollResult, allEqual);
+        // PlayerContent.SetDicesRolled(rollResult, allEqual);
     }
     // Update is called once per frame
     void Update()

@@ -2,15 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System;
+using System.Collections;
+
 public class MonopolyGameManager : MonoBehaviour
 {
-    private GameEventsScrolls gameEventsScrolls;
     private PlayersHorizontalView _playersHorizontalView;
     private PlayerPieceOnBoardBuilder _playerPieceOnBoardBuilder;
     // public List<SelfmadePlayer> players;
     private MonopolyPlayer localPlayer;
     private MonopolyPlayer currentPlayer; // The player whose turn it is
-
+    public BaseTextHandler GameTextEvents;
     private Board board;
     public Dice dice;
     public DicesManager dicesManager;
@@ -32,15 +33,7 @@ public class MonopolyGameManager : MonoBehaviour
         
         // InitializeGame();
         CreateBoard();
-        //gameEventsScrolls = GetComponentInChildren<GameEventsScrolls>();
-        /*if (gameEventsScrolls == null)
-        {
-            Debug.LogError("Game events scrolls cannot be null");
-        }
-        else
-        {
-            Debug.Log("Game events scrolls is not null");
-        }*/
+        
         _playersHorizontalView  = GetComponentInChildren<PlayersHorizontalView>();
         
         if (_playersHorizontalView == null)
@@ -84,11 +77,12 @@ public class MonopolyGameManager : MonoBehaviour
         }
         player.MoveTo(tile);
         
-        // gameEventsScrolls.AddTextItem($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
+        
+        GameTextEvents.SetText($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
 
     }
 
-    private IEnumerator<Coroutine> GameLoop()
+    private IEnumerator GameLoop()
     {
         while (isGameRunning)
         {
@@ -96,9 +90,10 @@ public class MonopolyGameManager : MonoBehaviour
             switch (gameState)
             {
                 case GameState.WaitingForRoll:
-                    // gameEventsScrolls.AddTextItem($"En attente du joueur {currentPlayer}");
+                    GameTextEvents.SetText($"En attente du joueur {currentPlayer}");
                     // Call the player's Play method to start their turn
                     yield return StartCoroutine(currentPlayer.TriggerPlay(actionTimeout));
+                    gameState = GameState.TurnEnd;
 
                     // Switch to the next player
                     // currentPlayer = (currentPlayer == player1) ? player2 : player1;
@@ -108,7 +103,11 @@ public class MonopolyGameManager : MonoBehaviour
                     break;
 
                 case GameState.TurnEnd:
+
+                    // Optionally wait 2 seconds before the next player's turn starts
+                    yield return new WaitForSeconds(3f);
                     AdvanceToNextPlayer();
+
                     break;
             }
 
@@ -314,6 +313,8 @@ public class MonopolyGameManager : MonoBehaviour
         bool passHome = false;
         MoveAPlayerToATile(player, board.GetTile(board.MoveFromTile(playerTile, rollResult, out passHome)), passHome);
         player.tile.OnPlayerLanded(player);
+        
+        GameTextEvents.SetText($"{player.name} played {rollResult}");
         
         //showPlayerDiceResultToPanel(rollResult);
         //showPlayerEqualDicesToPanel(allEqual);
