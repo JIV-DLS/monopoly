@@ -14,7 +14,7 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
     protected void SetTargetPurchasableCard(PurchasableCard targetPurchasableCard)
     {
         // Prevent infinite recursion
-        if (_targetPurchasableCard == targetPurchasableCard)
+        if (_targetPurchasableCard != null && _targetPurchasableCard == targetPurchasableCard)
             return;
 
         _targetPurchasableCard = targetPurchasableCard;
@@ -29,8 +29,8 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
 
     public void FlipCard()
     {
-        transform.parent.gameObject.SetActive(false);
-        _targetPurchasableCard.transform.parent.gameObject.SetActive(true);
+        gameObject.SetActive(false);
+        _targetPurchasableCard.gameObject.SetActive(true);
     }
 
     public void OnClick()
@@ -60,7 +60,7 @@ public class PurchasableFaceCard : PurchasableCard
 
     public void UpdateTile(PurchasableTile purchasableTile)
     {
-        SetTargetPurchasableCard(purchasableTile.behind);
+        SetTargetPurchasableCard(purchasableTile.GetBehindCard());
     }
 }
 public class PurchasableBehindCard : PurchasableCard
@@ -68,7 +68,7 @@ public class PurchasableBehindCard : PurchasableCard
 
     public void UpdateTile(PurchasableTile purchasableTile)
     {
-        SetTargetPurchasableCard(purchasableTile.face);
+        SetTargetPurchasableCard(purchasableTile.GetFaceCard());
     }
 }
 

@@ -202,6 +202,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -922,7 +935,39 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      noun-flip-over-267318_0: 9052295039919027693
+      noun-flip-over-267318_1: 5921601813735894900
+      noun-flip-over-267318_10: 2572902196922537095
+      noun-flip-over-267318_11: 6317179388943675918
+      noun-flip-over-267318_12: -4821570555185711104
+      noun-flip-over-267318_13: -8009174707411570902
+      noun-flip-over-267318_14: -8039972505610969853
+      noun-flip-over-267318_15: -2194141835983082083
+      noun-flip-over-267318_16: -2200907754898430510
+      noun-flip-over-267318_17: 5723285359700593668
+      noun-flip-over-267318_18: 7335539918683575664
+      noun-flip-over-267318_19: 9013418484629425299
+      noun-flip-over-267318_2: -3498534386819394673
+      noun-flip-over-267318_20: -6075185739138677070
+      noun-flip-over-267318_21: -8885248309360579194
+      noun-flip-over-267318_22: 6743081573453790773
+      noun-flip-over-267318_23: -7332602663356810322
+      noun-flip-over-267318_24: 7784222946187820727
+      noun-flip-over-267318_25: -2476400690531813787
+      noun-flip-over-267318_26: 6281003764218621973
+      noun-flip-over-267318_27: -2003396938809464299
+      noun-flip-over-267318_28: -7478664636284181351
+      noun-flip-over-267318_29: 8888330863759865213
+      noun-flip-over-267318_3: 2791009844177416944
+      noun-flip-over-267318_30: 2372371250401314179
+      noun-flip-over-267318_31: -2394066328680363130
+      noun-flip-over-267318_4: -3949790751190821603
+      noun-flip-over-267318_5: 7488851825088198164
+      noun-flip-over-267318_6: 3307410771288972251
+      noun-flip-over-267318_7: 682455486040469636
+      noun-flip-over-267318_8: -6750281867028864126
+      noun-flip-over-267318_9: -5201207928730894694
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

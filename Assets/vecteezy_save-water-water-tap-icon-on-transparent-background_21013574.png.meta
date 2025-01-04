@@ -124,6 +124,19 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -272,7 +285,13 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      vecteezy_save-water-water-tap-icon-on-transparent-background_21013574_0: -520047581069507152
+      vecteezy_save-water-water-tap-icon-on-transparent-background_21013574_1: 293355522429927776
+      vecteezy_save-water-water-tap-icon-on-transparent-background_21013574_2: -7582548134198462712
+      vecteezy_save-water-water-tap-icon-on-transparent-background_21013574_3: 1953875432990044090
+      vecteezy_save-water-water-tap-icon-on-transparent-background_21013574_4: 154551354825022388
+      vecteezy_save-water-water-tap-icon-on-transparent-background_21013574_5: 1798086627801934100
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
