@@ -72,7 +72,6 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
 }
 public abstract class PurchasableFaceCard : PurchasableCard
 {
-
     public void UpdateTile(PurchasableTile purchasableTile)
     {
         SetTargetPurchasableCard(purchasableTile, purchasableTile.GetBehindCard());

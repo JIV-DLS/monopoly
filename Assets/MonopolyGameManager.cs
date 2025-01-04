@@ -882,7 +882,7 @@ public abstract class PurchasableTile : BoardTile
     {
     }
 }
-public class PublicServiceTile : PurchasableTile
+public abstract class PublicServiceTile : PurchasableTile
 {
     public PublicServiceCard publicService { get; private set; }
     public CardBehind titleDeedBehindCard { get; private set; }
@@ -904,6 +904,7 @@ public class PublicServiceTile : PurchasableTile
         this.titleDeedBehindCard = (CardBehind)titleDeedBehindCard.Clone(this);
     }
 
+    public abstract Sprite GetImageSprite();
 }
 
 public class ElectricityTile : PublicServiceTile
@@ -915,6 +916,10 @@ public class ElectricityTile : PublicServiceTile
     {
     }
 
+    public override Sprite GetImageSprite()
+    {
+        return ChildUtility.GetChildComponentByName<BaseImageHandler>(tileGameObject.transform.parent, "ElectricityPrefab").GetSprite();
+    }
 }
 
 public class WaterPumpTile : PublicServiceTile
@@ -925,6 +930,10 @@ public class WaterPumpTile : PublicServiceTile
     {
     }
 
+    public override Sprite GetImageSprite()
+    {
+        return ChildUtility.GetChildComponentByName<BaseImageHandler>(tileGameObject.transform.parent, "WaterPrefab").GetSprite();
+    }
 }
 public class StartTile : CornerTile
 {

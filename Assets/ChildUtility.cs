@@ -49,7 +49,7 @@ public static class ChildUtility
             Debug.LogWarning($"Component of type {typeof(T).Name} not found on child '{childName}'.");
         }
 
-        if (component is BaseTextHandler handler)
+        if (component is IInitComponent handler)
         {
             handler.Init();
         }

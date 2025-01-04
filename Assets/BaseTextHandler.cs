@@ -1,7 +1,11 @@
 using UnityEngine;
 using TMPro;
 
-public class BaseTextHandler : MonoBehaviour
+public interface IInitComponent
+{
+    public void Init();
+}
+public class BaseTextHandler : MonoBehaviour, IInitComponent
 {
     protected TextMeshProUGUI textComponent;
 
