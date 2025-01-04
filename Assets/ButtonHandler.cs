@@ -1,70 +1,79 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+using TMPro;using UnityEngine.UIElements;using Button = UnityEngine.UI.Button;
 
+public interface IClickableButtonHandler{
+    public void OnClick();
+}
 public class ButtonHandler : MonoBehaviour
 {
-    protected Button button;
-    private TextMeshProUGUI buttonText;
-
+    private Button _button;
+    private TextMeshProUGUI _buttonText;
+    public IClickableButtonHandler Handler;
     protected virtual void Awake()
     {
         // Get the Button component
-        button = GetComponent<Button>();
+        _button = GetComponent<Button>();
 
-        if (button == null)
+        if (_button == null)
         {
             Debug.LogError("Button component not found!");
             return;
         }
 
         // Add a listener to handle button clicks
-        button.onClick.AddListener(OnButtonClick);
+        _button.onClick.AddListener(OnButtonClick);
         
         
 
         // Get the Text component of the Button (if it exists)
-        buttonText = button.GetComponentInChildren<TextMeshProUGUI>();
+        _buttonText = _button.GetComponentInChildren<TextMeshProUGUI>();
 
-        if (buttonText == null)
+        if (_buttonText == null)
         {
             Debug.LogWarning("Text component not found as a child of the Button!");
         }
 
         // Add a listener to handle button clicks
-        button.onClick.AddListener(OnButtonClick);
+        _button.onClick.AddListener(OnButtonClick);
     }
 
     protected virtual void OnDestroy()
     {
         // Remove the listener to avoid memory leaks
-        if (button != null)
+        if (_button != null)
         {
-            button.onClick.RemoveListener(OnButtonClick);
+            _button.onClick.RemoveListener(OnButtonClick);
         }
     }
 
     // Virtual method to handle button click (to be overridden in child classes)
     protected virtual void OnButtonClick()
     {
-        Debug.Log("Base button clicked!");
+        if (Handler != null)
+        {
+            Handler.OnClick();
+        }
+        else
+        {
+            Debug.Log("Base button clicked!");
+        }
     }
 
     // Example method to toggle the button's interactable property
     public void SetButtonInteractable(bool isInteractable)
     {
-        if (!ReferenceEquals(button, null))
+        if (!ReferenceEquals(_button, null))
         {
-            button.interactable = isInteractable;
+            _button.interactable = isInteractable;
         }
     }
 
     // Method to set the button's text
     public void SetButtonText(string text)
     {
-        if (!ReferenceEquals(buttonText, null))
+        if (!ReferenceEquals(_buttonText, null))
         {
-            buttonText.text = text;
+            _buttonText.text = text;
         }
         else
         {

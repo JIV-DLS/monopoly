@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI; // Required for the Image component
 
-public class TitleDeedCard : MonoBehaviour
+public class TitleDeedCard : PurchasableFaceCard
 {
     private Image _cardHeaderImage;
     private BaseTextHandler _titleDeedValueBaseTextHandler;
@@ -17,6 +17,7 @@ public class TitleDeedCard : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
+        
         // Use the utility method to get the Image component from a child named "ChildWithImage"
         _cardHeaderImage = ChildUtility.GetChildComponentByName<Image>(transform, "ChildWithImage");
 
@@ -77,10 +78,19 @@ public class TitleDeedCard : MonoBehaviour
         }
     }
 
-    public void UpdateTile(PropertyTile propertyTile)
+    public TitleDeedCard Clone (PropertyTile propertyTile)
     {
+        return base.Clone<TitleDeedCard>().UpdateTile(propertyTile);
+    }
+    public TitleDeedCard Clone ()
+    {
+        return base.Clone<TitleDeedCard>();
+    }
+    public TitleDeedCard UpdateTile(PropertyTile propertyTile)
+    {
+        base.UpdateTile(propertyTile);
         _cardHeaderImage.color = propertyTile.color;
-        _titleDeedValueBaseTextHandler.SetText(propertyTile.TileName);
+        _titleDeedValueBaseTextHandler.SetText(propertyTile.TileName.ToUpper());
         _rentValueBaseTextHandler.SetText($"{propertyTile.costs[0]}M");
         _rentFullGroupValueBaseTextHandler.SetText($"{propertyTile.costs[1]}M");
         _rentWith1HouseValueBaseTextHandler.SetText($"{propertyTile.costs[2]}M");
@@ -90,5 +100,6 @@ public class TitleDeedCard : MonoBehaviour
         _rentWith1HotelValueBaseTextHandler.SetText($"{propertyTile.costs[6]}M");
         _houseCostValueBaseTextHandler.SetText($"{propertyTile.houseCost} M chacune");
         _hotelCostValueBaseTextHandler.SetText($"{propertyTile.hotelCost} M chacun (Plus 4 maisons)");
+        return this;
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CardBehind : MonoBehaviour
+public class CardBehind : PurchasableBehindCard
 {
     private BaseTextHandler _backCardTitleBaseTextHandler;
     private BaseTextHandler _mortgageValueBaseTextHandler;
@@ -27,11 +27,21 @@ public class CardBehind : MonoBehaviour
         
     }
 
-    public void UpdateTile(PurchasableTile puchasableTile)
+    public CardBehind Clone (PurchasableTile purchasableTile)
     {
-        _backCardTitleBaseTextHandler.SetText(puchasableTile.TileName);
-        _mortgageValueBaseTextHandler.SetText($"HYPOTHÉQUÉ POUR {puchasableTile.mortgageCost}M");
-        _mortgageFinishedValueBaseTextHandler.SetText($"POUR LEVER L'HYPOTHÈQUE, PAYER {puchasableTile.mortgageFinishedCost}M");
+        return base.Clone<CardBehind>().UpdateTile(purchasableTile);
+    }
+    public CardBehind Clone ()
+    {
+        return base.Clone<CardBehind>();
+    }
+    public CardBehind UpdateTile(PurchasableTile purchasableTile)
+    {
+        base.UpdateTile(purchasableTile);
+        _backCardTitleBaseTextHandler.SetText(purchasableTile.TileName.ToUpper());
+        _mortgageValueBaseTextHandler.SetText($"HYPOTHÉQUÉ POUR {purchasableTile.mortgageCost}M");
+        _mortgageFinishedValueBaseTextHandler.SetText($"POUR LEVER L'HYPOTHÈQUE, PAYER {purchasableTile.mortgageFinishedCost}M");
+        return this;
     }
     
 }

@@ -73,7 +73,7 @@ public class MonopolyGameManager : MonoBehaviour
 
         if (tile is TaxTile)
         {
-            player.DecrementMoneyWith(((TaxTile)tile).TaxAmount);
+            player.DecrementMoneyWith(((TaxTile)tile).taxAmount);
         }
         player.MoveTo(tile);
         
@@ -153,7 +153,10 @@ public class MonopolyGameManager : MonoBehaviour
         board = new Board(CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Bottom),
         CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Left),
         CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Top),
-        CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Right));
+        CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Right),
+        GetComponentInChildren<TitleDeedCard>(), GetComponentInChildren<RailRoadCard>(),
+        GetComponentInChildren<PublicServiceCard>(), 
+        GetComponentInChildren<CardBehind>());
         
     }
 
@@ -508,13 +511,43 @@ public class Board
     private BoardTile[] tiles;
     private Dictionary<int, BoardTile> tileLookup;
     private Dictionary<BoardTile, int> indexLookup;
-
-    public Board(GameObject[] bottom, GameObject[] left, GameObject[] top, GameObject[] right)
+    public TitleDeedCard titleDeedCardPrefab { get; private set; }
+    public RailRoadCard railRoadCardPrefab { get; private set; }
+    public PublicServiceCard publicServiceCardPrefab { get; private set; }
+    public CardBehind cardBehindPrefab { get; private set; }
+    public Board(GameObject[] bottom, GameObject[] left, GameObject[] top, GameObject[] right, 
+        TitleDeedCard titleDeedCardPrefab,
+        RailRoadCard railRoadCardPrefab,
+        PublicServiceCard publicServiceCardPrefab,
+        CardBehind cardBehindPrefab
+        )
     {
         tiles = new BoardTile[40];
         tileLookup = new Dictionary<int, BoardTile>(40);
         indexLookup = new Dictionary<BoardTile, int>(40);
+        if (titleDeedCardPrefab == null)
+        {
+            Debug.LogError("title deed card prefab is null.");
+        }
+        if (railRoadCardPrefab == null)
+        {
+            Debug.LogError("rail road card prefab is null.");
+        }
 
+        if (publicServiceCardPrefab == null)
+        {
+            Debug.LogError("public service card prefab is null.");
+        }
+
+        if (cardBehindPrefab == null)
+        {
+            Debug.LogError("card behind prefab is null.");
+        }
+
+        this.titleDeedCardPrefab = titleDeedCardPrefab;
+        this.railRoadCardPrefab = railRoadCardPrefab;
+        this.publicServiceCardPrefab = publicServiceCardPrefab;
+        this.cardBehindPrefab = cardBehindPrefab;
         PopulateTiles(bottom, 0);
         PopulateTiles(left, bottom.Length);
         PopulateTiles(top, bottom.Length + left.Length);
@@ -536,7 +569,7 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Boulevard de Belleville",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown),
                         new int[] { 2, 4, 10, 30, 90, 160, 250 },
-                        50, 50, 60);
+                        50, 50, 60, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 2:
                     boardTile = new CommunityTile(side[i]);
@@ -545,19 +578,19 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Rue Lecourbe",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown),
                         new int[] { 4, 8, 20, 60, 180, 320, 450 },
-                        50, 50, 60);
+                        50, 50, 60, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 4:
                     boardTile = new TaxTile(side[i], "Impôts sur le revenu", 200);
                     break;
                 case 5:
-                    boardTile = new RailroadTile(side[i], "Gare Mont-Parnasse");
+                    boardTile = new RailroadTile(side[i], "Gare Mont-Parnasse", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 6:
                     boardTile = new PropertyTile(side[i], "Rue De Vaugirard",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
-                        50, 50, 100);
+                        50, 50, 100, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 7:
                     boardTile = new ChanceTile(side[i]);
@@ -566,13 +599,13 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Rue De Courcelles",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
-                        50, 50, 100);
+                        50, 50, 100, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 9:
                     boardTile = new PropertyTile(side[i], "Avenue de la Republique",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
                         new int[] { 8, 16, 40, 100, 300, 450, 600 },
-                        50, 50, 120);
+                        50, 50, 120, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 10:
                     boardTile = new PrisonOrVisitTile(side[i]);
@@ -581,31 +614,31 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Boulevard de Villette",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
-                        100, 100, 140);
+                        100, 100, 140, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 12:
-                    boardTile = new ElectricityTile(side[i]);
+                    boardTile = new ElectricityTile(side[i], publicServiceCardPrefab, cardBehindPrefab);
                     break;
                 case 13:
                     boardTile = new PropertyTile(side[i], "Avenue de Neuilly",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
-                        100, 100, 140);
+                        100, 100, 140, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 14:
                     boardTile = new PropertyTile(side[i], "Rue de Paradis",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
                         new int[] { 12, 24, 60, 180, 500, 700, 900 },
-                        100, 100, 160);
+                        100, 100, 160, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 15:
-                    boardTile = new RailroadTile(side[i], "Gare de Lyon");
+                    boardTile = new RailroadTile(side[i], "Gare de Lyon", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 16:
                     boardTile = new PropertyTile(side[i], "Avenue Mozart",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
-                        100, 100, 180);
+                        100, 100, 180, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 17:
                     boardTile = new CommunityTile(side[i]);
@@ -614,13 +647,13 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Boulevard Saint-Michel",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
-                        100, 100, 180);
+                        100, 100, 180, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 19:
                     boardTile = new PropertyTile(side[i], "Place Pigalle",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
                         new int[] { 16, 32, 80, 220, 600, 800, 1000 },
-                        100, 100, 200);
+                        100, 100, 200, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 20:
                     boardTile = new FreeParcTile(side[i]);
@@ -629,7 +662,7 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Avenue Matignon",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
-                        150, 150, 220);
+                        150, 150, 220, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 22:
                     boardTile = new ChanceTile(side[i]);
@@ -638,37 +671,37 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Boulevard Malesherbes",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
-                        150, 150, 220);
+                        150, 150, 220, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 24:
                     boardTile = new PropertyTile(side[i], "Avenue Henri-Martin",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
                         new int[] { 20, 40, 100, 300, 750, 925, 1100 },
-                        150, 150, 240);
+                        150, 150, 240, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 25:
-                    boardTile = new RailroadTile(side[i], "Gare du Nord");
+                    boardTile = new RailroadTile(side[i], "Gare du Nord", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 26:
                     boardTile = new PropertyTile(side[i], "Faubourg Saint-Honoré",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
-                        150, 150, 260);
+                        150, 150, 260, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 27:
                     boardTile = new PropertyTile(side[i], "Place de la Bourse",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
-                        150, 150, 260);
+                        150, 150, 260, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 28:
-                    boardTile = new WaterPumpTile(side[i]);
+                    boardTile = new WaterPumpTile(side[i], publicServiceCardPrefab, cardBehindPrefab);
                     break;
                 case 29:
                     boardTile = new PropertyTile(side[i], "Rue de la Fayette",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
                         new int[] { 24, 48, 120, 360, 850, 1025, 1200 },
-                        150, 150, 280);
+                        150, 150, 280, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 30:
                     boardTile = new GoInPrisonTile(side[i]);
@@ -677,13 +710,13 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Avenue de Breteuil",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
-                        200, 200, 300);
+                        200, 200, 300, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 32:
                     boardTile = new PropertyTile(side[i], "Avenue Foch",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
-                        200, 200, 300);
+                        200, 200, 300, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 33:
                     boardTile = new CommunityTile(side[i]);
@@ -692,10 +725,10 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Boulvard des Capucines",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
                         new int[] { 28, 56, 150, 450, 1000, 1200, 1400 },
-                        200, 200, 320);
+                        200, 200, 320, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 35:
-                    boardTile = new RailroadTile(side[i], "Gare Saint Lazarre");
+                    boardTile = new RailroadTile(side[i], "Gare Saint Lazare", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 36:
                     boardTile = new ChanceTile(side[i]);
@@ -705,7 +738,7 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Avenue des Champs-Elysées",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue),
                         new int[] { 35, 70, 175, 500, 1100, 1300, 1500 },
-                        200, 200, 350);
+                        200, 200, 350, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 38:
 
@@ -716,7 +749,7 @@ public class Board
                     boardTile = new PropertyTile(side[i], "Rue de la Paix",
                         MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue),
                         new int[] { 50, 100, 200, 600, 1400, 1700, 2000 },
-                        200, 200, 400);
+                        200, 200, 400, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown case: {i}"); 
@@ -807,14 +840,16 @@ public class CornerTile : BoardTile
     }
     
 }
-public class PurchasableTile : BoardTile
+public abstract class PurchasableTile : BoardTile
 {
     public int[] costs { get; private set; }
     private int price { get; set; }
     public int mortgageCost { get; private set; }
     public int mortgageFinishedCost { get; private set;  }
     public bool isMortgaged { get; private set;  }
-    
+    public CardBehind behind { get; set; }
+    public TitleDeedCard face { get; set; }
+
     private MonopolyPlayer _monopolyPlayer;
     public override bool CanBeBought()
     {
@@ -835,31 +870,43 @@ public class PurchasableTile : BoardTile
         this.mortgageFinishedCost = mortgageFinishedCost;
     }
 
+    public abstract PurchasableFaceCard GetFaceCard();
+    public abstract PurchasableBehindCard GetBehindCard();
     protected PurchasableTile(GameObject tileGameObject, string name, int[] costs, int price)
         : this(tileGameObject, name, costs, price, price / 2, price / 2 + (int)Math.Round(price / 20.0))
     {
     }
 }
-public abstract class PublicServiceTile : PurchasableTile
+public class PublicServiceTile : PurchasableTile
 {
-    public int BaseCost { get; }
-    public string Owner { get; private set; }
+    public PublicServiceCard publicService { get; private set; }
+    public CardBehind titleDeedBehindCard { get; private set; }
 
-    public PublicServiceTile(GameObject tileGameObject, string name, int[] costs, int price)
-        : base(tileGameObject, name, costs, price)
+    public override PurchasableFaceCard GetFaceCard()
     {
+        return publicService;
     }
-    public PublicServiceTile(GameObject tileGameObject, string name)
+    public  override PurchasableBehindCard GetBehindCard()
+    {
+        return titleDeedBehindCard;
+    }
+
+    public PublicServiceTile(GameObject tileGameObject, string name, PublicServiceCard publicService,
+        CardBehind titleDeedBehindCard)
         : base(tileGameObject, name, new int[] { 4, 10 }, 150)
     {
+        this.publicService = publicService.Clone(this);
+        this.titleDeedBehindCard = titleDeedBehindCard.Clone(this);
     }
 
 }
 
 public class ElectricityTile : PublicServiceTile
 {
-    public ElectricityTile(GameObject tileGameObject)
-        : base(tileGameObject, "Compagnie de distribution d'électricité")
+    
+    public ElectricityTile(GameObject tileGameObject, PublicServiceCard publicService,
+        CardBehind titleDeedBehindCard)
+        : base(tileGameObject, "Compagnie de distribution d'électricité", publicService, titleDeedBehindCard)
     {
     }
 
@@ -867,8 +914,9 @@ public class ElectricityTile : PublicServiceTile
 
 public class WaterPumpTile : PublicServiceTile
 {
-    public WaterPumpTile(GameObject tileGameObject)
-        : base(tileGameObject, "Compagnie de distribution des Eaux")
+    public WaterPumpTile(GameObject tileGameObject, PublicServiceCard publicService,
+        CardBehind titleDeedBehindCard)
+        : base(tileGameObject, "Compagnie de distribution des Eaux", publicService, titleDeedBehindCard)
     {
     }
 
@@ -914,14 +962,27 @@ public class PropertyTile : PurchasableTile
     public int hotelCost { get; private set; }
     public string owner { get; private set; }
     public Color color { get; set; }
+    public TitleDeedCard titleDeedFaceCard { get; private set; }
+    public CardBehind titleDeedBehindCard { get; private set; }
+
+    public override PurchasableFaceCard GetFaceCard()
+    {
+        return titleDeedFaceCard;
+    }
+    public  override PurchasableBehindCard GetBehindCard()
+    {
+        return titleDeedBehindCard;
+    }
 
     public PropertyTile(GameObject tileGameObject, string name, Color color, int[] costs, int houseCost, int hotelCost,
-        int price)
+        int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard)
         : base(tileGameObject, name, costs, price)
     {
         this.houseCost = houseCost;
         this.hotelCost = hotelCost;
         this.color = color;
+        this.titleDeedFaceCard = titleDeedFaceCard.Clone(this);
+        this.titleDeedBehindCard = titleDeedBehindCard.Clone(this);
         owner = null; // No owner initially
     }
 
@@ -930,26 +991,36 @@ public class PropertyTile : PurchasableTile
 
 public class RailroadTile : PurchasableTile
 {
-    public RailroadTile(GameObject tileGameObject, string name)
+    
+    public RailRoadCard railRoadCard { get; private set; }
+    public CardBehind titleDeedBehindCard { get; private set; }
+
+    public override PurchasableFaceCard GetFaceCard()
+    {
+        return railRoadCard;
+    }
+    public  override PurchasableBehindCard GetBehindCard()
+    {
+        return titleDeedBehindCard;
+    }
+    public RailroadTile(GameObject tileGameObject, string name,
+        RailRoadCard railRoadCard, CardBehind titleDeedBehindCard)
         : base(tileGameObject, name, new int[] { 25, 50, 100, 200 }, 200)
     {
-    }
-    public RailroadTile(GameObject tileGameObject, string name, int[] costs,int price, 
-    int mortgageCost, int mortgageFinishedCost)
-        : base(tileGameObject, name, costs, price, mortgageCost, mortgageFinishedCost)
-    {
+        this.railRoadCard = railRoadCard.Clone(this);
+        this.titleDeedBehindCard = titleDeedBehindCard.Clone(this);
     }
 
 }
 
 public class TaxTile : BoardTile
 {
-    public int TaxAmount { get; }
+    public int taxAmount { get; }
 
     public TaxTile(GameObject tileGameObject, string name, int taxAmount)
         : base(tileGameObject, name)
     {
-        TaxAmount = taxAmount;
+        this.taxAmount = taxAmount;
     }
 
 }
