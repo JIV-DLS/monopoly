@@ -6,8 +6,9 @@ public class CardBehind : PurchasableBehindCard
     private BaseTextHandler _mortgageValueBaseTextHandler;
     private BaseTextHandler _mortgageFinishedValueBaseTextHandler;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
+    protected override void Init()
     {
+        base.Init();
         _backCardTitleBaseTextHandler = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "BackCardTitle");
 
         if (_backCardTitleBaseTextHandler == null)
@@ -29,7 +30,7 @@ public class CardBehind : PurchasableBehindCard
 
     public CardBehind Clone (PurchasableTile purchasableTile)
     {
-        return base.Clone<CardBehind>().UpdateTile(purchasableTile);
+        return Clone().UpdateTile(purchasableTile);
     }
     public CardBehind Clone ()
     {

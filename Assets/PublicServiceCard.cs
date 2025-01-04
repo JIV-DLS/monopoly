@@ -8,6 +8,11 @@ public class PublicServiceCard : PurchasableFaceCard
         
     }
 
+    protected override void Init()
+    {
+        base.Init();
+    }
+
     public PublicServiceCard Clone (PurchasableTile purchasableTile)
     {
         return Clone().UpdateTile(purchasableTile);

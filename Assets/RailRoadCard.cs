@@ -8,8 +8,9 @@ public class RailRoadCard : PurchasableFaceCard
     private BaseTextHandler _rentWith3TrainsStationValueBaseTextHandler;
     private BaseTextHandler _rentWith4TrainsStationValueBaseTextHandler;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
+    protected override void Init()
     {
+        base.Init();
         _railroadNameValue = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RailroadNameValue");
 
         if (_railroadNameValue == null)

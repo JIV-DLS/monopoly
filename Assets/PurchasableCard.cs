@@ -1,18 +1,14 @@
 using System;
 using UnityEngine;
 
-public class PurchasableCard : MonoBehaviour, IClickableButtonHandler
+
+public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
 {
     private ButtonHandler _flipButton;
     private PurchasableCard _targetPurchasableCard;
     protected void Awake()
     {
-        _flipButton = GetComponentInChildren<ButtonHandler>();
-        if (_flipButton == null)
-        {
-            Debug.LogError("flipButton component not found");
-        }
-        _flipButton.Handler = this;
+        Init();
     }
 
     protected void SetTargetPurchasableCard(PurchasableCard targetPurchasableCard)
@@ -42,9 +38,21 @@ public class PurchasableCard : MonoBehaviour, IClickableButtonHandler
         FlipCard();
     }
 
-    protected T Clone<T> ()
+    protected T  Clone<T> () where T : PurchasableCard
     {
-        return Instantiate(this).GetComponent<T>();
+        var clone = Instantiate(this, transform.parent).GetComponent<T>();
+        clone.Init();
+        return clone;
+    }
+
+    protected virtual void Init()
+    {
+        _flipButton = GetComponentInChildren<ButtonHandler>();
+        if (_flipButton == null)
+        {
+            Debug.LogError("flipButton component not found");
+        }
+        _flipButton.Handler = this;
     }
 }
 public class PurchasableFaceCard : PurchasableCard

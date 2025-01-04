@@ -154,9 +154,9 @@ public class MonopolyGameManager : MonoBehaviour
         CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Left),
         CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Top),
         CreateSide(transform.position, planeWidth, planeHeight, BoardSide.Right),
-        GetComponentInChildren<TitleDeedCard>(), GetComponentInChildren<RailRoadCard>(),
-        GetComponentInChildren<PublicServiceCard>(), 
-        GetComponentInChildren<CardBehind>());
+        GetComponentInChildren<TitleDeedCard>(true), GetComponentInChildren<RailRoadCard>(true),
+        GetComponentInChildren<PublicServiceCard>(true), 
+        GetComponentInChildren<CardBehind>(true));
         
     }
 

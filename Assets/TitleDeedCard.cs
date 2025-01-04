@@ -14,16 +14,16 @@ public class TitleDeedCard : PurchasableFaceCard
     private BaseTextHandler _rentWith1HotelValueBaseTextHandler;
     private BaseTextHandler _houseCostValueBaseTextHandler;
     private BaseTextHandler _hotelCostValueBaseTextHandler;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Start()
+    
+    protected override void Init()
     {
-        
+        base.Init();
         // Use the utility method to get the Image component from a child named "ChildWithImage"
-        _cardHeaderImage = ChildUtility.GetChildComponentByName<Image>(transform, "ChildWithImage");
+        _cardHeaderImage = ChildUtility.GetChildComponentByName<Image>(transform, "CardHeader");
 
         if (_cardHeaderImage == null)
         {
-            Debug.LogError("Title deed value not found");
+            Debug.LogError("Card header image value not found");
         }
         _titleDeedValueBaseTextHandler = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "TitleDeedValue");
 
@@ -76,6 +76,11 @@ public class TitleDeedCard : PurchasableFaceCard
         {
             Debug.LogError("hotel cost value not found");
         }
+    }
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    protected void Awake()
+    {
+        base.Awake();
     }
 
     public TitleDeedCard Clone (PropertyTile propertyTile)

@@ -18,11 +18,27 @@ public static class ChildUtility
             return null;
         }
 
-        Transform child = parent.Find(childName);
+        // Recursive method to find the child by name
+        Transform FindChildRecursive(Transform currentParent, string targetName)
+        {
+            foreach (Transform child in currentParent)
+            {
+                if (child.name == targetName)
+                    return child;
+
+                Transform found = FindChildRecursive(child, targetName);
+                if (found != null)
+                    return found;
+            }
+
+            return null; // Not found
+        }
+
+        Transform child = FindChildRecursive(parent, childName);
 
         if (child == null)
         {
-            Debug.LogWarning($"Child '{childName}' not found under parent '{parent.name}'.");
+            Debug.LogWarning($"Child '{childName}' not found recursively under parent '{parent.name}'.");
             return null;
         }
 
@@ -35,4 +51,5 @@ public static class ChildUtility
 
         return component;
     }
+
 }
