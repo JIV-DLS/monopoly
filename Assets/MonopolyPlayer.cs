@@ -46,7 +46,7 @@ public class MonopolyPlayer
     public void DecrementMoneyWith(int amount)
     {
         money -= amount;
-        PlayerContent.updateMoney(money);
+        _playerSummaryButton.Refresh();
     }
     public void MoveTo(BoardTile tileToLandOn)
     {
@@ -82,22 +82,34 @@ public class MonopolyPlayer
     private IEnumerator HandleUserDoAction(float actionTimeout)
     {
         _timer = 0f;
+        if (tile is PurchasableTile)
+        {
+            if (tile.CanBeBought() && tile.getPrice()<=money)
+            {
+                _monopolyGameManager.gameCardBuy.ShowPurchasableTile((PurchasableTile)tile);
+                // Wait for the player to perform an action or timeout
+                while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
+                {
 
-        if (tile.CanBeBought() && tile.getPrice()<=money)
+                    _timer += Time.deltaTime;
+                    _monopolyGameManager.GameTextEvents.SetText($"{this}, Veiullez decidez {actionTimeout-_timer:0.00} seconde(s)");
+                    yield return null; // Wait until the next frame
+                }
+                //PlayerContent.EnableBuyAction(tile.getPrice());
+            }
+        }else if (tile is TaxTile taxTile)
         {
-            _monopolyGameManager.gameCardBuy.ShowPurchasableTile((PurchasableTile)tile);
-            //PlayerContent.EnableBuyAction(tile.getPrice());
-        }else
+            _monopolyGameManager.GameTextEvents.SetText($"{this} a paye une taxe de {taxTile.taxAmount}M");
+            yield return new WaitForSeconds(1.5f);
+        }else if (tile is SpecialTile specialTile)
         {
-            _timer = actionTimeout;
+            _monopolyGameManager.GameTextEvents.SetText($"{this} est sur une case speciale");
+            yield return new WaitForSeconds(1.5f);
         }
-        // Wait for the player to perform an action or timeout
-        while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
+        else
         {
-
-            _timer += Time.deltaTime;
-            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veiullez decidez {actionTimeout-_timer:0.00} seconde(s)");
-            yield return null; // Wait until the next frame
+            _monopolyGameManager.GameTextEvents.SetText($"{this} ne peut effectuer aucune action");
+            yield return new WaitForSeconds(1.5f);
         }
 
         _monopolyGameManager.gameCardBuy.Hide();

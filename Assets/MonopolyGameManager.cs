@@ -1039,21 +1039,92 @@ public class TaxTile : BoardTile
 
 }
 
-public class ChanceTile : BoardTile
+public abstract class SpecialTile : BoardTile
 {
-    public ChanceTile(GameObject tileGameObject)
-        : base(tileGameObject, "Chance")
+    
+    public string Description { get; }
+    public SpecialTile(GameObject tileGameObject, string name, string description) : base(tileGameObject, name)
     {
+        Description = description;
     }
 
+    public abstract void TriggerEffect(Player player);
+}
+public abstract class ChanceTile : SpecialTile
+{
+    public ChanceTile(GameObject tileGameObject, string description)
+        : base(tileGameObject, "Chance", description)
+    {
+        
+        cards = new List<ChanceTile>
+        {
+            new AdvanceToUtilityCard(),
+            new BankDividendCard(),
+            new AdvanceToStationCardChance(),
+            new SpeedingFineCard(),
+            new RepairCostCard(),
+            new AdvanceToStartCard(),
+            new AdvanceToRueDeLaPaixCard(),
+            new GoToJailCard(),
+            new AdvanceToAvenueHenriMartinCard(),
+            new AdvanceToGareMontparnasseCard(),
+            new RealEstateLoanCard(),
+            new MoveBackThreeSpacesCard(),
+            new GetOutOfJailCard(),
+            new AdvanceToBoulevardDeLaVilletteCard(),
+            new ElectedChairmanCard() // Ajout de la carte Vous avez été élu responsable
+        };
+    }
+
+    private List<ChanceTile> cards;
+
+
+    public override void TriggerEffect(Player player)
+    {
+
+        ChanceTile card = cards[UnityEngine.Random.Range(0, cards.Count)];
+        Debug.Log($"Carte tirée : {card.Description}");
+        TriggerEffect(player);
+    }
 
 }
 
-public class CommunityTile : BoardTile
+public abstract class CommunityTile : SpecialTile
 {
-    public CommunityTile(GameObject tileGameObject)
-        : base(tileGameObject, "Community")
+    private List<CommunityTile> cards;
+    
+
+    public override void TriggerEffect(Player player)
     {
+
+        CommunityTile card = cards[UnityEngine.Random.Range(0, cards.Count)];
+        Debug.Log($"Carte tirée : {card.Description}");
+        card.TriggerEffect(player);
+    }
+    public CommunityTile(GameObject tileGameObject, string description)
+        : base(tileGameObject, "Community", description)
+    {
+        
+        cards = new List<CommunityTile>
+        {
+            new PlaygroundDonationCard(),
+            new NeighborhoodPartyCard(),
+            new BakeSaleCard(),
+            new HousingImprovementCard(),
+            new CharityCarWashCard(),
+            new BakeSalePurchaseCard(),
+            new GardenCleanupCard(),
+            new HospitalPlayCard(),
+            new PedestrianPathCleanupCard(),
+            new ChattingWithElderNeighborCard(),
+            new AnimalShelterDonationCard(),
+            new BloodDonationCard(),
+            new MarathonForHospitalCard(),
+            new LoudMusicCard(),
+            new HelpNeighborCard(),
+            new AdoptPuppyCard(), // Ajout de la carte "Adoption Chiot"
+            // Ajoutez ici d'autres cartes Community...
+        };
     }
 
 }
