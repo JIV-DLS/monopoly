@@ -27,6 +27,8 @@ public class MonopolyGameManager : MonoBehaviour
 
     private const int regularTileCount = 9; // Number of regular tiles per side
     private float actionTimeout = 5f; // Wait time of 5 seconds
+    private float rollDiceTimeout = 3f; // Wait time of 5 seconds
+    private float buyTileTimeout = 7f; // Wait time of 5 seconds
     private bool isGameRunning = true;
 
     private void Awake()
@@ -93,7 +95,7 @@ public class MonopolyGameManager : MonoBehaviour
                 case GameState.WaitingForRoll:
                     GameTextEvents.SetText($"En attente du joueur {currentPlayer}");
                     // Call the player's Play method to start their turn
-                    yield return StartCoroutine(currentPlayer.TriggerPlay(actionTimeout));
+                    yield return StartCoroutine(currentPlayer.TriggerPlay(rollDiceTimeout, buyTileTimeout));
                     gameState = GameState.TurnEnd;
 
                     // Switch to the next player
@@ -106,7 +108,9 @@ public class MonopolyGameManager : MonoBehaviour
                 case GameState.TurnEnd:
 
                     // Optionally wait 2 seconds before the next player's turn starts
-                    yield return new WaitForSeconds(3f);
+                    
+                    GameTextEvents.SetText($"{currentPlayer} a finit son tour");
+                    yield return new WaitForSeconds(1.5f);
                     AdvanceToNextPlayer();
 
                     break;
@@ -303,7 +307,9 @@ public class MonopolyGameManager : MonoBehaviour
 
     public void PlayerRollDice(MonopolyPlayer player)
     {
+        GameTextEvents.SetText($"{player} a jete les des...");
         dicesManager.ThrowDice(player);
+        
     }
     public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
     {
@@ -318,7 +324,7 @@ public class MonopolyGameManager : MonoBehaviour
         MoveAPlayerToATile(player, board.GetTile(board.MoveFromTile(playerTile, rollResult, out passHome)), passHome);
         player.tile.OnPlayerLanded(player);
         
-        GameTextEvents.SetText($"{player.name} played {rollResult}");
+        GameTextEvents.SetText($"{player} played {rollResult}");
         
         //showPlayerDiceResultToPanel(rollResult);
         //showPlayerEqualDicesToPanel(allEqual);

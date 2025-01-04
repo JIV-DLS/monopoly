@@ -71,8 +71,12 @@ public class MonopolyPlayer
     // The method that each player will call during their turn
     public IEnumerator TriggerPlay(float actionTimeout)
     {
-        yield return HandlePlayerRollDice(actionTimeout);
-        yield return HandleUserDoAction(actionTimeout);
+        yield return TriggerPlay(actionTimeout,actionTimeout);
+    }
+    public IEnumerator TriggerPlay(float rollDiceTimeout, float userBuyTileTimeout)
+    {
+        yield return HandlePlayerRollDice(rollDiceTimeout);
+        yield return HandleUserDoAction(userBuyTileTimeout);
     }
 
     private IEnumerator HandleUserDoAction(float actionTimeout)
@@ -88,11 +92,11 @@ public class MonopolyPlayer
             _timer = actionTimeout;
         }
         // Wait for the player to perform an action or timeout
-        while (_timer < actionTimeout)
+        while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
         {
 
             _timer += Time.deltaTime;
-            
+            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veiullez decidez {actionTimeout-_timer:0.00} seconde(s)");
             yield return null; // Wait until the next frame
         }
 
@@ -118,6 +122,7 @@ public class MonopolyPlayer
             }
             _timer += Time.deltaTime;
             
+            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veiullez lancer les des. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
             yield return null; // Wait until the next frame
         }
 

@@ -24,7 +24,13 @@ public class GameCardBuyPurchasable : MonoBehaviour
         // Create and add the new child
         PurchasableFaceCard purchasableFaceCard = (PurchasableFaceCard)purchasableTile.GetFaceCard().Clone();
         purchasableFaceCard.transform.SetParent(transform, false); // Maintain local transform settings
+        purchasableFaceCard.transform.position = transform.position;
         purchasableFaceCard.Show();
+        // Create and add the new child
+        PurchasableBehindCard purchasableBehindCard = (PurchasableBehindCard)purchasableTile.GetBehindCard().Clone();
+        purchasableBehindCard.transform.SetParent(transform, false); // Maintain local transform settings
+        purchasableBehindCard.transform.position = transform.position;
+        purchasableFaceCard.SetTargetPurchasableCard(purchasableBehindCard);
     }
     public void ShowPurchasableTile(PurchasableTile purchasableTile)
     {

@@ -28,7 +28,6 @@ public class BuyActionButton : PurchasableActionButton
 
     protected override void OnClickAction()
     {
-        throw new System.NotImplementedException();
     }
 }
 public class CancelActionButton : PurchasableActionButton
@@ -39,7 +38,6 @@ public class CancelActionButton : PurchasableActionButton
 
     protected override void OnClickAction()
     {
-        throw new System.NotImplementedException();
     }
 }
 

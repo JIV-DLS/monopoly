@@ -12,7 +12,11 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
         Init();
     }
 
-    protected void SetTargetPurchasableCard(PurchasableTile purchasableTile, PurchasableCard targetPurchasableCard)
+    public void SetTargetPurchasableCard( PurchasableCard targetPurchasableCard)
+    {
+        SetTargetPurchasableCard(_lastPurchasableTile, targetPurchasableCard);
+    }
+    public void SetTargetPurchasableCard(PurchasableTile purchasableTile, PurchasableCard targetPurchasableCard)
     {
         // Prevent infinite recursion
         if (_targetPurchasableCard != null && _targetPurchasableCard == targetPurchasableCard)
