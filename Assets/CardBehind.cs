@@ -28,11 +28,12 @@ public class CardBehind : PurchasableBehindCard
         
     }
 
-    public CardBehind Clone (PurchasableTile purchasableTile)
+    
+    public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        return Clone().UpdateTile(purchasableTile);
+        return ((CardBehind)Clone()).UpdateTile(purchasableTile);
     }
-    public CardBehind Clone ()
+    public PurchasableCard Clone ()
     {
         return base.Clone<CardBehind>();
     }

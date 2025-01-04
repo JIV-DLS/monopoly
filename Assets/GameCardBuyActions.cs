@@ -46,7 +46,7 @@ public class CancelActionButton : PurchasableActionButton
 public class GameCardBuyActions : MonoBehaviour
 {
     private PurchasableTile _purchasableTile;
-
+    public GameCardBuy gameCardBuy;
     public ButtonHandler cancelButton;
     public ButtonHandler buyButton;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -65,10 +65,11 @@ public class GameCardBuyActions : MonoBehaviour
         _purchasableTile = purchasableTile;
         buyButton.Handler = new BuyActionButton(this, purchasableTile);
         cancelButton.Handler = new CancelActionButton(this, purchasableTile);
+        buyButton.SetButtonText($"ACHETER {purchasableTile.getPrice()}M");
     }
 
     public void Hide()
     {
-        
+        gameCardBuy.Hide();
     }
 }

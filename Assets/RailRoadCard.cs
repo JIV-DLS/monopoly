@@ -40,22 +40,23 @@ public class RailRoadCard : PurchasableFaceCard
         
     }
 
-    public RailRoadCard Clone(PurchasableTile purchasableTile)
+    
+    public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        return Clone().UpdateTile(purchasableTile);
+        return ((RailRoadCard)Clone()).UpdateTile((RailroadTile)purchasableTile);
     }
-    public RailRoadCard Clone ()
+    public PurchasableCard Clone ()
     {
         return base.Clone<RailRoadCard>();
     }
-    public RailRoadCard UpdateTile(PurchasableTile purchasableTile)
+    public RailRoadCard UpdateTile(RailroadTile railroadTile)
     {
-        base.UpdateTile(purchasableTile);
-        _railroadNameValue.SetText(purchasableTile.TileName.ToUpper());
-        _rentValueBaseTextHandler.SetText($"{purchasableTile.costs[0]}M");
-        _rentWith2TrainsStationValueBaseTextHandler.SetText($"{purchasableTile.costs[1]}M");
-        _rentWith3TrainsStationValueBaseTextHandler.SetText($"{purchasableTile.costs[2]}M");
-        _rentWith4TrainsStationValueBaseTextHandler.SetText($"{purchasableTile.costs[3]}M");
+        base.UpdateTile(railroadTile);
+        _railroadNameValue.SetText(railroadTile.TileName.ToUpper());
+        _rentValueBaseTextHandler.SetText($"{railroadTile.costs[0]}M");
+        _rentWith2TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[1]}M");
+        _rentWith3TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[2]}M");
+        _rentWith4TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[3]}M");
         return this;
     }
 }

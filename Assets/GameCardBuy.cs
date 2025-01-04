@@ -17,8 +17,13 @@ public class GameCardBuy : MonoBehaviour
         
     }
 
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
     public void ShowPurchasableTile(PurchasableTile purchasableTile)
     {
+        gameObject.SetActive(true);   
         purchasable.ShowPurchasableTile(purchasableTile);
         actions.ShowPurchasableTile(purchasableTile);
     }

@@ -6,23 +6,24 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
 {
     private ButtonHandler _flipButton;
     private PurchasableCard _targetPurchasableCard;
+    private PurchasableTile _lastPurchasableTile;
     protected void Awake()
     {
         Init();
     }
 
-    protected void SetTargetPurchasableCard(PurchasableCard targetPurchasableCard)
+    protected void SetTargetPurchasableCard(PurchasableTile purchasableTile, PurchasableCard targetPurchasableCard)
     {
         // Prevent infinite recursion
         if (_targetPurchasableCard != null && _targetPurchasableCard == targetPurchasableCard)
             return;
 
         _targetPurchasableCard = targetPurchasableCard;
-
+        _lastPurchasableTile = purchasableTile;
         // Set the current card as the target of the target card
         if (_targetPurchasableCard != null && _targetPurchasableCard._targetPurchasableCard != this)
         {
-            _targetPurchasableCard.SetTargetPurchasableCard(this);
+            _targetPurchasableCard.SetTargetPurchasableCard(purchasableTile, this);
         }
     }
 
@@ -45,6 +46,16 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
         return clone;
     }
 
+    public abstract PurchasableCard Clone (PurchasableTile purchasableTile);
+
+    public PurchasableCard Clone()
+    {
+        return Clone(_lastPurchasableTile);
+    }
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
     protected virtual void Init()
     {
         _flipButton = GetComponentInChildren<ButtonHandler>();
@@ -55,20 +66,21 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
         _flipButton.Handler = this;
     }
 }
-public class PurchasableFaceCard : PurchasableCard
+public abstract class PurchasableFaceCard : PurchasableCard
 {
 
     public void UpdateTile(PurchasableTile purchasableTile)
     {
-        SetTargetPurchasableCard(purchasableTile.GetBehindCard());
+        SetTargetPurchasableCard(purchasableTile, purchasableTile.GetBehindCard());
     }
+
 }
-public class PurchasableBehindCard : PurchasableCard
+public abstract class PurchasableBehindCard : PurchasableCard
 {
 
     public void UpdateTile(PurchasableTile purchasableTile)
     {
-        SetTargetPurchasableCard(purchasableTile.GetFaceCard());
+        SetTargetPurchasableCard(purchasableTile, purchasableTile.GetFaceCard());
     }
 }
 

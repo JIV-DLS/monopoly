@@ -6,6 +6,7 @@ using System.Collections;
 
 public class MonopolyGameManager : MonoBehaviour
 {
+    public GameCardBuy gameCardBuy;
     private PlayersHorizontalView _playersHorizontalView;
     private PlayerPieceOnBoardBuilder _playerPieceOnBoardBuilder;
     // public List<SelfmadePlayer> players;
@@ -847,8 +848,6 @@ public abstract class PurchasableTile : BoardTile
     public int mortgageCost { get; private set; }
     public int mortgageFinishedCost { get; private set;  }
     public bool isMortgaged { get; private set;  }
-    public CardBehind behind { get; set; }
-    public TitleDeedCard face { get; set; }
 
     private MonopolyPlayer _monopolyPlayer;
     public override bool CanBeBought()
@@ -895,8 +894,8 @@ public class PublicServiceTile : PurchasableTile
         CardBehind titleDeedBehindCard)
         : base(tileGameObject, name, new int[] { 4, 10 }, 150)
     {
-        this.publicService = publicService.Clone(this);
-        this.titleDeedBehindCard = titleDeedBehindCard.Clone(this);
+        this.publicService = (PublicServiceCard)publicService.Clone(this);
+        this.titleDeedBehindCard = (CardBehind)titleDeedBehindCard.Clone(this);
     }
 
 }
@@ -981,8 +980,8 @@ public class PropertyTile : PurchasableTile
         this.houseCost = houseCost;
         this.hotelCost = hotelCost;
         this.color = color;
-        this.titleDeedFaceCard = titleDeedFaceCard.Clone(this);
-        this.titleDeedBehindCard = titleDeedBehindCard.Clone(this);
+        this.titleDeedFaceCard = (TitleDeedCard)titleDeedFaceCard.Clone(this);
+        this.titleDeedBehindCard = (CardBehind)titleDeedBehindCard.Clone(this);
         owner = null; // No owner initially
     }
 
@@ -1007,8 +1006,8 @@ public class RailroadTile : PurchasableTile
         RailRoadCard railRoadCard, CardBehind titleDeedBehindCard)
         : base(tileGameObject, name, new int[] { 25, 50, 100, 200 }, 200)
     {
-        this.railRoadCard = railRoadCard.Clone(this);
-        this.titleDeedBehindCard = titleDeedBehindCard.Clone(this);
+        this.railRoadCard = (RailRoadCard)railRoadCard.Clone(this);
+        this.titleDeedBehindCard = (CardBehind)titleDeedBehindCard.Clone(this);
     }
 
 }

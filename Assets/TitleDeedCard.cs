@@ -83,11 +83,11 @@ public class TitleDeedCard : PurchasableFaceCard
         base.Awake();
     }
 
-    public TitleDeedCard Clone (PropertyTile propertyTile)
+    public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        return base.Clone<TitleDeedCard>().UpdateTile(propertyTile);
+        return ((TitleDeedCard)Clone()).UpdateTile((PropertyTile)purchasableTile);
     }
-    public TitleDeedCard Clone ()
+    public PurchasableCard Clone ()
     {
         return base.Clone<TitleDeedCard>();
     }

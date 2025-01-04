@@ -13,11 +13,13 @@ public class PublicServiceCard : PurchasableFaceCard
         base.Init();
     }
 
-    public PublicServiceCard Clone (PurchasableTile purchasableTile)
+    
+    
+    public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        return Clone().UpdateTile(purchasableTile);
+        return ((PublicServiceCard)Clone()).UpdateTile((PublicServiceTile)purchasableTile);
     }
-    public PublicServiceCard Clone ()
+    public PurchasableCard Clone ()
     {
         return base.Clone<PublicServiceCard>();
     }
@@ -27,9 +29,9 @@ public class PublicServiceCard : PurchasableFaceCard
         
     }
     
-    public PublicServiceCard UpdateTile(PurchasableTile purchasableTile)
+    public PublicServiceCard UpdateTile(PublicServiceTile publicServiceTile)
     {
-        base.UpdateTile(purchasableTile);
+        base.UpdateTile(publicServiceTile);
         return this;
     }
 }

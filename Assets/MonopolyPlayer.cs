@@ -72,7 +72,7 @@ public class MonopolyPlayer
     public IEnumerator TriggerPlay(float actionTimeout)
     {
         yield return HandlePlayerRollDice(actionTimeout);
-        // yield return HandleUserDoAction(actionTimeout);
+        yield return HandleUserDoAction(actionTimeout);
     }
 
     private IEnumerator HandleUserDoAction(float actionTimeout)
@@ -81,7 +81,8 @@ public class MonopolyPlayer
 
         if (tile.CanBeBought() && tile.getPrice()<=money)
         {
-            PlayerContent.EnableBuyAction(tile.getPrice());
+            _monopolyGameManager.gameCardBuy.ShowPurchasableTile((PurchasableTile)tile);
+            //PlayerContent.EnableBuyAction(tile.getPrice());
         }else
         {
             _timer = actionTimeout;
@@ -95,7 +96,7 @@ public class MonopolyPlayer
             yield return null; // Wait until the next frame
         }
 
-        PlayerContent.DisableBuyAction();
+        _monopolyGameManager.gameCardBuy.Hide();
     }
 
     private IEnumerator HandlePlayerRollDice(float actionTimeout)
