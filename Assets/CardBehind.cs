@@ -40,7 +40,7 @@ public class CardBehind : PurchasableBehindCard
     {
         base.UpdateTile(purchasableTile);
         _backCardTitleBaseTextHandler.SetText(purchasableTile.TileName.ToUpper());
-        _mortgageValueBaseTextHandler.SetText($"HYPOTHÉQUÉ POUR {purchasableTile.mortgageCost}M");
+        _mortgageValueBaseTextHandler.SetText($"HYPOTHÉQUÉE POUR {purchasableTile.mortgageCost}M");
         _mortgageFinishedValueBaseTextHandler.SetText($"POUR LEVER L'HYPOTHÈQUE, PAYER {purchasableTile.mortgageFinishedCost}M");
         return this;
     }

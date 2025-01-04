@@ -15,8 +15,13 @@ public class BaseTextHandler : MonoBehaviour
 
     protected virtual void Awake()
     {
+        Init();
+    }
+
+    public void Init()
+    {
         // Get the Text component
-        textComponent = GetComponent<TextMeshProUGUI>();
+        textComponent = GetComponentInChildren<TextMeshProUGUI>(true);
 
         if (textComponent == null)
         {
