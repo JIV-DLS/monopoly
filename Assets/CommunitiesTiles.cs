@@ -14,14 +14,14 @@ public class AdoptPuppyCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur est libéré de prison
-        player.ReleaseFromJail();
+        MonopolyPlayer.ReleaseFromJail();
 
-        Debug.Log($"{player.Name} a adopté un chiot et est libéré de prison !");
+        Debug.Log($"{MonopolyPlayer.Name} a adopté un chiot et est libéré de prison !");
     }
 }
 public class HelpNeighborCard : CommunityTile
@@ -31,14 +31,14 @@ public class HelpNeighborCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur reçoit 20M
-        player.ReceiveMoney(20);
+        MonopolyPlayer.ReceiveMoney(20);
 
-        Debug.Log($"{player.Name} a aidé sa voisine et a reçu 20M !");
+        Debug.Log($"{MonopolyPlayer.Name} a aidé sa voisine et a reçu 20M !");
     }
 }
 public class LoudMusicCard : CommunityTile
@@ -48,14 +48,14 @@ public class LoudMusicCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur va directement en prison
-        player.MoveToPrison();
+        MonopolyPlayer.MoveToPrison();
 
-        Debug.Log($"{player.Name} a été envoyé en prison pour avoir écouté de la musique trop fort !");
+        Debug.Log($"{MonopolyPlayer.Name} a été envoyé en prison pour avoir écouté de la musique trop fort !");
     }
 }
 
@@ -66,17 +66,17 @@ public class MarathonForHospitalCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Avancer jusqu'à la case Départ
-        player.MoveToStart();
+        MonopolyPlayer.MoveToStart();
         
         // Ajouter 200M au joueur
-        player.Money += 200;
+        MonopolyPlayer.Money += 200;
 
-        Debug.Log($"{player.Name} a avancé jusqu'à la case Départ et a reçu 200M.");
+        Debug.Log($"{MonopolyPlayer.Name} a avancé jusqu'à la case Départ et a reçu 200M.");
     }
 }
 public class BloodDonationCard : CommunityTile
@@ -86,14 +86,14 @@ public class BloodDonationCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter 10M au joueur
-        player.Money += 10;
+        MonopolyPlayer.Money += 10;
 
-        Debug.Log($"{player.Name} a reçu 10M pour avoir donné son sang.");
+        Debug.Log($"{MonopolyPlayer.Name} a reçu 10M pour avoir donné son sang.");
     }
 }
 public class AnimalShelterDonationCard : CommunityTile
@@ -103,14 +103,14 @@ public class AnimalShelterDonationCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Retirer 50M du joueur
-        player.Money -= 50;
+        MonopolyPlayer.Money -= 50;
 
-        Debug.Log($"{player.Name} a payé 50M en don au refuge animalier.");
+        Debug.Log($"{MonopolyPlayer.Name} a payé 50M en don au refuge animalier.");
     }
 }
 public class ChattingWithElderNeighborCard : CommunityTile
@@ -120,14 +120,14 @@ public class ChattingWithElderNeighborCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter 100M au joueur
-        player.Money += 100;
+        MonopolyPlayer.Money += 100;
 
-        Debug.Log($"{player.Name} a reçu 100M pour avoir bavardé avec son voisin âgé.");
+        Debug.Log($"{MonopolyPlayer.Name} a reçu 100M pour avoir bavardé avec son voisin âgé.");
     }
 }
 public class PedestrianPathCleanupCard : CommunityTile
@@ -137,14 +137,14 @@ public class PedestrianPathCleanupCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter 50M au joueur
-        player.Money += 50;
+        MonopolyPlayer.Money += 50;
 
-        Debug.Log($"{player.Name} a reçu 50M pour avoir organisé le nettoyage du parcours piéton.");
+        Debug.Log($"{MonopolyPlayer.Name} a reçu 50M pour avoir organisé le nettoyage du parcours piéton.");
     }
 }
 
@@ -155,14 +155,14 @@ public class HospitalPlayCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter 100M au joueur
-        player.Money += 100;
+        MonopolyPlayer.Money += 100;
 
-        Debug.Log($"{player.Name} a reçu 100M pour avoir joué avec les enfants à l'hôpital local.");
+        Debug.Log($"{MonopolyPlayer.Name} a reçu 100M pour avoir joué avec les enfants à l'hôpital local.");
     }
 }
 public class GardenCleanupCard : CommunityTile
@@ -172,14 +172,14 @@ public class GardenCleanupCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter 200M au joueur
-        player.Money += 200;
+        MonopolyPlayer.Money += 200;
 
-        Debug.Log($"{player.Name} a reçu 200M pour avoir aidé ses voisins à nettoyer leur jardin.");
+        Debug.Log($"{MonopolyPlayer.Name} a reçu 200M pour avoir aidé ses voisins à nettoyer leur jardin.");
     }
 }
 public class BakeSalePurchaseCard : CommunityTile
@@ -189,14 +189,14 @@ public class BakeSalePurchaseCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Déduire 50M au joueur
-        player.Money -= 50;
+        MonopolyPlayer.Money -= 50;
 
-        Debug.Log($"{player.Name} a payé 50M pour des petits gâteaux délicieux.");
+        Debug.Log($"{MonopolyPlayer.Name} a payé 50M pour des petits gâteaux délicieux.");
     }
 }
 public class CharityCarWashCard : CommunityTile
@@ -206,14 +206,14 @@ public class CharityCarWashCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Déduire 100M au joueur
-        player.Money -= 100;
+        MonopolyPlayer.Money -= 100;
 
-        Debug.Log($"{player.Name} a payé 100M après un passage au lave-auto caritatif.");
+        Debug.Log($"{MonopolyPlayer.Name} a payé 100M après un passage au lave-auto caritatif.");
     }
 }
 public class HousingImprovementCard : CommunityTile
@@ -223,20 +223,20 @@ public class HousingImprovementCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
-        int housesOwned = player.Properties.Sum(property => property.Houses);
-        int hotelsOwned = player.Properties.Sum(property => property.Hotels);
+        int housesOwned = MonopolyPlayer.Properties.Sum(property => property.Houses);
+        int hotelsOwned = MonopolyPlayer.Properties.Sum(property => property.Hotels);
 
         int totalCost = (housesOwned * 40) + (hotelsOwned * 115);
 
         // Déduire le coût total du joueur
-        player.Money -= totalCost;
+        MonopolyPlayer.Money -= totalCost;
 
-        Debug.Log($"{player.Name} possède {housesOwned} maisons et {hotelsOwned} hôtels.");
-        Debug.Log($"{player.Name} doit payer un total de {totalCost}M pour le projet d'amélioration de l'habitat.");
+        Debug.Log($"{MonopolyPlayer.Name} possède {housesOwned} maisons et {hotelsOwned} hôtels.");
+        Debug.Log($"{MonopolyPlayer.Name} doit payer un total de {totalCost}M pour le projet d'amélioration de l'habitat.");
     }
 }
 public class BakeSaleCard : CommunityTile
@@ -246,14 +246,14 @@ public class BakeSaleCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter 25M au joueur
-        player.Money += 25;
+        MonopolyPlayer.Money += 25;
 
-        Debug.Log($"{player.Name} reçoit 25M pour avoir organisé une vente de pâtisseries.");
+        Debug.Log($"{MonopolyPlayer.Name} reçoit 25M pour avoir organisé une vente de pâtisseries.");
     }
 }
 public class NeighborhoodPartyCard : CommunityTile
@@ -263,27 +263,27 @@ public class NeighborhoodPartyCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Récupérer la liste de tous les joueurs
-        var allPlayers = GameManager.Instance.GetAllPlayers();
+        var allMonopolyPlayers = GameManager.Instance.GetAllMonopolyPlayers();
         int totalReceived = 0;
 
-        foreach (var otherPlayer in allPlayers)
+        foreach (var otherMonopolyPlayer in allMonopolyPlayers)
         {
-            if (otherPlayer != player)
+            if (otherMonopolyPlayer != MonopolyPlayer)
             {
-                otherPlayer.Money -= 10;
-                player.Money += 10;
+                otherMonopolyPlayer.Money -= 10;
+                MonopolyPlayer.Money += 10;
                 totalReceived += 10;
 
-                Debug.Log($"{otherPlayer.Name} paie 10M à {player.Name} pour la fête de quartier.");
+                Debug.Log($"{otherMonopolyPlayer.Name} paie 10M à {MonopolyPlayer.Name} pour la fête de quartier.");
             }
         }
 
-        Debug.Log($"{player.Name} a reçu un total de {totalReceived}M des autres joueurs pour la fête.");
+        Debug.Log($"{MonopolyPlayer.Name} a reçu un total de {totalReceived}M des autres joueurs pour la fête.");
     }
 }
 public class PlaygroundDonationCard : CommunityTile
@@ -293,13 +293,13 @@ public class PlaygroundDonationCard : CommunityTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter 100M au joueur
-        player.Money += 100;
+        MonopolyPlayer.Money += 100;
 
-        Debug.Log($"{player.Name} reçoit 100M pour avoir aidé à construire un terrain de jeux.");
+        Debug.Log($"{MonopolyPlayer.Name} reçoit 100M pour avoir aidé à construire un terrain de jeux.");
     }
 }

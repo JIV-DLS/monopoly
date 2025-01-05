@@ -98,4 +98,58 @@ public class DicesManager : MonoBehaviour
     {
         
     }
+
+    public IEnumerator<List<int>> RollDicesAndGetResult()
+    {
+
+        // Create an array of enumerators for each DiceRoller
+        List<IEnumerator<int>> rollEnumerators = new List<IEnumerator<int>>();
+        foreach (var dice in dices)
+        {
+            rollEnumerators.Add(dice.Roll());
+        }
+
+        // Yield initial results (0) from all dice
+        List<int> initialResults = new List<int>();
+        foreach (var enumerator in rollEnumerators)
+        {
+            // Initially yield 0 for all dice
+            if (enumerator.MoveNext()) initialResults.Add(enumerator.Current);
+        }
+        yield return initialResults;
+
+        // Simulate a delay before rolling
+        yield return null;
+
+        // Now gather the final results
+        List<int> finalResults = new List<int>();
+        bool allDone = false;
+
+        while (!allDone)
+        {
+            allDone = true;
+            foreach (var enumerator in rollEnumerators)
+            {
+                if (enumerator.MoveNext())
+                {
+                    // Continue rolling, but only add final result once finished
+                    allDone = false; // At least one die is still rolling
+                }
+                else
+                {
+                    // Only add the final result (after MoveNext() returns false)
+                    finalResults.Add(enumerator.Current);
+                }
+            }
+
+            if (!allDone)
+            {
+                // Yield again until all dice are rolled
+                yield return null;
+            }
+        }
+
+        // After all dice rolls are completed, yield the final results
+        yield return finalResults;
+    }
 }

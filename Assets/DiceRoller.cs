@@ -18,7 +18,6 @@ public class DiceRoller : MonoBehaviour
     private Vector3 previousPosition;
     private Quaternion previousRotation;
 
-   private float timer = 0f;
     private bool actionTriggered = false;
      readonly List<int> FaceRepresent = new List<int>() {0, 1, 2, 3, 4, 5, 6};
     private DateTime _lastActionTime;
@@ -118,41 +117,7 @@ public class DiceRoller : MonoBehaviour
     void Update()
     {
         
-        if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold)
-        {        
-            // Debug.Log($"id {id}, velocity: {diceRigidbody.linearVelocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
-
-            if (currentCollisions.Count > 1)
-            {
-                ThrowAnyway();
-            }
-            else
-            {
-                // Check if position and rotation have remained the same for 1 second
-                if (transform.position == previousPosition && transform.rotation == previousRotation)
-                {
-                    timer += Time.deltaTime; // Accumulate time
-                    // Debug.Log($"id {id} all position is good {timer} {actionTriggered}");
-                    int _lastRoll = GetFaceAccordingToXYZ();
-                    if (_lastRoll == 0)
-                    {
-                        ThrowAnyway();
-                    }
-                    else if (timer >= 1f && !actionTriggered)
-                    {
-                        // Trigger the action if 1 second has passed
-                        DoDieMovementEndedAction(_lastRoll); 
-                        actionTriggered = true; // Prevent multiple triggers
-                    }
-                }
-                else
-                {
-                    // Reset the timer if position or rotation changes
-                    timer = 0f;
-                    actionTriggered = false;
-                }
-             }
-        }        
+                
         // Store the initial position and rotation
         previousPosition = transform.position;
         previousRotation = transform.rotation;
@@ -274,5 +239,55 @@ public class DiceRoller : MonoBehaviour
         // Get the cloned component
         DiceRoller clonedComponent = clone.GetComponent<DiceRoller>();
         return clonedComponent;
+    }
+
+    // Simulates rolling the dice and stores the result
+    public IEnumerator<int> Roll()
+    {
+        // Return 0 initially as a placeholder
+        yield return 0;
+        int faceAccordingToXYZ;
+        ThrowAnyway();
+        while (true)
+        {
+            if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold)
+            {        
+                // Debug.Log($"id {id}, velocity: {diceRigidbody.linearVelocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
+
+                if (currentCollisions.Count > 1)
+                {
+                    for (int i = 0; i < 50; i++)
+                    {
+                        yield return 0; //Wait for 50 frames
+                    }
+                    ThrowAnyway();
+                }
+                else
+                {
+                    // Check if position and rotation have remained the same for 1 second
+                    if (transform.position == previousPosition && transform.rotation == previousRotation)
+                    {
+                        // Debug.Log($"id {id} all position is good {timer} {actionTriggered}");
+                        faceAccordingToXYZ = GetFaceAccordingToXYZ();
+                        if (faceAccordingToXYZ == 0)
+                        {
+                            ThrowAnyway();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Reset the timer if position or rotation changes
+                        actionTriggered = false;
+                    }
+                }
+            }
+            yield return 0;
+        }
+        
+        yield return faceAccordingToXYZ; // Return the rolled value
     }
 }

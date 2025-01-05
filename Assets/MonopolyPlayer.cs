@@ -1,14 +1,117 @@
 
+using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;  // Ensure this is included for LINQ methods
 
+
+public class MonopolyPlayerDeck
+{
+    private Dictionary<int, PurchasableTile> _purchasableTiles = new Dictionary<int, PurchasableTile>();
+
+    // Add any object of type T where T inherits from Mother
+    public void Add<T>(int key, T value) where T : PurchasableTile
+    {
+        if (!_purchasableTiles.ContainsKey(key))
+        {
+            _purchasableTiles.Add(key, value);
+            Console.WriteLine($"Added {typeof(T).Name} with key {key}");
+        }
+        else
+        {
+            Console.WriteLine($"{typeof(T).Name} with key {key} already exists.");
+        }
+    }
+
+    // Remove an object by key
+    public bool RemoveByKey(int key)
+    {
+        if (_purchasableTiles.ContainsKey(key))
+        {
+            _purchasableTiles.Remove(key);
+            Console.WriteLine($"Removed object with key {key}");
+            return true;
+        }
+        return false;
+    }
+
+    // Remove an object by reference
+    public bool RemoveObject<T>(T value) where T : PurchasableTile
+    {
+        var key = FindKey<T>(value);
+        if (key.HasValue)
+        {
+            _purchasableTiles.Remove(key.Value);
+            Console.WriteLine($"Removed {typeof(T).Name} object: {value}");
+            return true;
+        }
+        return false;
+    }
+
+    // Get an object by key
+    public T Get<T>(int key) where T : PurchasableTile
+    {
+        if (_purchasableTiles.ContainsKey(key) && _purchasableTiles[key] is T)
+        {
+            return (T)_purchasableTiles[key];
+        }
+        return null;
+    }
+
+    // Display all entries
+    public void Display()
+    {
+        foreach (var item in _purchasableTiles)
+        {
+            Console.WriteLine($"Key: {item.Key}, Type: {item.Value.GetType().Name}");
+        }
+    }
+
+    // Get the count of objects of a specific type T
+    public int GetCountOfType<T>() where T : PurchasableTile
+    {
+        return _purchasableTiles.Values.Count(value => value is T);
+    }
+
+    // Helper to find the key of an object
+    private int? FindKey<T>(T value) where T : PurchasableTile
+    {
+        foreach (var item in _purchasableTiles)
+        {
+            if (item.Value is T && EqualityComparer<T>.Default.Equals((T)item.Value, value))
+            {
+                return item.Key;
+            }
+        }
+        return null;
+    }
+
+    public bool HaveAtLeastOneCard()
+    {
+        return _purchasableTiles.Count > 0;
+    }
+
+    public IGood GetSmallestGood()
+    {
+        // Transform the dictionary into a collection of prices
+        return _purchasableTiles
+            .Select(tile => tile.Value.GetSmallestGood())  // Get the price from each tile
+            .ToList().Min();  
+        /*
+         return _purchasableTiles
+            .OrderBy(tile => tile.Value.GetSmallestGood())  // Sort by the price
+            .FirstOrDefault().Value.GetSmallestGood();  // Get the first (smallest) one
+            */
+    }
+}
 public class MonopolyPlayer
 {
     public MonopolyPlayer(string playerName, PlayerSummaryButton playerSummaryButton,
         PlayerElementOnMap playerElementOnMap, ThrowDices throwDices,
         MonopolyGameManager monopolyGameManager)
     {
-        
+        deck = new MonopolyPlayerDeck();
         name = playerName;
         _playerSummaryButton = playerSummaryButton;
         _playerSummaryButton.setPlayer(this);
@@ -17,7 +120,8 @@ public class MonopolyPlayer
         _throwDices.SetSelfMadePlayer(this);
         _monopolyGameManager = monopolyGameManager;
     }
-    
+
+    public MonopolyPlayerDeck deck{get; private set;}
     private ThrowDices _throwDices;
     public string name{get; private set;}
     private PlayerSummaryButton _playerSummaryButton;
@@ -171,5 +275,45 @@ public class MonopolyPlayer
     {
         _throwDices.SetButtonInteractable(true);
     }
+
+    public bool canBeChargedOf(int dueAmount)
+    {
+        return money > dueAmount;
+    }
+
+    public int ChargedOf(int dueAmount)
+    {
+        money -= dueAmount;
+        return money;
+    }
+
+    public void HaveWon(int chargedOf)
+    {
+        money += chargedOf;
+    }
+
+    public IEnumerator GatherMoneyToReach(int chargedOf)
+    {
+        while (!canBeChargedOf(chargedOf) && HavePurchasedTiles())
+        {
+            Good good = deck.GetSmallestGood();
+        }
+
+        yield return null;
+    }
+
+    private bool HavePurchasedTiles()
+    {
+        return deck.HaveAtLeastOneCard();
+    }
 }
 
+public interface IGood
+{
+    public int GetSellPrice();
+}
+public abstract class Good: IGood
+{
+    // You can leave this method abstract or provide a default implementation.
+    public abstract int GetSellPrice();
+}

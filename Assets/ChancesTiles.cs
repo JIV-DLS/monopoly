@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ChancesTiles
@@ -14,27 +16,27 @@ public class ElectedChairmanCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Récupérer la liste de tous les joueurs
-        var allPlayers = GameManager.Instance.GetAllPlayers();
+        var allMonopolyPlayers = GameManager.Instance.GetAllMonopolyPlayers();
         int totalToPay = 0;
 
-        foreach (var otherPlayer in allPlayers)
+        foreach (var otherMonopolyPlayer in allMonopolyPlayers)
         {
-            if (otherPlayer != player)
+            if (otherMonopolyPlayer != MonopolyPlayer)
             {
-                player.Money -= 50;
-                otherPlayer.Money += 50;
+                MonopolyPlayer.Money -= 50;
+                otherMonopolyPlayer.Money += 50;
                 totalToPay += 50;
 
-                Debug.Log($"{player.Name} paie 50M à {otherPlayer.Name}.");
+                Debug.Log($"{MonopolyPlayer.Name} paie 50M à {otherMonopolyPlayer.Name}.");
             }
         }
 
-        Debug.Log($"{player.Name} a payé un total de {totalToPay}M aux autres joueurs.");
+        Debug.Log($"{MonopolyPlayer.Name} a payé un total de {totalToPay}M aux autres joueurs.");
     }
 }
 public class AdvanceToBoulevardDeLaVilletteCard : ChanceTile
@@ -44,69 +46,25 @@ public class AdvanceToBoulevardDeLaVilletteCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Position du Boulevard de la Villette
         int targetPosition = 11; // Exemple : index de la case sur le plateau
-        bool passesStart = player.CurrentPosition > targetPosition;
+        bool passesStart = MonopolyPlayer.CurrentPosition > targetPosition;
 
         if (passesStart)
         {
             // Ajouter 200M pour avoir passé la case départ
-            player.Money += 200;
-            Debug.Log($"{player.Name} passe par la case départ et reçoit 200M.");
+            MonopolyPlayer.Money += 200;
+            Debug.Log($"{MonopolyPlayer.Name} passe par la case départ et reçoit 200M.");
         }
 
         // Déplacer le joueur sur le Boulevard de la Villette
-        player.MoveToPosition(targetPosition);
+        MonopolyPlayer.MoveToPosition(targetPosition);
 
-        Debug.Log($"{player.Name} avance jusqu'au Boulevard de la Villette.");
-    }
-}
-public class Player
-{
-    public string Name { get; private set; }
-    public int Money { get; set; }
-    public int CurrentPosition { get; private set; }
-    public bool IsInJail { get; set; }
-    private List<ChanceTile> inventory;
-
-    public Player(string name)
-    {
-        Name = name;
-        Money = 1500; // Exemple de montant de départ
-        CurrentPosition = 0;
-        IsInJail = false;
-        inventory = new List<ChanceTile>();
-    }
-
-    public void MoveToPosition(int position)
-    {
-        CurrentPosition = position;
-        Debug.Log($"{Name} se déplace à la position {CurrentPosition}.");
-    }
-
-    public void AddToInventory(ChanceTile card)
-    {
-        inventory.Add(card);
-        Debug.Log($"{Name} ajoute une carte à son inventaire : {card.Description}");
-    }
-
-    public bool UseGetOutOfJailCard()
-    {
-        var card = inventory.OfType<GetOutOfJailCard>().FirstOrDefault();
-        if (card != null)
-        {
-            inventory.Remove(card);
-            IsInJail = false;
-            Debug.Log($"{Name} utilise une carte 'Libéré de prison' et sort de prison.");
-            return true;
-        }
-
-        Debug.Log($"{Name} n'a pas de carte 'Libéré de prison'.");
-        return false;
+        Debug.Log($"{MonopolyPlayer.Name} avance jusqu'au Boulevard de la Villette.");
     }
 }
 public class GetOutOfJailCard : ChanceTile
@@ -116,14 +74,14 @@ public class GetOutOfJailCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Ajouter cette carte à l'inventaire du joueur
-        player.AddToInventory(this);
+        MonopolyPlayer.AddToInventory(this);
 
-        Debug.Log($"{player.Name} conserve la carte 'Libéré de prison' pour une utilisation future.");
+        Debug.Log($"{MonopolyPlayer.Name} conserve la carte 'Libéré de prison' pour une utilisation future.");
     }
 }
 public class MoveBackThreeSpacesCard : ChanceTile
@@ -133,12 +91,12 @@ public class MoveBackThreeSpacesCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur recule de trois cases
-        int newPosition = player.CurrentPosition - 3;
+        int newPosition = MonopolyPlayer.CurrentPosition - 3;
 
         // S'assurer que la position ne soit pas inférieure à zéro (ne pas sortir du plateau)
         if (newPosition < 0)
@@ -146,9 +104,9 @@ public class MoveBackThreeSpacesCard : ChanceTile
             newPosition = 0; // La première case du plateau
         }
 
-        player.MoveToPosition(newPosition);
+        MonopolyPlayer.MoveToPosition(newPosition);
 
-        Debug.Log($"{player.Name} recule de trois cases.");
+        Debug.Log($"{MonopolyPlayer.Name} recule de trois cases.");
     }
 }
 public class RealEstateLoanCard : ChanceTile
@@ -158,14 +116,14 @@ public class RealEstateLoanCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur reçoit 150 millions
-        player.Money += 150;
+        MonopolyPlayer.Money += 150;
         
-        Debug.Log($"{player.Name} reçoit 150M grâce à son prêt immobilier.");
+        Debug.Log($"{MonopolyPlayer.Name} reçoit 150M grâce à son prêt immobilier.");
     }
 }
 public class AdvanceToGareMontparnasseCard : ChanceTile
@@ -175,25 +133,25 @@ public class AdvanceToGareMontparnasseCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Supposons que la Gare Montparnasse est à la position 15
         int gareMontparnassePosition = 15;
-        int currentPosition = player.CurrentPosition;
+        int currentPosition = MonopolyPlayer.CurrentPosition;
         
         // Le joueur se déplace à la Gare Montparnasse
-        player.MoveToPosition(gareMontparnassePosition);
+        MonopolyPlayer.MoveToPosition(gareMontparnassePosition);
 
         // Vérifier si le joueur est passé par la case Départ
         if (currentPosition < gareMontparnassePosition)
         {
-            player.Money += 200; // Le joueur reçoit 200 millions s'il passe par la case Départ
-            Debug.Log($"{player.Name} passe par la case Départ et reçoit 200M.");
+            MonopolyPlayer.Money += 200; // Le joueur reçoit 200 millions s'il passe par la case Départ
+            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M.");
         }
 
-        Debug.Log($"{player.Name} avance à la Gare Montparnasse.");
+        Debug.Log($"{MonopolyPlayer.Name} avance à la Gare Montparnasse.");
     }
 }
 public class AdvanceToAvenueHenriMartinCard : ChanceTile
@@ -203,25 +161,25 @@ public class AdvanceToAvenueHenriMartinCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Supposons que l'Avenue Henri-Martin est à la position 17
         int avenueHenriMartinPosition = 17;
-        int currentPosition = player.CurrentPosition;
+        int currentPosition = MonopolyPlayer.CurrentPosition;
         
         // Le joueur se déplace à l'Avenue Henri-Martin
-        player.MoveToPosition(avenueHenriMartinPosition);
+        MonopolyPlayer.MoveToPosition(avenueHenriMartinPosition);
 
         // Vérifier si le joueur est passé par la case Départ
         if (currentPosition < avenueHenriMartinPosition)
         {
-            player.Money += 200; // Le joueur reçoit 200 millions s'il passe par la case Départ
-            Debug.Log($"{player.Name} passe par la case Départ et reçoit 200M.");
+            MonopolyPlayer.Money += 200; // Le joueur reçoit 200 millions s'il passe par la case Départ
+            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M.");
         }
 
-        Debug.Log($"{player.Name} avance à l'Avenue Henri-Martin.");
+        Debug.Log($"{MonopolyPlayer.Name} avance à l'Avenue Henri-Martin.");
     }
 }
 public class GoToJailCard : ChanceTile
@@ -231,15 +189,15 @@ public class GoToJailCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur va en prison
-        player.MoveToPosition(10); // Supposons que la case Prison est à la position 10
-        player.InPrison = true; // Le joueur est en prison
+        MonopolyPlayer.MoveToPosition(10); // Supposons que la case Prison est à la position 10
+        MonopolyPlayer.InPrison = true; // Le joueur est en prison
 
-        Debug.Log($"{player.Name} va directement en prison. Il ne passe pas par la case Départ et ne reçoit pas 200M.");
+        Debug.Log($"{MonopolyPlayer.Name} va directement en prison. Il ne passe pas par la case Départ et ne reçoit pas 200M.");
     }
 }
 public class AdvanceToRueDeLaPaixCard : ChanceTile
@@ -249,15 +207,15 @@ public class AdvanceToRueDeLaPaixCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur se déplace à la Rue de la Paix
         int rueDeLaPaixPosition = 39; // Supposons que la Rue de la Paix est à la position 39
-        player.MoveToPosition(rueDeLaPaixPosition);
+        MonopolyPlayer.MoveToPosition(rueDeLaPaixPosition);
 
-        Debug.Log($"{player.Name} avance à la Rue de la Paix.");
+        Debug.Log($"{MonopolyPlayer.Name} avance à la Rue de la Paix.");
     }
 }
 public class AdvanceToStartCard : ChanceTile
@@ -267,15 +225,15 @@ public class AdvanceToStartCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         // Le joueur se déplace à la case Départ
-        player.MoveToPosition(0); // Supposons que la case Départ est à la position 0
-        player.Money += 200; // Le joueur reçoit 200 millions
+        MonopolyPlayer.MoveToPosition(0); // Supposons que la case Départ est à la position 0
+        MonopolyPlayer.Money += 200; // Le joueur reçoit 200 millions
 
-        Debug.Log($"{player.Name} avance à la case Départ et reçoit 200M. Nouveau solde : {player.Money}M.");
+        Debug.Log($"{MonopolyPlayer.Name} avance à la case Départ et reçoit 200M. Nouveau solde : {MonopolyPlayer.Money}M.");
     }
 }
 public class RepairCostCard : ChanceTile
@@ -285,35 +243,35 @@ public class RepairCostCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
         int houseRepairCost = 25;
         int hotelRepairCost = 100;
         int totalRepairCost = 0;
 
         // Parcourir les propriétés du joueur et appliquer les réparations
-        foreach (var property in player.Properties)
+        foreach (var property in MonopolyPlayer.Properties)
         {
             if (property.HasHouse)
             {
                 totalRepairCost += houseRepairCost;
-                Debug.Log($"{player.Name} paie {houseRepairCost}M pour chaque maison sur {property.Name}.");
+                Debug.Log($"{MonopolyPlayer.Name} paie {houseRepairCost}M pour chaque maison sur {property.Name}.");
             }
 
             if (property.HasHotel)
             {
                 totalRepairCost += hotelRepairCost;
-                Debug.Log($"{player.Name} paie {hotelRepairCost}M pour chaque hôtel sur {property.Name}.");
+                Debug.Log($"{MonopolyPlayer.Name} paie {hotelRepairCost}M pour chaque hôtel sur {property.Name}.");
             }
         }
 
         // Déduire le coût total des réparations
-        player.Money -= totalRepairCost;
+        MonopolyPlayer.Money -= totalRepairCost;
 
         // Affichage du solde après les réparations
-        Debug.Log($"{player.Name} paie {totalRepairCost}M pour les réparations. Nouveau solde : {player.Money}M.");
+        Debug.Log($"{MonopolyPlayer.Name} paie {totalRepairCost}M pour les réparations. Nouveau solde : {MonopolyPlayer.Money}M.");
     }
 }
 public class SpeedingFineCard : ChanceTile
@@ -323,14 +281,14 @@ public class SpeedingFineCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
         
         int fineAmount = 15;
-        player.Money -= fineAmount;
+        MonopolyPlayer.Money -= fineAmount;
         
-        Debug.Log($"{player.Name} paie une amende de {fineAmount}M. Nouveau solde : {player.Money}M.");
+        Debug.Log($"{MonopolyPlayer.Name} paie une amende de {fineAmount}M. Nouveau solde : {MonopolyPlayer.Money}M.");
     }
 }
 public class AdvanceToStationCardChance : ChanceTile
@@ -340,19 +298,19 @@ public class AdvanceToStationCardChance : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
-        int nextStationPosition = FindNextStation(player.CurrentPosition);
+        Debug.Log($"Effet de carte : {description}");
+        int nextStationPosition = FindNextStation(MonopolyPlayer.CurrentPosition);
 
-        if (nextStationPosition < player.CurrentPosition) 
+        if (nextStationPosition < MonopolyPlayer.CurrentPosition) 
         {
-            player.Money += 200;
-            Debug.Log($"{player.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {player.Money}M.");
+            MonopolyPlayer.Money += 200;
+            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {MonopolyPlayer.Money}M.");
         }
 
-        player.MoveToPosition(nextStationPosition);
-        HandleStation(player, nextStationPosition);
+        MonopolyPlayer.MoveToPosition(nextStationPosition);
+        HandleStation(MonopolyPlayer, nextStationPosition);
     }
 
     private int FindNextStation(int currentPosition)
@@ -367,24 +325,24 @@ public class AdvanceToStationCardChance : ChanceTile
         return stationPositions[0]; // Retourne à la première gare
     }
 
-    private void HandleStation(Player player, int stationPosition)
+    private void HandleStation(MonopolyPlayer MonopolyPlayer, int stationPosition)
     {
-        Tile station = Board.GetTile(stationPosition);
+        Tile station = Board.GetTileAtIndex(stationPosition);
 
         if (station.Owner == null)
         {
             Debug.Log($"La gare à la position {stationPosition} n'appartient à personne. Vous pouvez l'acheter.");
         }
-        else if (station.Owner != player)
+        else if (station.Owner != MonopolyPlayer)
         {
             int rent = station.Rent * 2; // Double du loyer
-            player.Money -= rent;
+            MonopolyPlayer.Money -= rent;
             station.Owner.Money += rent;
-            Debug.Log($"{player.Name} paie {rent}M au propriétaire {station.Owner.Name}. Nouveau solde : {player.Money}M.");
+            Debug.Log($"{MonopolyPlayer.Name} paie {rent}M au propriétaire {station.Owner.Name}. Nouveau solde : {MonopolyPlayer.Money}M.");
         }
         else
         {
-            Debug.Log($"{player.Name} possède déjà cette gare.");
+            Debug.Log($"{MonopolyPlayer.Name} possède déjà cette gare.");
         }
     }
 }
@@ -395,19 +353,19 @@ public class AdvanceToStationCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
-        int nextStationPosition = FindNextStation(player.CurrentPosition);
+        Debug.Log($"Effet de carte : {description}");
+        int nextStationPosition = FindNextStation(MonopolyPlayer.CurrentPosition);
 
-        if (nextStationPosition < player.CurrentPosition) 
+        if (nextStationPosition < MonopolyPlayer.CurrentPosition) 
         {
-            player.Money += 200;
-            Debug.Log($"{player.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {player.Money}M.");
+            MonopolyPlayer.Money += 200;
+            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {MonopolyPlayer.Money}M.");
         }
 
-        player.MoveToPosition(nextStationPosition);
-        HandleStation(player, nextStationPosition);
+        MonopolyPlayer.MoveToPosition(nextStationPosition);
+        HandleStation(MonopolyPlayer, nextStationPosition);
     }
 
     private int FindNextStation(int currentPosition)
@@ -422,24 +380,24 @@ public class AdvanceToStationCard : ChanceTile
         return stationPositions[0]; // Retourne à la première gare
     }
 
-    private void HandleStation(Player player, int stationPosition)
+    private void HandleStation(MonopolyPlayer MonopolyPlayer, int stationPosition)
     {
-        Tile station = Board.GetTile(stationPosition);
+        Tile station = Board.GetTileAtIndex(stationPosition);
 
         if (station.Owner == null)
         {
             Debug.Log($"La gare à la position {stationPosition} n'appartient à personne. Vous pouvez l'acheter.");
         }
-        else if (station.Owner != player)
+        else if (station.Owner != MonopolyPlayer)
         {
             int rent = station.Rent * 2; // Double du loyer
-            player.Money -= rent;
+            MonopolyPlayer.Money -= rent;
             station.Owner.Money += rent;
-            Debug.Log($"{player.Name} paie {rent}M au propriétaire {station.Owner.Name}. Nouveau solde : {player.Money}M.");
+            Debug.Log($"{MonopolyPlayer.Name} paie {rent}M au propriétaire {station.Owner.Name}. Nouveau solde : {MonopolyPlayer.Money}M.");
         }
         else
         {
-            Debug.Log($"{player.Name} possède déjà cette gare.");
+            Debug.Log($"{MonopolyPlayer.Name} possède déjà cette gare.");
         }
     }
 }
@@ -450,21 +408,21 @@ public class AdvanceToStationCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
+        Debug.Log($"Effet de carte : {description}");
 
-        int nextStationPosition = FindNextStation(player.CurrentPosition);
+        int nextStationPosition = FindNextStation(MonopolyPlayer.CurrentPosition);
 
         // Si le joueur passe par la case Départ
-        if (nextStationPosition < player.CurrentPosition)
+        if (nextStationPosition < MonopolyPlayer.CurrentPosition)
         {
-            player.Money += 200;
-            Debug.Log($"{player.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {player.Money}M.");
+            MonopolyPlayer.Money += 200;
+            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {MonopolyPlayer.Money}M.");
         }
 
-        player.MoveToPosition(nextStationPosition);
-        HandleStationOwnership(player, nextStationPosition);
+        MonopolyPlayer.MoveToPosition(nextStationPosition);
+        HandleStationOwnership(MonopolyPlayer, nextStationPosition);
     }
 
     private int FindNextStation(int currentPosition)
@@ -482,7 +440,7 @@ public class AdvanceToStationCard : ChanceTile
         return stationPositions[0];
     }
 
-    private void HandleStationOwnership(Player player, int stationPosition)
+    private void HandleStationOwnership(MonopolyPlayer MonopolyPlayer, int stationPosition)
     {
         bool isOwned = UnityEngine.Random.value > 0.5f; // Simuler si la gare est possédée
         if (!isOwned)
@@ -492,8 +450,8 @@ public class AdvanceToStationCard : ChanceTile
         else
         {
             int rent = CalculateStationRent() * 2; // Double du loyer
-            player.Money -= rent;
-            Debug.Log($"{player.Name} paie {rent}M au propriétaire. Nouveau solde : {player.Money}M.");
+            MonopolyPlayer.Money -= rent;
+            Debug.Log($"{MonopolyPlayer.Name} paie {rent}M au propriétaire. Nouveau solde : {MonopolyPlayer.Money}M.");
         }
     }
 
@@ -510,33 +468,61 @@ public class BankDividendCard : ChanceTile
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
-        player.Money += 50;
-        Debug.Log($"{player.Name} reçoit un dividende de 50M. Nouveau solde : {player.Money}M.");
+        Debug.Log($"Effet de carte : {description}");
+        MonopolyPlayer.Money += 50;
+        Debug.Log($"{MonopolyPlayer.Name} reçoit un dividende de 50M. Nouveau solde : {MonopolyPlayer.Money}M.");
     }
 }
 public class AdvanceToUtilityCard : ChanceTile
 {
-    public AdvanceToUtilityCard() 
-        : base("Avancez jusqu'au prochain service public. S'il n'appartient à personne, vous pouvez l'acheter à la banque. S'il appartient à un joueur, lancez les dés et payez 10x le montant du résultat au propriétaire. Si vous passez par la case Départ, recevez 200M.")
+    public AdvanceToUtilityCard(GameObject tileGameObject) 
+        : base(tileGameObject,"Avancez jusqu'au prochain service public. S'il n'appartient à personne, vous pouvez l'acheter à la banque. S'il appartient à un joueur, lancez les dés et payez 10x le montant du résultat au propriétaire. Si vous passez par la case Départ, recevez 200M.")
     {
     }
 
-    public override void ApplyEffect(Player player)
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        Debug.Log($"Effet de carte : {Description}");
-
-        int nextUtilityPosition = FindNextUtility(player.CurrentPosition);
-        if (nextUtilityPosition < player.CurrentPosition) // Passe par la case Départ
+        yield return monopolyGameManager.MoveAPlayerToNextType<PublicServiceTile>(monopolyPlayer);
+        PublicServiceTile nextServiceTile = (PublicServiceTile)monopolyPlayer.tile;
+        Debug.Assert(nextServiceTile!=null, "Next service not found");
+        if ( nextServiceTile.IsOwned() && !nextServiceTile.IsOwnedBy(monopolyPlayer))
         {
-            player.Money += 200;
-            Debug.Log($"{player.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {player.Money}M.");
+            MonopolyPlayer tileOwner = nextServiceTile.GetOwner();
+            monopolyGameManager.SetGameTextEventsText($"{nextServiceTile} est détenu par {tileOwner}");
+            yield return new WaitForSeconds(1.5f);
+            
+            
+            List<int> rolledResult = new List<int>();
+            foreach (List<int> rolledResultFromEnumerator in monopolyGameManager.AskAPlayerToRollDices(monopolyPlayer))
+            {
+                yield return null;
+                rolledResult = rolledResultFromEnumerator;
+            }
+
+            int resultPlayed = rolledResult.Sum();
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a joué {resultPlayed}");
+            yield return new WaitForSeconds(1f);
+            int dueAmount = resultPlayed * 10;
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a joué {resultPlayed}, donc doit payer {dueAmount}");
+            yield return monopolyGameManager.PlayerAPayPlayerB(monopolyPlayer, tileOwner, dueAmount);
+            yield return new WaitForSeconds(1f);
+            
+
+        }
+        Debug.Log($"Effet de carte : {description}");
+
+        int nextUtilityPosition = FindNextUtility(MonopolyPlayer.CurrentPosition);
+        if (nextUtilityPosition < MonopolyPlayer.CurrentPosition) // Passe par la case Départ
+        {
+            MonopolyPlayer.Money += 200;
+            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M. Nouveau solde : {MonopolyPlayer.Money}M.");
         }
 
-        player.MoveToPosition(nextUtilityPosition);
-        HandleUtilityOwnership(player, nextUtilityPosition);
+        MonopolyPlayer.MoveToPosition(nextUtilityPosition);
+        HandleUtilityOwnership(MonopolyPlayer, nextUtilityPosition);
+        yield return null;
     }
 
     private int FindNextUtility(int currentPosition)
@@ -550,19 +536,13 @@ public class AdvanceToUtilityCard : ChanceTile
         return utilityPositions[0];
     }
 
-    private void HandleUtilityOwnership(Player player, int utilityPosition)
+    private void HandleUtilityOwnership(MonopolyPlayer monopolyPlayer, int utilityPosition)
     {
+        monopolyGameManager.
         bool isOwned = UnityEngine.Random.value > 0.5f;
-        if (!isOwned)
-        {
-            Debug.Log($"Le service public à la position {utilityPosition} n'appartient à personne. Vous pouvez l'acheter.");
-        }
-        else
-        {
-            int diceResult = UnityEngine.Random.Range(1, 7) + UnityEngine.Random.Range(1, 7);
-            int rent = 10 * diceResult;
-            player.Money -= rent;
-            Debug.Log($"{player.Name} paie {rent}M au propriétaire. Nouveau solde : {player.Money}M.");
-        }
+        int diceResult = UnityEngine.Random.Range(1, 7) + UnityEngine.Random.Range(1, 7);
+        int rent = 10 * diceResult;
+        monopolyPlayer.Money -= rent;
+        Debug.Log($"{monopolyPlayer.Name} paie {rent}M au propriétaire. Nouveau solde : {monopolyPlayer.Money}M.");
     }
 }
