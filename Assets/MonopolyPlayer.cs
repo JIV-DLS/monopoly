@@ -3,7 +3,8 @@ using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;  // Ensure this is included for LINQ methods
+using System.Linq;
+using UnityEngine.Tilemaps; // Ensure this is included for LINQ methods
 
 
 public class MonopolyPlayerDeck
@@ -92,12 +93,13 @@ public class MonopolyPlayerDeck
         return _purchasableTiles.Count > 0;
     }
 
-    public IGood GetSmallestGood()
+    public IGood GetSmallestGoodToSell()
     {
         // Transform the dictionary into a collection of prices
         return _purchasableTiles
-            .Select(tile => tile.Value.GetSmallestGood())  // Get the price from each tile
-            .ToList().Min();  
+            .Select(tile => tile.Value.GetMinimumGoodToSell())  // Get the price from each tile
+            .Where(good=>good!=null).OrderBy<IGood, object>(good => good.GetSellPrice())                      // Sort by price
+            .FirstOrDefault();  
         /*
          return _purchasableTiles
             .OrderBy(tile => tile.Value.GetSmallestGood())  // Sort by the price
@@ -294,12 +296,29 @@ public class MonopolyPlayer
 
     public IEnumerator GatherMoneyToReach(int chargedOf)
     {
-        while (!canBeChargedOf(chargedOf) && HavePurchasedTiles())
+        while (!canBeChargedOf(chargedOf) && HavePurchasedTiles() && PlayerCanContinuePlaying())
         {
-            Good good = deck.GetSmallestGood();
+            IGood good = deck.GetSmallestGoodToSell();
+            if (good != null)
+            {
+                int sellAmount = good.Sell();;
+                HaveWon(sellAmount);
+                _monopolyGameManager.SetGameTextEventsText($"{this} a vendu {good}. Nouveau solde {sellAmount}.");
+                yield return new WaitForSeconds(1f);
+            }
         }
 
+        if (!PlayerCanContinuePlaying())
+        {
+            _monopolyGameManager.SetGameTextEventsText($"{this} a perdu le jeu. Il n'a plus d'argent.");
+            yield return new WaitForSeconds(1f);
+        }
         yield return null;
+    }
+
+    private bool PlayerCanContinuePlaying()
+    {
+        return money > 0;
     }
 
     private bool HavePurchasedTiles()
@@ -311,9 +330,12 @@ public class MonopolyPlayer
 public interface IGood
 {
     public int GetSellPrice();
+    public int Sell();
 }
 public abstract class Good: IGood
 {
     // You can leave this method abstract or provide a default implementation.
     public abstract int GetSellPrice();
+    public abstract int Sell();
+    public abstract string GetGoodName();
 }

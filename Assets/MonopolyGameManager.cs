@@ -575,6 +575,11 @@ public class MonopolyGameManager : MonoBehaviour
     {
         yield return monopolyPlayer.GatherMoneyToReach(dueAmount);
     }
+
+    public T[] GetAllGroupOfThisPropertyTile<T>() where T : PropertyTile
+    {
+        return board.GetTilesOfType<T>();
+    }
 }
 
 
@@ -597,6 +602,11 @@ public class Board
     public RailRoadCard railRoadCardPrefab { get; private set; }
     public PublicServiceCard publicServiceCardPrefab { get; private set; }
     public CardBehind cardBehindPrefab { get; private set; }
+    
+    public T[] GetTilesOfType<T>() where T : PropertyTile
+    {
+        return tiles.OfType<T>().ToArray();
+    }
     public Board(GameObject[] bottom, GameObject[] left, GameObject[] top, GameObject[] right, 
         TitleDeedCard titleDeedCardPrefab,
         RailRoadCard railRoadCardPrefab,
@@ -648,8 +658,7 @@ public class Board
                     boardTile = new StartTile(side[i]);
                     break;
                 case 1:
-                    boardTile = new PropertyTile(side[i], "Boulevard de Belleville",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown),
+                    boardTile = new BrownPropertyGroupTile(side[i], "Boulevard de Belleville",
                         new int[] { 2, 4, 10, 30, 90, 160, 250 },
                         50, 50, 60, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -657,8 +666,7 @@ public class Board
                     boardTile = new CommunityTile(side[i]);
                     break;
                 case 3:
-                    boardTile = new PropertyTile(side[i], "Rue Lecourbe",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown),
+                    boardTile = new BrownPropertyGroupTile(side[i], "Rue Lecourbe",
                         new int[] { 4, 8, 20, 60, 180, 320, 450 },
                         50, 50, 60, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -669,8 +677,7 @@ public class Board
                     boardTile = new RailroadTile(side[i], "Gare Mont-Parnasse", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 6:
-                    boardTile = new PropertyTile(side[i], "Rue De Vaugirard",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
+                    boardTile = new LightBluePropertyGroupTile(side[i], "Rue De Vaugirard",
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
                         50, 50, 100, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -678,14 +685,12 @@ public class Board
                     boardTile = new ChanceTile(side[i]);
                     break;
                 case 8:
-                    boardTile = new PropertyTile(side[i], "Rue De Courcelles",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
+                    boardTile = new LightBluePropertyGroupTile(side[i], "Rue De Courcelles",
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
                         50, 50, 100, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 9:
-                    boardTile = new PropertyTile(side[i], "Avenue de la Republique",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue),
+                    boardTile = new LightBluePropertyGroupTile(side[i], "Avenue de la Republique",
                         new int[] { 8, 16, 40, 100, 300, 450, 600 },
                         50, 50, 120, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -693,8 +698,7 @@ public class Board
                     boardTile = new PrisonOrVisitTile(side[i]);
                     break;
                 case 11:
-                    boardTile = new PropertyTile(side[i], "Boulevard de Villette",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
+                    boardTile = new PinkPropertyGroupTile(side[i], "Boulevard de Villette",
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
                         100, 100, 140, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -702,14 +706,12 @@ public class Board
                     boardTile = new ElectricityTile(side[i], publicServiceCardPrefab, cardBehindPrefab);
                     break;
                 case 13:
-                    boardTile = new PropertyTile(side[i], "Avenue de Neuilly",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
+                    boardTile = new PinkPropertyGroupTile(side[i], "Avenue de Neuilly",
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
                         100, 100, 140, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 14:
-                    boardTile = new PropertyTile(side[i], "Rue de Paradis",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink),
+                    boardTile = new PinkPropertyGroupTile(side[i], "Rue de Paradis",
                         new int[] { 12, 24, 60, 180, 500, 700, 900 },
                         100, 100, 160, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -717,8 +719,7 @@ public class Board
                     boardTile = new RailroadTile(side[i], "Gare de Lyon", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 16:
-                    boardTile = new PropertyTile(side[i], "Avenue Mozart",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
+                    boardTile = new OrangePropertyGroupTile(side[i], "Avenue Mozart",
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
                         100, 100, 180, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -726,14 +727,12 @@ public class Board
                     boardTile = new CommunityTile(side[i]);
                     break;
                 case 18:
-                    boardTile = new PropertyTile(side[i], "Boulevard Saint-Michel",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
+                    boardTile = new OrangePropertyGroupTile(side[i], "Boulevard Saint-Michel",
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
                         100, 100, 180, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 19:
-                    boardTile = new PropertyTile(side[i], "Place Pigalle",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange),
+                    boardTile = new OrangePropertyGroupTile(side[i], "Place Pigalle",
                         new int[] { 16, 32, 80, 220, 600, 800, 1000 },
                         100, 100, 200, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -741,8 +740,7 @@ public class Board
                     boardTile = new FreeParcTile(side[i]);
                     break;
                 case 21:
-                    boardTile = new PropertyTile(side[i], "Avenue Matignon",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
+                    boardTile = new RedPropertyGroupTile(side[i], "Avenue Matignon",
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
                         150, 150, 220, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -750,14 +748,12 @@ public class Board
                     boardTile = new ChanceTile(side[i]);
                     break;
                 case 23:
-                    boardTile = new PropertyTile(side[i], "Boulevard Malesherbes",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
+                    boardTile = new RedPropertyGroupTile(side[i], "Boulevard Malesherbes",
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
                         150, 150, 220, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 24:
-                    boardTile = new PropertyTile(side[i], "Avenue Henri-Martin",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red),
+                    boardTile = new RedPropertyGroupTile(side[i], "Avenue Henri-Martin",
                         new int[] { 20, 40, 100, 300, 750, 925, 1100 },
                         150, 150, 240, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -765,14 +761,12 @@ public class Board
                     boardTile = new RailroadTile(side[i], "Gare du Nord", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 26:
-                    boardTile = new PropertyTile(side[i], "Faubourg Saint-Honoré",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
+                    boardTile = new YellowPropertyGroupTile(side[i], "Faubourg Saint-Honoré",
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
                         150, 150, 260, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 27:
-                    boardTile = new PropertyTile(side[i], "Place de la Bourse",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
+                    boardTile = new YellowPropertyGroupTile(side[i], "Place de la Bourse",
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
                         150, 150, 260, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -780,8 +774,7 @@ public class Board
                     boardTile = new WaterPumpTile(side[i], publicServiceCardPrefab, cardBehindPrefab);
                     break;
                 case 29:
-                    boardTile = new PropertyTile(side[i], "Rue de la Fayette",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow),
+                    boardTile = new YellowPropertyGroupTile(side[i], "Rue de la Fayette",
                         new int[] { 24, 48, 120, 360, 850, 1025, 1200 },
                         150, 150, 280, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -789,14 +782,12 @@ public class Board
                     boardTile = new GoInPrisonTile(side[i]);
                     break;
                 case 31:
-                    boardTile = new PropertyTile(side[i], "Avenue de Breteuil",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
+                    boardTile = new GreenPropertyGroupTile(side[i], "Avenue de Breteuil",
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
                         200, 200, 300, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 32:
-                    boardTile = new PropertyTile(side[i], "Avenue Foch",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
+                    boardTile = new GreenPropertyGroupTile(side[i], "Avenue Foch",
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
                         200, 200, 300, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -804,8 +795,7 @@ public class Board
                     boardTile = new CommunityTile(side[i]);
                     break;
                 case 34:
-                    boardTile = new PropertyTile(side[i], "Boulvard des Capucines",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green),
+                    boardTile = new GreenPropertyGroupTile(side[i], "Boulvard des Capucines",
                         new int[] { 28, 56, 150, 450, 1000, 1200, 1400 },
                         200, 200, 320, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -817,8 +807,7 @@ public class Board
                     break;
                 case 37:
                     
-                    boardTile = new PropertyTile(side[i], "Avenue des Champs-Elysées",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue),
+                    boardTile = new DarkBluePropertyGroupTile(side[i], "Avenue des Champs-Elysées",
                         new int[] { 35, 70, 175, 500, 1100, 1300, 1500 },
                         200, 200, 350, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -828,8 +817,7 @@ public class Board
                     break;
                 case 39:
                     
-                    boardTile = new PropertyTile(side[i], "Rue de la Paix",
-                        MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue),
+                    boardTile = new DarkBluePropertyGroupTile(side[i], "Rue de la Paix",
                         new int[] { 50, 100, 200, 600, 1400, 1700, 2000 },
                         200, 200, 400, titleDeedCardPrefab, cardBehindPrefab);
                     break;
@@ -947,41 +935,72 @@ public class CornerTile : BoardTile
     
 }
 
-public class HouseGood : TileGood
+public class PropertyHouseTileGood : PropertyItemTileGood
 {
-    public HouseGood(PropertyTile propertyTile) : base(propertyTile, "Maison")
+    public PropertyHouseTileGood(PurchasableTile purchasableTile) : base(purchasableTile, $"Maison sur {purchasableTile}")
     {
         
     }
     
     public override int GetSellPrice()
     {
-        return propertyTile.houseCost;
+        return GetPropertyTile().houseCost;
     }
 }
-public class HotelGood : TileGood
+public class PropertyHotelTileGood : PropertyItemTileGood
 {
-    public HotelGood(PropertyTile propertyTile) : base(propertyTile, "Hotel")
+    public PropertyHotelTileGood(PurchasableTile purchasableTile) : base(purchasableTile, $"Hotel sur {purchasableTile}")
     {
         
     }
 
     public override int GetSellPrice()
     {
-        return propertyTile.hotelCost;
+        return GetPropertyTile().hotelCost;
+    }
+}
+public abstract class PropertyItemTileGood : TileGood
+{
+    protected PropertyItemTileGood(PurchasableTile purchasableTile, string goodName) : base(purchasableTile, goodName)
+    {
+        
+    }
+
+    protected PropertyTile GetPropertyTile()
+    {
+        return (PropertyTile)purchasableTile;
+    }
+    public override int Sell()
+    {
+        GetPropertyTile().DowngradeGood();
+        return GetSellPrice();
     }
 }
 public abstract class TileGood : IGood
 {
-    public PropertyTile propertyTile{ get; private set; }
-    public string tileName{ get; private set; }
-    public TileGood(PropertyTile propertyTile, string tileName)
+    protected PurchasableTile purchasableTile{ get; private set; }
+    public string goodName{ get; private set; }
+
+    protected TileGood(PurchasableTile purchasableTile, string goodName)
     {
-        this.propertyTile = propertyTile;
-        this.tileName = tileName;
+        this.purchasableTile = purchasableTile;
+        this.goodName = goodName;
     }
 
-    public abstract int GetSellPrice();
+    public virtual int GetSellPrice()
+    {
+        return purchasableTile.GetSellPrice();
+    }
+
+    public virtual int Sell()
+    {
+        return purchasableTile.Sell();
+    }
+
+    public string GetGoodName()
+    {
+        return goodName;
+    }
 }
 public abstract class PurchasableTile : BoardTile, IGood
 {
@@ -1011,6 +1030,7 @@ public abstract class PurchasableTile : BoardTile, IGood
         this.mortgageCost = mortgageCost;
         this.mortgageFinishedCost = mortgageFinishedCost;
         TileGoods = new List<TileGood>();
+        isMortgaged = false;
     }
 
     public abstract PurchasableFaceCard GetFaceCard();
@@ -1034,15 +1054,25 @@ public abstract class PurchasableTile : BoardTile, IGood
         return _monopolyPlayer;
     }
 
-    public IGood GetSmallestGood()
+    public virtual IGood GetMinimumGoodToSell()
     {
-        throw new NotImplementedException();
-        
+        return this;
     }
 
     public int GetSellPrice()
     {
         return getPrice();
+    }
+
+    public int Sell()
+    {
+        isMortgaged = true;
+        return GetSellPrice();
+    }
+
+    public string GetGoodName()
+    {
+        return $"Hypothèque sur {this}";
     }
 }
 public abstract class PublicServiceTile : PurchasableTile
@@ -1224,7 +1254,7 @@ public class PropertyTileStateWithFourHouses : PropertyTileStateCanBuildHouse
     
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateCanBuildHotel());
+        holder.SetPropertyTileState(new PropertyTileStateWithOneHotel());
     }
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
@@ -1232,7 +1262,7 @@ public class PropertyTileStateWithFourHouses : PropertyTileStateCanBuildHouse
     }
 }
 
-public class PropertyTileStateCanBuildHotel : IPropertyTileState
+public class PropertyTileStateWithOneHotel : IPropertyTileState
 {
     public bool CanBuildBeUpgraded()
     {
@@ -1252,8 +1282,98 @@ public class PropertyTileStateCanBuildHotel : IPropertyTileState
         holder.SetPropertyTileState(new PropertyTileStateWithFourHouses());
     }
 }
-public class PropertyTile : PurchasableTile, IPropertyTileStateHolder, IPropertyTileActionsPossibilityState
+
+public class BrownPropertyGroupTile : PropertyTile
 {
+    public BrownPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<BrownPropertyGroupTile>();
+    }
+}
+
+public class LightBluePropertyGroupTile : PropertyTile
+{
+    public LightBluePropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<LightBluePropertyGroupTile>();
+    }
+}
+
+public class PinkPropertyGroupTile : PropertyTile
+{
+    public PinkPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<PinkPropertyGroupTile>();
+    }
+}
+
+public class OrangePropertyGroupTile : PropertyTile
+{
+    public OrangePropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<OrangePropertyGroupTile>();
+    }
+}
+
+public class RedPropertyGroupTile : PropertyTile
+{
+    public RedPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<RedPropertyGroupTile>();
+    }
+}
+public class YellowPropertyGroupTile : PropertyTile
+{
+    public YellowPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<YellowPropertyGroupTile>();
+    }
+}
+
+public class GreenPropertyGroupTile : PropertyTile
+{
+    public GreenPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+    
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<GreenPropertyGroupTile>();
+    }
+}
+
+public class DarkBluePropertyGroupTile : PropertyTile
+{
+    public DarkBluePropertyGroupTile(GameObject tileGameObject, string name,  int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    {
+    }
+
+    public override PropertyTile[] GetAllGroupOfThisPropertyTile()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile<DarkBluePropertyGroupTile>();
+    }
+}
+public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, IPropertyTileActionsPossibilityState
+{
+    public abstract PropertyTile[] GetAllGroupOfThisPropertyTile();
     public IPropertyTileState propertyTileState { get; private set; }
     public int houseCost { get; private set; }
     public int hotelCost { get; private set; }
@@ -1306,6 +1426,22 @@ public class PropertyTile : PurchasableTile, IPropertyTileStateHolder, IProperty
     public bool CanBuildBeDowngraded()
     {
         return propertyTileState.CanBuildBeDowngraded();
+    }
+    
+    public override IGood GetMinimumGoodToSell()
+    {
+        switch (propertyTileState)
+        {
+            case PropertyTileStateWithOneHouse:
+            case PropertyTileStateWithTwoHouses:
+            case PropertyTileStateWithThreeHouses:
+            case PropertyTileStateWithFourHouses:
+                return new PropertyHouseTileGood(this);
+            default:
+                PropertyTile downgradeablePropertyTile = GetAllGroupOfThisPropertyTile()
+                    .FirstOrDefault(tile => tile.CanBuildBeDowngraded() && tile != this);
+                return downgradeablePropertyTile==null ? base.GetMinimumGoodToSell() : null;
+        }
     }
 }
 
