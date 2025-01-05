@@ -58,7 +58,6 @@ public class MonopolyGameManager : MonoBehaviour
             this
             );
 
-        MoveAPlayerToATile(localPlayer, board.GetTileAtIndex(0), false);
         currentPlayer = localPlayer;
         // Start the waiting process
         StartCoroutine(GameLoop());
@@ -68,25 +67,37 @@ public class MonopolyGameManager : MonoBehaviour
     {
     }
 
-    public void MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile)
+    public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile)
     {
-        MoveAPlayerToATile(player, tile, false);
+        yield return MoveAPlayerToATile(player, tile, false, true);
     }
-    public void MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool passHome)
+    public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool doLandAction)
     {
-        if (tile is StartTile || passHome)
+        yield return MoveAPlayerToATile(player, tile, false, doLandAction);
+    }
+    public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool passHome, bool doLandAction)
+    {
+        if (doLandAction)
         {
-            player.IncrementMoneyWith(StartTile.GetStartReward());
-        }
+            if (tile is StartTile || passHome)
+            {
+                player.IncrementMoneyWith(StartTile.GetStartReward());
+            }
 
-        if (tile is TaxTile)
-        {
-            player.DecrementMoneyWith(((TaxTile)tile).taxAmount);
+            if (tile is TaxTile)
+            {
+                player.DecrementMoneyWith(((TaxTile)tile).taxAmount);
+            }
+            else if (tile is GoInPrisonTile)
+            {
+                yield return PutPlayerIntoPrison(player);
+            } 
         }
         player.MoveTo(tile);
         
         
         GameTextEvents.SetText($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
+        yield return new WaitForSeconds(.5f);
 
     }
 
@@ -326,7 +337,7 @@ public class MonopolyGameManager : MonoBehaviour
         }
 
         bool passHome = false;
-        MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(playerTile, rollResult, out passHome)), passHome);
+        //MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(playerTile, rollResult, out passHome)), passHome);
         player.tile.OnPlayerLanded(player);
         
         GameTextEvents.SetText($"{player} played {rollResult}");
@@ -628,14 +639,31 @@ public IEnumerator PlayerAPayPlayerB(MonopolyPlayer monopolyPlayer, MonopolyPlay
         return board.GetTilesOfType<T>();
     }
 
-    public void MoveAPlayerToStartTile(MonopolyPlayer monopolyPlayer)
+    public IEnumerator MoveAPlayerToStartTile(MonopolyPlayer monopolyPlayer)
     {
-        MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(0));
+        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(0));
+    }
+
+    public IEnumerator MoveAPlayerToLastTile(MonopolyPlayer monopolyPlayer)
+    {
+        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtLastIndex());
+    }
+
+    public IEnumerator PutPlayerIntoPrison(MonopolyPlayer monopolyPlayer)
+    {
+        yield return MoveAPlayerTo<PrisonOrVisitTile>(monopolyPlayer);
+        monopolyPlayer.GoInPrison();
+        
+        SetGameTextEventsText($"{monopolyPlayer} est partit en prison.");
+        yield return new WaitForSeconds(.5f);
+    }
+
+    private IEnumerator MoveAPlayerTo<T>(MonopolyPlayer monopolyPlayer) where T:BoardTile
+    {
+        
+        yield return MoveAPlayerToATile(monopolyPlayer, board.OfType<T>().First());
     }
 }
-
-
-
 
 public class Dice
 {
@@ -943,6 +971,15 @@ public class Board
         // Yield the current index and the passHome flag.
         yield return (currentIndex, passHome);
     }
+
+    public BoardTile GetTileAtLastIndex()
+    {
+        return tiles.Last();
+
+    }
+
+    public IEnumerable<T> OfType<T>() => tiles.OfType<T>();
+    
 }
 
 public class BoardTile

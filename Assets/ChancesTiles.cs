@@ -184,38 +184,36 @@ public class AdvanceToAvenueHenriMartinCard : ChanceTile
 }
 public class GoToJailCard : ChanceTile
 {
-    public GoToJailCard()
-        : base("ALLEZ EN PRISON. ALLEZ TOUT DROIT EN PRISON. NE PASSEZ PAS PAR LA CASE DÉPART. NE RECEVEZ PAS 200M.")
+    public GoToJailCard(GameObject tileGameObject)
+        : base(tileGameObject, "ALLEZ EN PRISON. ALLEZ TOUT DROIT EN PRISON. NE PASSEZ PAS PAR LA CASE DÉPART. NE RECEVEZ PAS 200M.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Le joueur va en prison
-        MonopolyPlayer.MoveToPosition(10); // Supposons que la case Prison est à la position 10
-        MonopolyPlayer.InPrison = true; // Le joueur est en prison
-
-        Debug.Log($"{MonopolyPlayer.Name} va directement en prison. Il ne passe pas par la case Départ et ne reçoit pas 200M.");
+        
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit allez en prison.");
+        yield return monopolyGameManager.PutPlayerIntoPrison(monopolyPlayer);
+        yield return new WaitForSeconds(.5f);
     }
 }
 public class AdvanceToRueDeLaPaixCard : ChanceTile
 {
-    public AdvanceToRueDeLaPaixCard()
-        : base("AVANCEZ JUSQU'À LA RUE DE LA PAIX.")
+    public AdvanceToRueDeLaPaixCard(GameObject tileGameObject)
+        : base(tileGameObject, "AVANCEZ JUSQU'À LA RUE DE LA PAIX.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
+        
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la case départ.");
+        yield return monopolyGameManager.MoveAPlayerToLastTile(monopolyPlayer);
+        yield return new WaitForSeconds(.5f);
 
-        // Le joueur se déplace à la Rue de la Paix
-        int rueDeLaPaixPosition = 39; // Supposons que la Rue de la Paix est à la position 39
-        MonopolyPlayer.MoveToPosition(rueDeLaPaixPosition);
-
-        Debug.Log($"{MonopolyPlayer.Name} avance à la Rue de la Paix.");
     }
 }
 public class AdvanceToStartCard : ChanceTile
@@ -230,7 +228,7 @@ public class AdvanceToStartCard : ChanceTile
         Debug.Log($"Effet de carte : {description}");
         
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la case départ.");
-        monopolyGameManager.MoveAPlayerToStartTile(monopolyPlayer);
+        yield return monopolyGameManager.MoveAPlayerToStartTile(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
 
     }

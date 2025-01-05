@@ -186,8 +186,17 @@ public class MonopolyPlayer
     }
     public IEnumerator TriggerPlay(float rollDiceTimeout, float userBuyTileTimeout)
     {
-        yield return HandlePlayerRollDice(rollDiceTimeout);
-        yield return HandleUserDoAction(userBuyTileTimeout);
+        if (CanPlay())
+        {
+            yield return HandlePlayerRollDice(rollDiceTimeout);
+            yield return HandleUserDoAction(userBuyTileTimeout);
+        }else if (IsInPrison())
+        {
+            prison--;
+            _monopolyGameManager.SetGameTextEventsText($"{this} est en prison. Encore {prison} tours restant.");
+            yield return new WaitForSeconds(.5f);
+        }
+        
     }
 
     private IEnumerator HandleUserDoAction(float actionTimeout)
@@ -341,6 +350,27 @@ public class MonopolyPlayer
     public int GetAllHotelsNumber()
     {
         return deck.GetAllOfType<PropertyTile>().Select(propertyTile => propertyTile.GetHotelNumber()).Sum();
+    }
+
+    public void GoInPrison()
+    {
+        Debug.Assert(tile is PrisonOrVisitTile, "Sorry make sure prison move to prison first.");
+        prison = 3;
+    }
+
+    public int prison { get; private set; }
+
+    public bool IsInPrison()
+    {
+        return prison > 3;
+    }
+    public void FreeFromPrison()
+    {
+        prison = 0;
+    }
+    public bool CanPlay()
+    {
+        return money > 0 && !IsInPrison();
     }
 }
 
