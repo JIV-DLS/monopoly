@@ -68,6 +68,10 @@ public class MonopolyGameManager : MonoBehaviour
     {
     }
 
+    public void MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile)
+    {
+        MoveAPlayerToATile(player, tile, false);
+    }
     public void MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool passHome)
     {
         if (tile is StartTile || passHome)
@@ -553,43 +557,80 @@ public class MonopolyGameManager : MonoBehaviour
             yield return dicesManager.RollDicesAndGetResult().Current;
         }
     }
-
-    public IEnumerator PlayerAPayPlayerB(MonopolyPlayer monopolyPlayer, MonopolyPlayer tileOwner, int dueAmount)
+public IEnumerator HandlePayment(MonopolyPlayer payer, MonopolyPlayer receiver, int dueAmount, bool isBankPayment)
+{
+    if (payer.CanContinuePlaying() && payer.canBeChargedOf(dueAmount))
     {
-        if (monopolyPlayer.CanContinuePlaying()&&monopolyPlayer.canBeChargedOf(dueAmount))
-        {
-            tileOwner.HaveWon(monopolyPlayer.ChargedOf(dueAmount));
-            SetGameTextEventsText($"{monopolyPlayer} a payé {dueAmount}M à {monopolyPlayer}.");
-        }
-        else if (monopolyPlayer.CanContinuePlaying())
-        {
-            while (!monopolyPlayer.canBeChargedOf(dueAmount))
-            {
-                yield return WaitForPlayerToBeAbleToBeChargeOf(monopolyPlayer, dueAmount);
-            }
-        }
-        else
-        {
-            int allPlayerLastMoney = monopolyPlayer.money;
-            tileOwner.HaveWon(monopolyPlayer.ChargedOf(allPlayerLastMoney));
-            SetGameTextEventsText($"{monopolyPlayer} n'a payé que {dueAmount}M à {tileOwner}.");
-            yield return new WaitForSeconds(.5f);
-            int amountThatBankMustPay = dueAmount - allPlayerLastMoney;
-            tileOwner.HaveWon(monopolyPlayer.ChargedOf(amountThatBankMustPay));
-            SetGameTextEventsText($"{monopolyPlayer} n'a payé que {dueAmount}M à {tileOwner}. La banque a rajouté {amountThatBankMustPay}.");
-            yield return new WaitForSeconds(1f);
-        }
-        yield return null;
+        ProcessPayment(payer, receiver, dueAmount, isBankPayment);
     }
+    else if (payer.CanContinuePlaying())
+    {
+        yield return WaitForPlayerToBeAbleToBeChargeOf(payer, dueAmount);
+        ProcessPayment(payer, receiver, dueAmount, isBankPayment);
+    }
+    else
+    {
+        int allPlayerLastMoney = payer.money;
+        ProcessPartialPayment(payer, receiver, allPlayerLastMoney, dueAmount, isBankPayment);
+        yield return new WaitForSeconds(.5f);
+        int amountThatBankMustPay = dueAmount - allPlayerLastMoney;
+        ProcessPartialPayment(payer, receiver, amountThatBankMustPay, dueAmount, isBankPayment);
+        yield return new WaitForSeconds(1f);
+    }
+    yield return null;
+}
+
+private void ProcessPayment(MonopolyPlayer payer, MonopolyPlayer receiver, int amount, bool isBankPayment)
+{
+    if (isBankPayment)
+    {
+        payer.ChargedOf(amount);
+        SetGameTextEventsText($"{payer} a payé {amount}M à la banque.");
+    }
+    else
+    {
+        receiver.HaveWon(payer.ChargedOf(amount));
+        SetGameTextEventsText($"{payer} a payé {amount}M à {receiver}.");
+    }
+}
+
+private void ProcessPartialPayment(MonopolyPlayer payer, MonopolyPlayer receiver, int amountPaid, int dueAmount, bool isBankPayment)
+{
+    if (isBankPayment)
+    {
+        payer.ChargedOf(amountPaid);
+        SetGameTextEventsText($"{payer} n'a payé que {dueAmount}M à la banque.");
+    }
+    else
+    {
+        receiver.HaveWon(payer.ChargedOf(amountPaid));
+        SetGameTextEventsText($"{payer} n'a payé que {dueAmount}M à {receiver}.");
+    }
+}
+
+public IEnumerator PlayerMustPayToBank(MonopolyPlayer monopolyPlayer, int dueAmount)
+{
+    return HandlePayment(monopolyPlayer, null, dueAmount, true);
+}
+
+public IEnumerator PlayerAPayPlayerB(MonopolyPlayer monopolyPlayer, MonopolyPlayer tileOwner, int dueAmount)
+{
+    return HandlePayment(monopolyPlayer, tileOwner, dueAmount, false);
+}
 
     private IEnumerator WaitForPlayerToBeAbleToBeChargeOf(MonopolyPlayer monopolyPlayer, int dueAmount)
     {
         yield return monopolyPlayer.GatherMoneyToReach(dueAmount);
     }
 
-    public T[] GetAllGroupOfThisPropertyTile<T>() where T : PropertyTile
+    public T[] GetAllGroupOfThisPropertyTile<T>() where T : PurchasableTile
     {
         return board.GetTilesOfType<T>();
+    }
+
+    public void MoveAPlayerToStartTile(MonopolyPlayer monopolyPlayer)
+    {
+        MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(0));
     }
 }
 
@@ -614,7 +655,7 @@ public class Board
     public PublicServiceCard publicServiceCardPrefab { get; private set; }
     public CardBehind cardBehindPrefab { get; private set; }
     
-    public T[] GetTilesOfType<T>() where T : PropertyTile
+    public T[] GetTilesOfType<T>() where T : PurchasableTile
     {
         return tiles.OfType<T>().ToArray();
     }
@@ -1022,10 +1063,10 @@ public abstract class PurchasableTile : BoardTile, IGood
     public bool isMortgaged { get; private set;  }
     public List<TileGood> TileGoods { get; private set; }
 
-    private MonopolyPlayer _monopolyPlayer;
+    public MonopolyPlayer monopolyPlayer { get; private set; }
     public override bool CanBeBought()
     {
-        return _monopolyPlayer == null;
+        return monopolyPlayer == null;
     }
     
     public override int getPrice()
@@ -1053,16 +1094,16 @@ public abstract class PurchasableTile : BoardTile, IGood
     
     public bool IsOwned()
     {
-        return _monopolyPlayer == null;
+        return monopolyPlayer == null;
     }
 
     public bool IsOwnedBy(MonopolyPlayer monopolyPlayer)
     {
-        return _monopolyPlayer == monopolyPlayer;
+        return this.monopolyPlayer == monopolyPlayer;
     }
     public MonopolyPlayer GetOwner()
     {
-        return _monopolyPlayer;
+        return monopolyPlayer;
     }
 
     public virtual IGood GetMinimumGoodToSell()
@@ -1190,6 +1231,8 @@ public interface IPropertyTileState:IPropertyTileActionsPossibilityState
 {
     void Upgrade(IPropertyTileStateHolder holder);
     void Downgrade(IPropertyTileStateHolder holder);
+    int GetHousesNumber();
+    int GetHotelNumber();
 }
 public abstract class PropertyTileStateCanBuildHouse : IPropertyTileState
 {
@@ -1204,10 +1247,19 @@ public abstract class PropertyTileStateCanBuildHouse : IPropertyTileState
 
     public abstract void Upgrade(IPropertyTileStateHolder holder);
     public abstract void Downgrade(IPropertyTileStateHolder holder);
+    public abstract int GetHousesNumber();
+    public int GetHotelNumber()
+    {
+        return 0;
+    }
 }
 public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
 {
     
+    public override int GetHousesNumber()
+    {
+        return 0;
+    }
     public virtual bool CanBuildBeDowngraded()
     {
         return false;
@@ -1225,6 +1277,10 @@ public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
 public class PropertyTileStateWithOneHouse : PropertyTileStateCanBuildHouse
 {
     
+    public override int GetHousesNumber()
+    {
+        return 1;
+    }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
         holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses());
@@ -1238,6 +1294,10 @@ public class PropertyTileStateWithOneHouse : PropertyTileStateCanBuildHouse
 public class PropertyTileStateWithTwoHouses : PropertyTileStateCanBuildHouse
 {
     
+    public override int GetHousesNumber()
+    {
+        return 2;
+    }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
         holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses());
@@ -1251,6 +1311,10 @@ public class PropertyTileStateWithTwoHouses : PropertyTileStateCanBuildHouse
 public class PropertyTileStateWithThreeHouses : PropertyTileStateCanBuildHouse
 {
     
+    public override int GetHousesNumber()
+    {
+        return 3;
+    }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
         holder.SetPropertyTileState(new PropertyTileStateWithFourHouses());
@@ -1263,6 +1327,10 @@ public class PropertyTileStateWithThreeHouses : PropertyTileStateCanBuildHouse
 public class PropertyTileStateWithFourHouses : PropertyTileStateCanBuildHouse
 {
     
+    public override int GetHousesNumber()
+    {
+        return 4;
+    }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
         holder.SetPropertyTileState(new PropertyTileStateWithOneHotel());
@@ -1291,6 +1359,16 @@ public class PropertyTileStateWithOneHotel : IPropertyTileState
     public void Downgrade(IPropertyTileStateHolder holder)
     {
         holder.SetPropertyTileState(new PropertyTileStateWithFourHouses());
+    }
+
+    public int GetHousesNumber()
+    {
+        return 4;
+    }
+
+    public int GetHotelNumber()
+    {
+        return 1;
     }
 }
 
@@ -1454,6 +1532,16 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
                 return downgradeablePropertyTile==null ? base.GetMinimumGoodToSell() : null;
         }
     }
+
+    public int GetHousesNumber()
+    {
+        return propertyTileState.GetHousesNumber();
+    }
+
+    public int GetHotelNumber()
+    {
+        return propertyTileState.GetHotelNumber();
+    }
 }
 
 
@@ -1479,6 +1567,11 @@ public class RailroadTile : PurchasableTile
         this.titleDeedBehindCard = (CardBehind)titleDeedBehindCard.Clone(this);
     }
 
+    public int GetCost()
+    {
+        return costs[monopolyGameManager.GetAllGroupOfThisPropertyTile<RailroadTile>().ToArray()
+            .Count(railRoadTile => railRoadTile.monopolyPlayer == monopolyPlayer)];
+    }
 }
 
 public class TaxTile : BoardTile

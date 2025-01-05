@@ -74,6 +74,11 @@ public class MonopolyPlayerDeck
     {
         return _purchasableTiles.Values.Count(value => value is T);
     }
+    // Get the count of objects of a specific type T
+    public IEnumerable<T> GetAllOfType<T>() where T : PurchasableTile
+    {
+        return _purchasableTiles.Values.OfType<T>();
+    }
 
     // Helper to find the key of an object
     private int? FindKey<T>(T value) where T : PurchasableTile
@@ -326,6 +331,16 @@ public class MonopolyPlayer
     private bool HavePurchasedTiles()
     {
         return deck.HaveAtLeastOneCard();
+    }
+
+    public int GetAllHousesNumber()
+    {
+        return deck.GetAllOfType<PropertyTile>().Select(propertyTile => propertyTile.GetHousesNumber()).Sum();
+    }
+
+    public int GetAllHotelsNumber()
+    {
+        return deck.GetAllOfType<PropertyTile>().Select(propertyTile => propertyTile.GetHotelNumber()).Sum();
     }
 }
 
