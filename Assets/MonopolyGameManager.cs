@@ -556,17 +556,28 @@ public class MonopolyGameManager : MonoBehaviour
 
     public IEnumerator PlayerAPayPlayerB(MonopolyPlayer monopolyPlayer, MonopolyPlayer tileOwner, int dueAmount)
     {
-        if (monopolyPlayer.canBeChargedOf(dueAmount))
+        if (monopolyPlayer.CanContinuePlaying()&&monopolyPlayer.canBeChargedOf(dueAmount))
         {
             tileOwner.HaveWon(monopolyPlayer.ChargedOf(dueAmount));
             SetGameTextEventsText($"{monopolyPlayer} a payé {dueAmount}M à {monopolyPlayer}.");
         }
-        else
+        else if (monopolyPlayer.CanContinuePlaying())
         {
             while (!monopolyPlayer.canBeChargedOf(dueAmount))
             {
                 yield return WaitForPlayerToBeAbleToBeChargeOf(monopolyPlayer, dueAmount);
             }
+        }
+        else
+        {
+            int allPlayerLastMoney = monopolyPlayer.money;
+            tileOwner.HaveWon(monopolyPlayer.ChargedOf(allPlayerLastMoney));
+            SetGameTextEventsText($"{monopolyPlayer} n'a payé que {dueAmount}M à {tileOwner}.");
+            yield return new WaitForSeconds(.5f);
+            int amountThatBankMustPay = dueAmount - allPlayerLastMoney;
+            tileOwner.HaveWon(monopolyPlayer.ChargedOf(amountThatBankMustPay));
+            SetGameTextEventsText($"{monopolyPlayer} n'a payé que {dueAmount}M à {tileOwner}. La banque a rajouté {amountThatBankMustPay}.");
+            yield return new WaitForSeconds(1f);
         }
         yield return null;
     }

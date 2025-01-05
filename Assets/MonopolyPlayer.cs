@@ -286,17 +286,19 @@ public class MonopolyPlayer
     public int ChargedOf(int dueAmount)
     {
         money -= dueAmount;
+        _playerSummaryButton.Refresh();
         return money;
     }
 
     public void HaveWon(int chargedOf)
     {
         money += chargedOf;
+        _playerSummaryButton.Refresh();
     }
 
     public IEnumerator GatherMoneyToReach(int chargedOf)
     {
-        while (!canBeChargedOf(chargedOf) && HavePurchasedTiles() && PlayerCanContinuePlaying())
+        while (!canBeChargedOf(chargedOf) && HavePurchasedTiles() && CanContinuePlaying())
         {
             IGood good = deck.GetSmallestGoodToSell();
             if (good != null)
@@ -308,15 +310,15 @@ public class MonopolyPlayer
             }
         }
 
-        if (!PlayerCanContinuePlaying())
+        if (!CanContinuePlaying())
         {
-            _monopolyGameManager.SetGameTextEventsText($"{this} a perdu le jeu. Il n'a plus d'argent.");
+            _monopolyGameManager.SetGameTextEventsText($"{this} ne peut pas payer {chargedOf}.");
             yield return new WaitForSeconds(1f);
         }
         yield return null;
     }
 
-    private bool PlayerCanContinuePlaying()
+    public bool CanContinuePlaying()
     {
         return money > 0;
     }
