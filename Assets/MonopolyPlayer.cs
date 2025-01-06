@@ -221,14 +221,6 @@ public class MonopolyPlayer
                 }
                 //PlayerContent.EnableBuyAction(tile.getPrice());
             }
-        }else if (tile is TaxTile taxTile)
-        {
-            _monopolyGameManager.GameTextEvents.SetText($"{this} a paye une taxe de {taxTile.taxAmount}M");
-            yield return new WaitForSeconds(1.5f);
-        }else if (tile is SpecialCard specialTile)
-        {
-            _monopolyGameManager.GameTextEvents.SetText($"{this} est sur une case speciale");
-            yield return new WaitForSeconds(1.5f);
         }
         else
         {
@@ -308,9 +300,9 @@ public class MonopolyPlayer
         return money;
     }
 
-    public void HaveWon(int chargedOf)
+    public void HaveWon(int won)
     {
-        money += chargedOf;
+        money += won;
         _playerSummaryButton.Refresh();
     }
 

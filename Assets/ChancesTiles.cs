@@ -4,10 +4,6 @@ using System.Linq;
 using UnityEngine;
 using System;
 
-public class ChancesTiles
-{
-    
-}
 
 public class ShuffableCollection<T>
 {
@@ -82,11 +78,11 @@ public class ElectedChairmanCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         monopolyGameManager.SetGameTextEventsText(
-            $"{description}, {monopolyPlayer} doit payer 50M à chaque joueur.");
+            $"{monopolyPlayer} doit payer 50M à chaque joueur.");
         yield return monopolyGameManager.PlayerMustPayToEachPlayer(monopolyPlayer, 50);
         yield return new WaitForSeconds(1f);
     }
@@ -99,7 +95,7 @@ public class AdvanceToBoulevardDeLaVilletteCard : ChanceCard
     }
 
     
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         
@@ -115,7 +111,7 @@ public class GetOutOfJailCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         
@@ -132,7 +128,7 @@ public class MoveBackThreeSpacesCard : ChanceCard
     }
 
     
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         
@@ -149,7 +145,7 @@ public class RealEstateLoanCard : ChanceCard
     }
 
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         monopolyPlayer.HaveWon(150);
@@ -165,7 +161,7 @@ public class AdvanceToGareMontparnasseCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         
@@ -181,7 +177,7 @@ public class AdvanceToAvenueHenriMartinCard : ChanceCard
     {
     }
     
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         
@@ -197,10 +193,8 @@ public class GoToJailCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        
-        
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit allez en prison.");
         yield return monopolyGameManager.PutPlayerIntoPrison(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
@@ -214,11 +208,9 @@ public class AdvanceToRueDeLaPaixCard : ChanceCard
     }
 
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        
-        
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la case départ.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à LA RUE DE LA PAIX.");
         yield return monopolyGameManager.MoveAPlayerToLastTile(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
     }
@@ -230,10 +222,8 @@ public class AdvanceToStartCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        
-        
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la case départ.");
         yield return monopolyGameManager.MoveAPlayerToStartTile(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
@@ -247,13 +237,13 @@ public class RepairCostCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
 
         int houseRepairCost = 25;
         int hotelRepairCost = 100;
-        int totalRepairCost = 0;
+        int totalRepairCost;
         int housesNumber = monopolyPlayer.GetAllHousesNumber();
         int hotelsNumber = monopolyPlayer.GetAllHotelsNumber();
         if (housesNumber > 0 && hotelsNumber > 0)
@@ -295,7 +285,7 @@ public class SpeedingFineCard : ChanceCard
     }
 
     
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         
         monopolyGameManager.SetGameTextEventsText(
@@ -311,7 +301,7 @@ public class AdvanceToStationCardChance : ChanceCard
     {
     }
     
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         yield return monopolyGameManager.MoveAPlayerToNextType<RailroadTile>(monopolyPlayer);
         RailroadTile nextRailRoadTile = (RailroadTile)monopolyPlayer.tile;
@@ -360,9 +350,8 @@ public class BankDividendCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        
         monopolyPlayer.HaveWon(50);
         monopolyGameManager.SetGameTextEventsText(
             $"La banque verse 50M à {monopolyPlayer}.");
@@ -376,7 +365,7 @@ public class AdvanceToUtilityCard : ChanceCard
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
+    protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         yield return monopolyGameManager.MoveAPlayerToNextType<PublicServiceTile>(monopolyPlayer);
         PublicServiceTile nextServiceTile = (PublicServiceTile)monopolyPlayer.tile;

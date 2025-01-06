@@ -102,7 +102,31 @@ public class MonopolyGameManager : MonoBehaviour
             else if (tile is GoInPrisonTile)
             {
                 yield return PutPlayerIntoPrison(player);
-            } 
+            } else if (tile is SpecialBoardTile specialBoardTile)
+            {
+                GameTextEvents.SetText($"{this} est sur la case speciale {specialBoardTile}");
+            
+                if (specialBoardTile is CommunitySpecialTile)
+                {
+                    CommunityCard communityCard = communitiesCards.TakeFromStart();
+                    yield return communityCard.TriggerEffectMain(player);
+                    if (communityCard is not AdoptPuppyCard)
+                    {
+                        communitiesCards.Rotate();
+                    }
+                }
+                else if (specialBoardTile is ChanceSpecialTile)
+                {
+                    
+                    ChanceCard chanceCard = chancesCards.TakeFromStart();
+                    yield return chanceCard.TriggerEffectMain(player);
+                    if (chanceCard is not GetOutOfJailCard)
+                    {
+                        chancesCards.Rotate();
+                    }
+                }
+                yield return new WaitForSeconds(1.5f);
+            }
         }
         player.MoveTo(tile);
         
@@ -1759,7 +1783,7 @@ public abstract class SpecialCard
         yield return new WaitForSeconds(1.5f);
         yield return TriggerEffect(monopolyPlayer);
     }
-    public abstract IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer);
+    protected abstract IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer);
 }
 
 public abstract class ChanceCard : SpecialCard
