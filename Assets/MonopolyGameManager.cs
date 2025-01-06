@@ -1640,15 +1640,19 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     {
         switch (propertyTileState)
         {
+            case PropertyTileStateWithOneHotel:
+                return new PropertyHotelTileGood(this);
             case PropertyTileStateWithOneHouse:
             case PropertyTileStateWithTwoHouses:
             case PropertyTileStateWithThreeHouses:
             case PropertyTileStateWithFourHouses:
-                return new PropertyHouseTileGood(this);
-            default:
-                PropertyTile downgradeablePropertyTile = GetAllGroupOfThisPropertyTile()
+                PropertyTile downgradeablePropertyTileSearchingForHotel = GetAllGroupOfThisPropertyTile()
                     .FirstOrDefault(tile => tile.CanBuildBeDowngraded() && tile != this);
-                return downgradeablePropertyTile==null ? base.GetMinimumGoodToSell() : null;
+                return downgradeablePropertyTileSearchingForHotel==null? new PropertyHouseTileGood(this):downgradeablePropertyTileSearchingForHotel;
+            default:
+                PropertyTile downgradeablePropertyTileSearchingForHouse = GetAllGroupOfThisPropertyTile()
+                    .FirstOrDefault(tile => tile.CanBuildBeDowngraded() && tile != this);
+                return downgradeablePropertyTileSearchingForHouse==null ? base.GetMinimumGoodToSell() : null; // null parce que les autres recherches maineront à lui
         }
     }
 
