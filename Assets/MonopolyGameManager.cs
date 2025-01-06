@@ -7,10 +7,12 @@ using System.Linq;
 
 public class MonopolyGameManager : MonoBehaviour
 {
+    public ShuffableCollection<CommunitiesTiles> communitiesTiles{get;private set;}
+    public ShuffableCollection<ChancesTiles> chancesTiles{get;private set;}
     public GameCardBuy gameCardBuy;
     private PlayersHorizontalView _playersHorizontalView;
     private PlayerPieceOnBoardBuilder _playerPieceOnBoardBuilder;
-    // public List<SelfmadePlayer> players;
+    public List<MonopolyPlayer> monopolyPlayers;
     private MonopolyPlayer localPlayer;
     private MonopolyPlayer currentPlayer; // The player whose turn it is
     public BaseTextHandler GameTextEvents;
@@ -59,6 +61,7 @@ public class MonopolyGameManager : MonoBehaviour
             );
 
         currentPlayer = localPlayer;
+        monopolyPlayers.Add(localPlayer);
         // Start the waiting process
         StartCoroutine(GameLoop());
     }
@@ -67,6 +70,10 @@ public class MonopolyGameManager : MonoBehaviour
     {
     }
 
+    public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, int tileIndex)
+    {
+        yield return MoveAPlayerToATile(player, board.GetTileAtIndex(tileIndex), false, true);
+    }
     public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile)
     {
         yield return MoveAPlayerToATile(player, tile, false, true);
@@ -82,6 +89,8 @@ public class MonopolyGameManager : MonoBehaviour
             if (tile is StartTile || passHome)
             {
                 player.IncrementMoneyWith(StartTile.GetStartReward());
+                GameTextEvents.SetText($"Le joueur {currentPlayer} est passé par la case départ. Il reçoit 200M.");
+                yield return new WaitForSeconds(.5f);
             }
 
             if (tile is TaxTile)
@@ -629,6 +638,17 @@ public IEnumerator PlayerAPayPlayerB(MonopolyPlayer monopolyPlayer, MonopolyPlay
     return HandlePayment(monopolyPlayer, tileOwner, dueAmount, false);
 }
 
+public IEnumerator PlayerMustPayToEachPlayer(MonopolyPlayer payer, int dueAmount)
+{
+    foreach (MonopolyPlayer player in monopolyPlayers)
+    {
+        if (player != payer)
+        {
+            yield return HandlePayment(payer, player, dueAmount, false);
+        }
+    }
+    yield return null;
+}
     private IEnumerator WaitForPlayerToBeAbleToBeChargeOf(MonopolyPlayer monopolyPlayer, int dueAmount)
     {
         yield return monopolyPlayer.GatherMoneyToReach(dueAmount);
@@ -663,6 +683,12 @@ public IEnumerator PlayerAPayPlayerB(MonopolyPlayer monopolyPlayer, MonopolyPlay
         
         yield return MoveAPlayerToATile(monopolyPlayer, board.OfType<T>().First());
     }
+
+    public IEnumerator MoveBackTo(MonopolyPlayer monopolyPlayer, int i)
+    {
+        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileBackFromATileTo(monopolyPlayer, i));
+    }
+
 }
 
 public class Dice
@@ -979,7 +1005,17 @@ public class Board
     }
 
     public IEnumerable<T> OfType<T>() => tiles.OfType<T>();
-    
+
+    public int GetTileBackFromATileTo(MonopolyPlayer monopolyPlayer, int i)
+    {
+        int index = GetTileIndex(monopolyPlayer.tile)-i;
+        if (index < 0)
+        {
+            index = (index + tiles.Length) % tiles.Length;
+        }
+
+        return index;
+    }
 }
 
 public class BoardTile
@@ -1635,6 +1671,35 @@ public abstract class SpecialTile : BoardTile
 
     public abstract IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer);
 }
+
+public abstract class ChancesTile : ShuffableCollection<ChanceTile>
+{
+    
+    public ChancesTile()
+    {
+        
+        cards = new List<ChanceTile>
+        {
+            new AdvanceToUtilityCard(),
+            new BankDividendCard(),
+            new AdvanceToStationCardChance(),
+            new SpeedingFineCard(),
+            new RepairCostCard(),
+            new AdvanceToStartCard(),
+            new AdvanceToRueDeLaPaixCard(),
+            new GoToJailCard(),
+            new AdvanceToAvenueHenriMartinCard(),
+            new AdvanceToGareMontparnasseCard(),
+            new RealEstateLoanCard(),
+            new MoveBackThreeSpacesCard(),
+            new GetOutOfJailCard(),
+            new AdvanceToBoulevardDeLaVilletteCard(),
+            new ElectedChairmanCard();
+        };
+    }
+
+    private List<ChanceTile> cards;
+}
 public abstract class ChanceTile : SpecialTile
 {
     public ChanceTile(GameObject tileGameObject, string description)
@@ -1657,7 +1722,7 @@ public abstract class ChanceTile : SpecialTile
             new MoveBackThreeSpacesCard(),
             new GetOutOfJailCard(),
             new AdvanceToBoulevardDeLaVilletteCard(),
-            new ElectedChairmanCard() // Ajout de la carte Vous avez été élu responsable
+            new ElectedChairmanCard();
         };
     }
 

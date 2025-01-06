@@ -2,184 +2,173 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
 
 public class ChancesTiles
 {
     
 }
 
+public class ShuffableCollection<T>
+{
+    // Internal collection of T instances
+    private List<T> collection;
+
+    private static readonly System.Random Random = new System.Random();
+
+    // Constructor
+    public ShuffableCollection()
+    {
+        collection = new List<T>();
+    }
+
+    // Add an item to the collection
+    public void Add(T item)
+    {
+        collection.Add(item);
+    }
+
+    // Shuffle the collection using Fisher-Yates algorithm
+    public void Shuffle()
+    {
+        for (int i = collection.Count - 1; i > 0; i--)
+        {
+            int j = Random.Next(i + 1);
+            (collection[i], collection[j]) = (collection[j], collection[i]);
+        }
+    }
+
+    // Rotate the collection (move first to last)
+    public void Rotate()
+    {
+        if (collection.Count > 1)
+        {
+            var first = collection[0];
+            collection.RemoveAt(0);
+            collection.Add(first);
+        }
+    }
+
+    // Access the collection (read-only)
+    public IReadOnlyList<T> GetCollection()
+    {
+        return collection.AsReadOnly();
+    }
+}
 
 public class ElectedChairmanCard : ChanceTile
 {
-    public ElectedChairmanCard()
-        : base("VOUS AVEZ ÉTÉ ELU RESPONSABLE DU CONSEIL D'ADMINISTRATION. PAYEZ À CHAQUE JOUEUR 50M.")
+    public ElectedChairmanCard(GameObject tileGameObject)
+        : base(tileGameObject, "VOUS AVEZ ÉTÉ ELU RESPONSABLE DU CONSEIL D'ADMINISTRATION. PAYEZ À CHAQUE JOUEUR 50M.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Récupérer la liste de tous les joueurs
-        var allMonopolyPlayers = GameManager.Instance.GetAllMonopolyPlayers();
-        int totalToPay = 0;
-
-        foreach (var otherMonopolyPlayer in allMonopolyPlayers)
-        {
-            if (otherMonopolyPlayer != MonopolyPlayer)
-            {
-                MonopolyPlayer.Money -= 50;
-                otherMonopolyPlayer.Money += 50;
-                totalToPay += 50;
-
-                Debug.Log($"{MonopolyPlayer.Name} paie 50M à {otherMonopolyPlayer.Name}.");
-            }
-        }
-
-        Debug.Log($"{MonopolyPlayer.Name} a payé un total de {totalToPay}M aux autres joueurs.");
+        monopolyGameManager.SetGameTextEventsText(
+            $"{description}, {monopolyPlayer} doit payer 50M à chaque joueur.");
+        yield return monopolyGameManager.PlayerMustPayToEachPlayer(monopolyPlayer, 50);
+        yield return new WaitForSeconds(1f);
     }
 }
 public class AdvanceToBoulevardDeLaVilletteCard : ChanceTile
 {
-    public AdvanceToBoulevardDeLaVilletteCard()
-        : base("AVANCEZ JUQU'AU BOULEVARD DE LA VILLETE. SI VOUS PASSEZ PAR LA CASE DÉPART, RECEVEZ 200M.")
+    public AdvanceToBoulevardDeLaVilletteCard(GameObject tileGameObject)
+        : base(tileGameObject, "AVANCEZ JUQU'AU BOULEVARD DE LA VILLETE. SI VOUS PASSEZ PAR LA CASE DÉPART, RECEVEZ 200M.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Position du Boulevard de la Villette
-        int targetPosition = 11; // Exemple : index de la case sur le plateau
-        bool passesStart = MonopolyPlayer.CurrentPosition > targetPosition;
-
-        if (passesStart)
-        {
-            // Ajouter 200M pour avoir passé la case départ
-            MonopolyPlayer.Money += 200;
-            Debug.Log($"{MonopolyPlayer.Name} passe par la case départ et reçoit 200M.");
-        }
-
-        // Déplacer le joueur sur le Boulevard de la Villette
-        MonopolyPlayer.MoveToPosition(targetPosition);
-
-        Debug.Log($"{MonopolyPlayer.Name} avance jusqu'au Boulevard de la Villette.");
+        
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer au boulevard de la villette.");
+        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 11);
+        yield return new WaitForSeconds(.5f);
     }
 }
 public class GetOutOfJailCard : ChanceTile
 {
-    public GetOutOfJailCard()
-        : base("VOUS ÊTES LIBÉRÉ DE PRISON. Cette carte peut être conservée jusqu'à ce qu'elle soit utilisée, échangée ou vendue.")
+    public GetOutOfJailCard(GameObject tileGameObject)
+        : base(tileGameObject, "VOUS ÊTES LIBÉRÉ DE PRISON. Cette carte peut être conservée jusqu'à ce qu'elle soit utilisée, échangée ou vendue.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Ajouter cette carte à l'inventaire du joueur
-        MonopolyPlayer.AddToInventory(this);
-
-        Debug.Log($"{MonopolyPlayer.Name} conserve la carte 'Libéré de prison' pour une utilisation future.");
+        
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a la possibilité de sortir en prison si il y va.");
+        yield return monopolyGameManager.MoveBackTo(monopolyPlayer, 3);
+        yield return new WaitForSeconds(.5f);
     }
 }
 public class MoveBackThreeSpacesCard : ChanceTile
 {
-    public MoveBackThreeSpacesCard()
-        : base("RECULEZ DE TROIS CASES.")
+    public MoveBackThreeSpacesCard(GameObject tileGameObject)
+        : base(tileGameObject, "RECULEZ DE TROIS CASES.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Le joueur recule de trois cases
-        int newPosition = MonopolyPlayer.CurrentPosition - 3;
-
-        // S'assurer que la position ne soit pas inférieure à zéro (ne pas sortir du plateau)
-        if (newPosition < 0)
-        {
-            newPosition = 0; // La première case du plateau
-        }
-
-        MonopolyPlayer.MoveToPosition(newPosition);
-
-        Debug.Log($"{MonopolyPlayer.Name} recule de trois cases.");
+        
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit reculer de 3 cases.");
+        yield return monopolyGameManager.MoveBackTo(monopolyPlayer, 3);
+        yield return new WaitForSeconds(.5f);
     }
 }
 public class RealEstateLoanCard : ChanceTile
 {
-    public RealEstateLoanCard()
-        : base("VOTRE PRÊT IMMOBILIER VOUS RAPPORTE. RECEVEZ 150M.")
+    public RealEstateLoanCard(GameObject tileGameObject)
+        : base(tileGameObject, "VOTRE PRÊT IMMOBILIER VOUS RAPPORTE. RECEVEZ 150M.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Le joueur reçoit 150 millions
-        MonopolyPlayer.Money += 150;
-        
-        Debug.Log($"{MonopolyPlayer.Name} reçoit 150M grâce à son prêt immobilier.");
+        monopolyPlayer.HaveWon(150);
+        monopolyGameManager.SetGameTextEventsText(
+            $"Votre prêt vous rapporte 150M à {monopolyPlayer}.");
+        yield return new WaitForSeconds(1f);
     }
 }
 public class AdvanceToGareMontparnasseCard : ChanceTile
 {
-    public AdvanceToGareMontparnasseCard()
-        : base("RENDEZ-VOUS À LA GARE MONTPARNASSE. SI VOUS PASSEZ PAR LA CASE DÉPART, RECEVEZ 200M.")
+    public AdvanceToGareMontparnasseCard(GameObject tileGameObject)
+        : base(tileGameObject,"RENDEZ-VOUS À LA GARE MONTPARNASSE. SI VOUS PASSEZ PAR LA CASE DÉPART, RECEVEZ 200M.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Supposons que la Gare Montparnasse est à la position 15
-        int gareMontparnassePosition = 15;
-        int currentPosition = MonopolyPlayer.CurrentPosition;
         
-        // Le joueur se déplace à la Gare Montparnasse
-        MonopolyPlayer.MoveToPosition(gareMontparnassePosition);
-
-        // Vérifier si le joueur est passé par la case Départ
-        if (currentPosition < gareMontparnassePosition)
-        {
-            MonopolyPlayer.Money += 200; // Le joueur reçoit 200 millions s'il passe par la case Départ
-            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M.");
-        }
-
-        Debug.Log($"{MonopolyPlayer.Name} avance à la Gare Montparnasse.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la GARE MONTPARNASSE.");
+        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 11);
+        yield return new WaitForSeconds(.5f);
     }
 }
 public class AdvanceToAvenueHenriMartinCard : ChanceTile
 {
-    public AdvanceToAvenueHenriMartinCard()
-        : base("AVANCEZ JUSQU'À L'AVENUE HENRI-MARTIN. SI VOUS PASSEZ PAR LA CASE DÉPART, RECEVEZ 200M.")
+    public AdvanceToAvenueHenriMartinCard(GameObject tileGameObject)
+        : base(tileGameObject, "AVANCEZ JUSQU'À L'AVENUE HENRI-MARTIN. SI VOUS PASSEZ PAR LA CASE DÉPART, RECEVEZ 200M.")
     {
     }
-
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Supposons que l'Avenue Henri-Martin est à la position 17
-        int avenueHenriMartinPosition = 17;
-        int currentPosition = MonopolyPlayer.CurrentPosition;
         
-        // Le joueur se déplace à l'Avenue Henri-Martin
-        MonopolyPlayer.MoveToPosition(avenueHenriMartinPosition);
-
-        // Vérifier si le joueur est passé par la case Départ
-        if (currentPosition < avenueHenriMartinPosition)
-        {
-            MonopolyPlayer.Money += 200; // Le joueur reçoit 200 millions s'il passe par la case Départ
-            Debug.Log($"{MonopolyPlayer.Name} passe par la case Départ et reçoit 200M.");
-        }
-
-        Debug.Log($"{MonopolyPlayer.Name} avance à l'Avenue Henri-Martin.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à l'avenue Henri Martin.");
+        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 24);
+        yield return new WaitForSeconds(.5f);
     }
 }
 public class GoToJailCard : ChanceTile
@@ -213,7 +202,6 @@ public class AdvanceToRueDeLaPaixCard : ChanceTile
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la case départ.");
         yield return monopolyGameManager.MoveAPlayerToLastTile(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
-
     }
 }
 public class AdvanceToStartCard : ChanceTile
