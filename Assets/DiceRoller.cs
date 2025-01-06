@@ -241,7 +241,6 @@ public class DiceRoller : MonoBehaviour
     public IEnumerator<int> Roll()
     {
         // Return 0 initially as a placeholder
-        yield return 0;
         int faceAccordingToXYZ;
         ThrowAnyway();
         while (true)
@@ -287,6 +286,7 @@ public class DiceRoller : MonoBehaviour
             previousPosition = transform.position;
             previousRotation = transform.rotation;
             yield return 0;
+
         }
         
         yield return faceAccordingToXYZ; // Return the rolled value

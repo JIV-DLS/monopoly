@@ -61,6 +61,7 @@ public class MonopolyGameManager : MonoBehaviour
             );
 
         currentPlayer = localPlayer;
+        monopolyPlayers = new List<MonopolyPlayer>();
         monopolyPlayers.Add(localPlayer);
         chancesCards = new ChancesCards(this);
         communitiesCards = new CommunitiesCards(this);
@@ -138,6 +139,10 @@ public class MonopolyGameManager : MonoBehaviour
 
     private IEnumerator GameLoop()
     {
+        foreach (MonopolyPlayer player in monopolyPlayers)
+        {
+            yield return MoveAPlayerToStartTile(player);
+        }
         while (isGameRunning)
         {
             Debug.Log($"Game Loop {gameState}");
@@ -146,7 +151,7 @@ public class MonopolyGameManager : MonoBehaviour
                 case GameState.WaitingForRoll:
                     GameTextEvents.SetText($"En attente du joueur {currentPlayer}");
                     // Call the player's Play method to start their turn
-                    yield return StartCoroutine(currentPlayer.TriggerPlay(rollDiceTimeout, buyTileTimeout));
+                    yield return currentPlayer.TriggerPlay(rollDiceTimeout, buyTileTimeout);
                     gameState = GameState.TurnEnd;
 
                     // Switch to the next player
@@ -361,6 +366,13 @@ public class MonopolyGameManager : MonoBehaviour
         GameTextEvents.SetText($"{player} a jete les des...");
         dicesManager.ThrowDice(player);
         
+    }
+
+    public IEnumerator APlayerRolledDice(MonopolyPlayer player, int rollResult)
+    {
+        MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
+            passHome);
+        yield return null;
     }
     public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
     {
@@ -598,7 +610,10 @@ public class MonopolyGameManager : MonoBehaviour
 
     public IEnumerable<int> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
     {
-        return dicesManager.RollDiceAndGetResult(monopolyPlayer);
+        foreach (int gottenValue in dicesManager.RollDiceAndGetResult(monopolyPlayer))
+        {
+            yield return gottenValue;
+        }
     }
 public IEnumerator HandlePayment(MonopolyPlayer payer, MonopolyPlayer receiver, int dueAmount, bool isBankPayment)
 {

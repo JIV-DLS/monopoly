@@ -257,7 +257,7 @@ public class MonopolyPlayer
         // If the player didn't perform the action, notify them
         if (!hasPerformedAction)
         {
-            yield return _playerElementOnMap.StartCoroutine(Play());
+            yield return Play();
         }
 
     }
@@ -270,7 +270,19 @@ public class MonopolyPlayer
     private IEnumerator Play()
     {
         DisableAllActionButtons();
-        yield return _monopolyGameManager.AskAPlayerToRollDices(this);
+        int rolledResult = 0;
+        foreach (int gottenResult in _monopolyGameManager.AskAPlayerToRollDices(this))
+        {
+            yield return null;
+            rolledResult = gottenResult;
+            if (rolledResult>0)
+            {
+                break;
+            }
+        }
+
+        yield return _monopolyGameManager.APlayerRolledDice(this, rolledResult);
+
     }
 
     private void DisableAllActionButtons()
