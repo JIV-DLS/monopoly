@@ -236,59 +236,79 @@ public class DiceRoller : MonoBehaviour
         DiceRoller clonedComponent = clone.GetComponent<DiceRoller>();
         return clonedComponent;
     }
+    public IEnumerator<int> ManualSleep(float seconds)
+    {
+        float elapsedTime = 0f;
 
+        while (elapsedTime < seconds)
+        {
+            // Yield 0 while the time hasn't reached the target
+            yield return 0;
+
+            // Increment the elapsed time
+            elapsedTime += Time.deltaTime;
+        }
+    }
     // Simulates rolling the dice and stores the result
     public IEnumerator<int> Roll()
+{
+    // Return 0 initially as a placeholder
+    int faceAccordingToXYZ;
+    ThrowAnyway();
+    while (true)
     {
-        // Return 0 initially as a placeholder
-        int faceAccordingToXYZ;
-        ThrowAnyway();
-        while (true)
-        {
-            if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold)
-            {        
-                // Debug.Log($"id {id}, velocity: {diceRigidbody.linearVelocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
+        if (diceRigidbody.linearVelocity.magnitude < stopThreshold && diceRigidbody.angularVelocity.magnitude < stopThreshold)
+        {        
+            // Debug.Log($"id {id}, velocity: {diceRigidbody.linearVelocity.magnitude}, angular: {diceRigidbody.angularVelocity.magnitude}");
 
-                if (currentCollisions.Count > 1)
+            if (currentCollisions.Count > 1)
+            {
+                for (int i = 0; i < 50; i++)
                 {
-                    for (int i = 0; i < 50; i++)
-                    {
-                        yield return 0; //Wait for 50 frames
-                    }
-                    ThrowAnyway();
+                    yield return 0; // Wait for 50 frames
                 }
-                else
+                ThrowAnyway();
+            }
+            else
+            {
+                // Check if position and rotation have remained the same for 1 second
+                if (transform.position == previousPosition && transform.rotation == previousRotation)
                 {
-                    // Check if position and rotation have remained the same for 1 second
-                    if (transform.position == previousPosition && transform.rotation == previousRotation)
+                    faceAccordingToXYZ = GetFaceAccordingToXYZ();
+                    if (faceAccordingToXYZ == 0)
                     {
-                        // Debug.Log($"id {id} all position is good {timer} {actionTriggered}");
-                        faceAccordingToXYZ = GetFaceAccordingToXYZ();
-                        if (faceAccordingToXYZ == 0)
+                        ThrowAnyway();
+                    }
+                    else
+                    {
+                        // Sleep for 0.5 seconds to make sure the position and rotation don't change
+                        var sleeper = ManualSleep(.7f);
+                        while (sleeper.MoveNext())
                         {
-                            ThrowAnyway();
+                            yield return 0;
                         }
-                        else
+                        // After sleeping, check again and then break
+                        if (transform.position == previousPosition && transform.rotation == previousRotation)
                         {
                             break;
                         }
                     }
-                    else
-                    {
-                        // Reset the timer if position or rotation changes
-                        actionTriggered = false;
-                    }
+                }
+                else
+                {
+                    // Update previous position and rotation if they changed
+                    previousPosition = transform.position;
+                    previousRotation = transform.rotation;
                 }
             }
-            
-                
-            // Store the initial position and rotation
-            previousPosition = transform.position;
-            previousRotation = transform.rotation;
-            yield return 0;
-
         }
-        
-        yield return faceAccordingToXYZ; // Return the rolled value
+
+        // Store the initial position and rotation for the next iteration
+        previousPosition = transform.position;
+        previousRotation = transform.rotation;
+        yield return 0;
     }
+
+    yield return faceAccordingToXYZ; // Return the rolled value
+}
 }

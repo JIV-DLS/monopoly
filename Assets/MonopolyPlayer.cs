@@ -242,10 +242,6 @@ public class MonopolyPlayer
         {
             if (hasPerformedAction || _askedPlayFromButton)
             {
-                if (_askedPlayFromButton)
-                {
-                    _askedPlayFromButton = false;
-                }
                 break;
             }
             _timer += Time.deltaTime;
@@ -270,6 +266,15 @@ public class MonopolyPlayer
     private IEnumerator Play()
     {
         DisableAllActionButtons();
+        if (_askedPlayFromButton)
+        {
+            _monopolyGameManager.SetGameTextEventsText($"{this} a jeté les dés.");
+        }
+        else
+        {
+            _monopolyGameManager.SetGameTextEventsText("les dés ont été jeté automatiquement.");
+        }
+        
         int rolledResult = 0;
         foreach (int gottenResult in _monopolyGameManager.AskAPlayerToRollDices(this))
         {
@@ -281,6 +286,17 @@ public class MonopolyPlayer
             }
         }
 
+        if (_askedPlayFromButton)
+        {
+            _monopolyGameManager.SetGameTextEventsText($"{this} a joué {rolledResult}.");
+        }else
+        {
+
+            _monopolyGameManager.SetGameTextEventsText($"le résultat du lancé est {rolledResult}.");
+        }
+        yield return new WaitForSeconds(2f);
+        
+        _askedPlayFromButton = false;
         yield return _monopolyGameManager.APlayerRolledDice(this, rolledResult);
 
     }
@@ -372,7 +388,7 @@ public class MonopolyPlayer
     }
     public bool CanPlay()
     {
-        return money > 0 && !IsInPrison();
+        return money > 0 || !IsInPrison();
     }
 
     public void HaveWonAGetOutOfJailChanceCard(GetOutOfJailCard getOutOfJailCard)

@@ -87,6 +87,8 @@ public class MonopolyGameManager : MonoBehaviour
     }
     public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool passHome, bool doLandAction)
     {
+        player.MoveTo(tile);
+        GameTextEvents.SetText($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
         if (doLandAction)
         {
             if (tile is StartTile || passHome)
@@ -129,10 +131,6 @@ public class MonopolyGameManager : MonoBehaviour
                 yield return new WaitForSeconds(1.5f);
             }
         }
-        player.MoveTo(tile);
-        
-        
-        GameTextEvents.SetText($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
         yield return new WaitForSeconds(.5f);
 
     }
@@ -370,8 +368,8 @@ public class MonopolyGameManager : MonoBehaviour
 
     public IEnumerator APlayerRolledDice(MonopolyPlayer player, int rollResult)
     {
-        MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
-            passHome);
+        yield return MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
+            passHome, true);
         yield return null;
     }
     public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
@@ -586,7 +584,7 @@ public class MonopolyGameManager : MonoBehaviour
             // Simulate a delay for each step
             yield return new WaitForSeconds(0.5f);
         }
-        MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), lastPassHome);
+        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), lastPassHome);
 
         /*Console.WriteLine($"Final tile index: {finalIndex}");
         if (passedHome)
@@ -610,7 +608,6 @@ public class MonopolyGameManager : MonoBehaviour
 
     public IEnumerable<int> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
     {
-        Debug.Log("Asking a player to roll");
         foreach (int gottenValue in dicesManager.RollDiceAndGetResult(monopolyPlayer))
         {
             yield return gottenValue;
@@ -1071,7 +1068,7 @@ public class Board
         currentIndex++;
         while (GetTileAtIndex(currentIndex) is not T)
         {
-            MoveFromTile(GetTileAtIndex(currentIndex), 1, out bool passedHomeOnce);
+            currentIndex = MoveFromTile(GetTileAtIndex(currentIndex), 1, out bool passedHomeOnce);
             passHome = passHome || passedHomeOnce; // Logical OR ensures passHome stays true.
             // Yield the current index and the passHome flag.
             yield return (currentIndex, passHome);
@@ -1250,7 +1247,7 @@ public abstract class PurchasableTile : BoardTile, IGood
     
     public bool IsOwned()
     {
-        return monopolyPlayer == null;
+        return monopolyPlayer != null;
     }
 
     public bool IsOwnedBy(MonopolyPlayer monopolyPlayer)
@@ -1584,7 +1581,7 @@ public class RedPropertyGroupTile : PropertyTile
 }
 public class YellowPropertyGroupTile : PropertyTile
 {
-    public YellowPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
+    public YellowPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
     public override PropertyTile[] GetAllGroupOfThisPropertyTile()
