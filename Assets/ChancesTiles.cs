@@ -379,22 +379,25 @@ public class AdvanceToUtilityCard : ChanceCard
                 yield return new WaitForSeconds(1.5f);
 
 
-                List<int> rolledResult = new List<int>();
-                foreach (List<int> rolledResultFromEnumerator in monopolyGameManager.AskAPlayerToRollDices(
+                int rolledResult = 0;
+                foreach (int gottenResult in monopolyGameManager.AskAPlayerToRollDices(
                              monopolyPlayer))
                 {
                     yield return null;
-                    rolledResult = rolledResultFromEnumerator;
+                    rolledResult = gottenResult;
+                    if (rolledResult>0)
+                    {
+                        break;
+                    }
                 }
 
-                int resultPlayed = rolledResult.Sum();
-                monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a joué {resultPlayed}");
+                monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a joué {rolledResult}");
                 yield return new WaitForSeconds(1f);
-                int dueAmount = resultPlayed * 10;
+                int dueAmount = rolledResult * 10;
 
                 
                 monopolyGameManager.SetGameTextEventsText(
-                    $"{monopolyPlayer} a joué {resultPlayed}, donc doit payer {dueAmount}");
+                    $"{monopolyPlayer} a joué {rolledResult}, donc doit payer {dueAmount}");
                 yield return monopolyGameManager.PlayerAPayPlayerB(monopolyPlayer, tileOwner, dueAmount);
                 yield return new WaitForSeconds(1f);
             }

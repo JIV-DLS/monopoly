@@ -596,12 +596,9 @@ public class MonopolyGameManager : MonoBehaviour
         GameTextEvents.SetText(text);
     }
 
-    public IEnumerable<List<int>> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
+    public IEnumerable<int> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
     {
-        while (dicesManager.RollDicesAndGetResult().MoveNext())
-        {
-            yield return dicesManager.RollDicesAndGetResult().Current;
-        }
+        return dicesManager.RollDiceAndGetResult(monopolyPlayer);
     }
 public IEnumerator HandlePayment(MonopolyPlayer payer, MonopolyPlayer receiver, int dueAmount, bool isBankPayment)
 {

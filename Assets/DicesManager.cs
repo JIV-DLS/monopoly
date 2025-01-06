@@ -99,6 +99,25 @@ public class DicesManager : MonoBehaviour
         
     }
 
+    public IEnumerable<int> RollDiceAndGetResult(MonopolyPlayer monopolyPlayer)
+    {
+        List<int> rolledResult = new List<int>();
+        foreach (List<int> rolledResultFromEnumerator in AskAPlayerToRollDices(
+                     monopolyPlayer))
+        {
+            yield return 0;
+            rolledResult = rolledResultFromEnumerator;
+        }
+
+        yield return rolledResult.Sum();
+    }
+    public IEnumerable<List<int>> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
+    {
+        while (RollDicesAndGetResult().MoveNext())
+        {
+            yield return RollDicesAndGetResult().Current;
+        }
+    }
     public IEnumerator<List<int>> RollDicesAndGetResult()
     {
 

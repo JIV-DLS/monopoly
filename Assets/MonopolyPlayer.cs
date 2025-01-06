@@ -270,13 +270,7 @@ public class MonopolyPlayer
     private IEnumerator Play()
     {
         DisableAllActionButtons();
-        hasPerformedAction = false;
-        _monopolyGameManager.PlayerRollDice(this);
-        while (!hasPerformedAction)
-        {
-            yield return null; 
-        }
-        hasPerformedAction = false;
+        yield return _monopolyGameManager.AskAPlayerToRollDices(this);
     }
 
     private void DisableAllActionButtons()

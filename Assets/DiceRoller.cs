@@ -117,10 +117,6 @@ public class DiceRoller : MonoBehaviour
     void Update()
     {
         
-                
-        // Store the initial position and rotation
-        previousPosition = transform.position;
-        previousRotation = transform.rotation;
     
     }
     void DoDieMovementEndedAction(int gottenFace)
@@ -285,6 +281,11 @@ public class DiceRoller : MonoBehaviour
                     }
                 }
             }
+            
+                
+            // Store the initial position and rotation
+            previousPosition = transform.position;
+            previousRotation = transform.rotation;
             yield return 0;
         }
         
