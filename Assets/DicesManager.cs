@@ -113,9 +113,10 @@ public class DicesManager : MonoBehaviour
     }
     public IEnumerable<List<int>> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
     {
-        while (RollDicesAndGetResult().MoveNext())
+        IEnumerator<List<int>> rollDicesAndGetResult = RollDicesAndGetResult();
+        while (rollDicesAndGetResult.MoveNext())
         {
-            yield return RollDicesAndGetResult().Current;
+            yield return rollDicesAndGetResult.Current;
         }
     }
     public IEnumerator<List<int>> RollDicesAndGetResult()

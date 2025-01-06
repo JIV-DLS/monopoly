@@ -610,6 +610,7 @@ public class MonopolyGameManager : MonoBehaviour
 
     public IEnumerable<int> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
     {
+        Debug.Log("Asking a player to roll");
         foreach (int gottenValue in dicesManager.RollDiceAndGetResult(monopolyPlayer))
         {
             yield return gottenValue;
