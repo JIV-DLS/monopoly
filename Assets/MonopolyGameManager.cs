@@ -7,8 +7,8 @@ using System.Linq;
 
 public class MonopolyGameManager : MonoBehaviour
 {
-    public ShuffableCollection<CommunitiesTiles> communitiesTiles{get;private set;}
-    public ShuffableCollection<ChancesTiles> chancesTiles{get;private set;}
+    public CommunitiesCards communitiesCards{get;private set;}
+    public ChancesCards chancesCards{get;private set;}
     public GameCardBuy gameCardBuy;
     private PlayersHorizontalView _playersHorizontalView;
     private PlayerPieceOnBoardBuilder _playerPieceOnBoardBuilder;
@@ -62,6 +62,8 @@ public class MonopolyGameManager : MonoBehaviour
 
         currentPlayer = localPlayer;
         monopolyPlayers.Add(localPlayer);
+        chancesCards = new ChancesCards(this);
+        communitiesCards = new CommunitiesCards(this);
         // Start the waiting process
         StartCoroutine(GameLoop());
     }
@@ -649,6 +651,17 @@ public IEnumerator PlayerMustPayToEachPlayer(MonopolyPlayer payer, int dueAmount
     }
     yield return null;
 }
+public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
+{
+    foreach (MonopolyPlayer player in monopolyPlayers)
+    {
+        if (player != receiver)
+        {
+            yield return HandlePayment(player, receiver, dueAmount, false);
+        }
+    }
+    yield return null;
+}
     private IEnumerator WaitForPlayerToBeAbleToBeChargeOf(MonopolyPlayer monopolyPlayer, int dueAmount)
     {
         yield return monopolyPlayer.GatherMoneyToReach(dueAmount);
@@ -689,6 +702,39 @@ public IEnumerator PlayerMustPayToEachPlayer(MonopolyPlayer payer, int dueAmount
         yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileBackFromATileTo(monopolyPlayer, i));
     }
 
+    public IEnumerator GiveChanceCardToPlayerGetOutOfJailCard(MonopolyPlayer monopolyPlayer)
+    {
+        ChanceCard firstCard = chancesCards.TakeFromStart();
+        if (firstCard is GetOutOfJailCard chanceCard)
+        {
+            monopolyPlayer.HaveWonAGetOutOfJailChanceCard(chanceCard);
+            SetGameTextEventsText($"{monopolyPlayer} a gagné une carte chance pour sortir de prison s'il y va.");
+            yield return new WaitForSeconds(.5f);
+        }
+        else
+        {
+            Debug.LogError("Sorry this is not a GetOutOfJailCard");
+        }
+        
+        yield return null;
+    }
+
+    public IEnumerator GiveCommunityCardToPlayerToAdoptAPuppyCard(MonopolyPlayer monopolyPlayer)
+    {
+        CommunityCard firstCard = communitiesCards.TakeFromStart();
+        if (firstCard is AdoptPuppyCard adoptPuppyCard)
+        {
+            monopolyPlayer.HaveWonAnAdoptAPuppyCommunityCard(adoptPuppyCard);
+            SetGameTextEventsText($"{monopolyPlayer} a gagné une carte community pour sortir de prison s'il y va.");
+            yield return new WaitForSeconds(.5f);
+        }
+        else
+        {
+            Debug.LogError("Sorry this is not a GetOutOfJailCard");
+        }
+        
+        yield return null;
+    }
 }
 
 public class Dice
@@ -769,7 +815,7 @@ public class Board
                         50, 50, 60, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 2:
-                    boardTile = new CommunityTile(side[i]);
+                    boardTile = new CommunitySpecialTile(side[i]);
                     break;
                 case 3:
                     boardTile = new BrownPropertyGroupTile(side[i], "Rue Lecourbe",
@@ -788,7 +834,7 @@ public class Board
                         50, 50, 100, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 7:
-                    boardTile = new ChanceTile(side[i]);
+                    boardTile = new ChanceSpecialTile(side[i]);
                     break;
                 case 8:
                     boardTile = new LightBluePropertyGroupTile(side[i], "Rue De Courcelles",
@@ -830,7 +876,7 @@ public class Board
                         100, 100, 180, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 17:
-                    boardTile = new CommunityTile(side[i]);
+                    boardTile = new CommunitySpecialTile(side[i]);
                     break;
                 case 18:
                     boardTile = new OrangePropertyGroupTile(side[i], "Boulevard Saint-Michel",
@@ -851,7 +897,7 @@ public class Board
                         150, 150, 220, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 22:
-                    boardTile = new ChanceTile(side[i]);
+                    boardTile = new ChanceSpecialTile(side[i]);
                     break;
                 case 23:
                     boardTile = new RedPropertyGroupTile(side[i], "Boulevard Malesherbes",
@@ -898,7 +944,7 @@ public class Board
                         200, 200, 300, titleDeedCardPrefab, cardBehindPrefab);
                     break;
                 case 33:
-                    boardTile = new CommunityTile(side[i]);
+                    boardTile = new CommunitySpecialTile(side[i]);
                     break;
                 case 34:
                     boardTile = new GreenPropertyGroupTile(side[i], "Boulvard des Capucines",
@@ -909,7 +955,7 @@ public class Board
                     boardTile = new RailroadTile(side[i], "Gare Saint Lazare", railRoadCardPrefab, cardBehindPrefab);
                     break;
                 case 36:
-                    boardTile = new ChanceTile(side[i]);
+                    boardTile = new ChanceSpecialTile(side[i]);
                     break;
                 case 37:
                     
@@ -1659,111 +1705,134 @@ public class TaxTile : BoardTile
 
 }
 
-public abstract class SpecialTile : BoardTile
+public abstract class SpecialBoardTile : BoardTile
 {
     
+    protected SpecialBoardTile(GameObject tileGameObject, string name): base(tileGameObject, name)
+    {
+    }
+
+}
+
+public class ChanceSpecialTile : SpecialBoardTile
+{
+    public ChanceSpecialTile(GameObject tileGameObject)
+        : base(tileGameObject, "Chance")
+    {
+        
+    }
+
+}
+public class CommunitySpecialTile : SpecialBoardTile
+{
+    public CommunitySpecialTile(GameObject tileGameObject)
+        : base(tileGameObject, "Community")
+    {
+    }
+
+}
+public abstract class SpecialCard
+{
+    
+    public MonopolyGameManager monopolyGameManager { get; }
+    public string name { get; }
     public string description { get; }
 
-    protected SpecialTile(GameObject tileGameObject, string name, string description) : base(tileGameObject, name)
+    protected SpecialCard(MonopolyGameManager monopolyGameManager, string name, string description)
     {
+        this.monopolyGameManager = monopolyGameManager;
+        this.name = name;
         this.description = description;
     }
 
+    public IEnumerator TriggerEffectMain(MonopolyPlayer monopolyPlayer)
+    {
+        Debug.Log($"Effet de carte : {description}");
+        
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} est arriver sur une tuile {name}.");
+        yield return new WaitForSeconds(.5f);
+        monopolyGameManager.SetGameTextEventsText($"Effet de carte : {description}");
+        yield return new WaitForSeconds(1.5f);
+        yield return TriggerEffect(monopolyPlayer);
+    }
     public abstract IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer);
 }
 
-public abstract class ChancesTile : ShuffableCollection<ChanceTile>
+public abstract class ChanceCard : SpecialCard
+{
+    public ChanceCard(MonopolyGameManager monopolyGameManager, string description)
+        : base(monopolyGameManager, "Chance", description)
+    {
+        
+    }
+
+}
+public abstract class CommunityCard : SpecialCard
+{
+    public CommunityCard(MonopolyGameManager monopolyGameManager, string description)
+        : base(monopolyGameManager, "Community", description)
+    {
+    }
+
+}
+public class ChancesCards : ShuffableCollection<ChanceCard>
 {
     
-    public ChancesTile()
+    public ChancesCards(MonopolyGameManager monopolyGameManager)
     {
         
-        cards = new List<ChanceTile>
-        {
-            new AdvanceToUtilityCard(),
-            new BankDividendCard(),
-            new AdvanceToStationCardChance(),
-            new SpeedingFineCard(),
-            new RepairCostCard(),
-            new AdvanceToStartCard(),
-            new AdvanceToRueDeLaPaixCard(),
-            new GoToJailCard(),
-            new AdvanceToAvenueHenriMartinCard(),
-            new AdvanceToGareMontparnasseCard(),
-            new RealEstateLoanCard(),
-            new MoveBackThreeSpacesCard(),
-            new GetOutOfJailCard(),
-            new AdvanceToBoulevardDeLaVilletteCard(),
-            new ElectedChairmanCard();
-        };
+        AddRange(new List<ChanceCard>{
+            new AdvanceToUtilityCard(monopolyGameManager),
+            new BankDividendCard(monopolyGameManager),
+            new AdvanceToStationCardChance(monopolyGameManager),
+            new SpeedingFineCard(monopolyGameManager),
+            new RepairCostCard(monopolyGameManager),
+            new AdvanceToStartCard(monopolyGameManager),
+            new AdvanceToRueDeLaPaixCard(monopolyGameManager),
+            new GoToJailCard(monopolyGameManager),
+            new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
+            new AdvanceToGareMontparnasseCard(monopolyGameManager),
+            new RealEstateLoanCard(monopolyGameManager),
+            new MoveBackThreeSpacesCard(monopolyGameManager),
+            new GetOutOfJailCard(monopolyGameManager),
+            new AdvanceToBoulevardDeLaVilletteCard(monopolyGameManager),
+            new ElectedChairmanCard(monopolyGameManager)
+        });
     }
-
-    private List<ChanceTile> cards;
-}
-public abstract class ChanceTile : SpecialTile
-{
-    public ChanceTile(GameObject tileGameObject, string description)
-        : base(tileGameObject, "Chance", description)
-    {
-        
-        cards = new List<ChanceTile>
-        {
-            new AdvanceToUtilityCard(),
-            new BankDividendCard(),
-            new AdvanceToStationCardChance(),
-            new SpeedingFineCard(),
-            new RepairCostCard(),
-            new AdvanceToStartCard(),
-            new AdvanceToRueDeLaPaixCard(),
-            new GoToJailCard(),
-            new AdvanceToAvenueHenriMartinCard(),
-            new AdvanceToGareMontparnasseCard(),
-            new RealEstateLoanCard(),
-            new MoveBackThreeSpacesCard(),
-            new GetOutOfJailCard(),
-            new AdvanceToBoulevardDeLaVilletteCard(),
-            new ElectedChairmanCard();
-        };
-    }
-
-    private List<ChanceTile> cards;
-
-
 
 }
 
-public abstract class CommunityTile : SpecialTile
+public class CommunitiesCards : ShuffableCollection<CommunityCard>
 {
-    private List<CommunityTile> cards;
+    
     
 
-    public CommunityTile(GameObject tileGameObject, string description)
-        : base(tileGameObject, "Community", description)
+    public CommunitiesCards(MonopolyGameManager monopolyGameManager)
     {
         
-        cards = new List<CommunityTile>
-        {
-            new PlaygroundDonationCard(),
-            new NeighborhoodPartyCard(),
-            new BakeSaleCard(),
-            new HousingImprovementCard(),
-            new CharityCarWashCard(),
-            new BakeSalePurchaseCard(),
-            new GardenCleanupCard(),
-            new HospitalPlayCard(),
-            new PedestrianPathCleanupCard(),
-            new ChattingWithElderNeighborCard(),
-            new AnimalShelterDonationCard(),
-            new BloodDonationCard(),
-            new MarathonForHospitalCard(),
-            new LoudMusicCard(),
-            new HelpNeighborCard(),
-            new AdoptPuppyCard(), // Ajout de la carte "Adoption Chiot"
+        AddRange(new List<CommunityCard>{
+            new PlaygroundDonationCard(monopolyGameManager),
+            new NeighborhoodPartyCard(monopolyGameManager),
+            new BakeSaleCard(monopolyGameManager),
+            new HousingImprovementCard(monopolyGameManager),
+            new CharityCarWashCard(monopolyGameManager),
+            new BakeSalePurchaseCard(monopolyGameManager),
+            new GardenCleanupCard(monopolyGameManager),
+            new HospitalPlayCard(monopolyGameManager),
+            new PedestrianPathCleanupCard(monopolyGameManager),
+            new ChattingWithElderNeighborCard(monopolyGameManager),
+            new AnimalShelterDonationCard(monopolyGameManager),
+            new BloodDonationCard(monopolyGameManager),
+            new MarathonForHospitalCard(monopolyGameManager),
+            new LoudMusicCard(monopolyGameManager),
+            new HelpNeighborCard(monopolyGameManager),
+            new AdoptPuppyCard(monopolyGameManager), // Ajout de la carte "Adoption Chiot"
             // Ajoutez ici d'autres cartes Community...
-        };
+        });
+        
     }
-
 }
+
 
 public enum GameState
 {

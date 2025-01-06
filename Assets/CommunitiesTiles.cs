@@ -1,4 +1,5 @@
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,24 +8,24 @@ public class CommunitiesTiles
     
 }
 
-public class AdoptPuppyCard : CommunityTile
+public class AdoptPuppyCard : CommunityCard
 {
-    public AdoptPuppyCard()
-        : base("OUAF, OUAF ! VOUS ADOPTEZ UN CHIOT DANS UN REFUGE !\nVOUS ÊTES LIBÉRÉ DE PRISON.\nConservez cette carte jusqu'à ce qu'elle soit utilisée, échangée ou vendue.")
+    public AdoptPuppyCard(MonopolyGameManager tileMonopolyGameManager)
+        : base(tileMonopolyGameManager, "OUAF, OUAF ! VOUS ADOPTEZ UN CHIOT DANS UN REFUGE !\nVOUS ÊTES LIBÉRÉ DE PRISON.\nConservez cette carte jusqu'à ce qu'elle soit utilisée, échangée ou vendue.")
     {
     }
 
-    public override IEnumerator TriggerEffect(MonopolyPlayer MonopolyPlayer)
+    
+    public override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         Debug.Log($"Effet de carte : {description}");
-
-        // Le joueur est libéré de prison
-        MonopolyPlayer.ReleaseFromJail();
-
-        Debug.Log($"{MonopolyPlayer.Name} a adopté un chiot et est libéré de prison !");
+        
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a la possibilité de sortir en prison si il y va.");
+        yield return monopolyGameManager.GiveCommunityCardToPlayerToAdoptAPuppyCard(monopolyPlayer);
+        yield return new WaitForSeconds(.5f);
     }
 }
-public class HelpNeighborCard : CommunityTile
+public class HelpNeighborCard : CommunityCard
 {
     public HelpNeighborCard()
         : base("VOUS AIDEZ VOTRE VOISINE À PORTER SES COURSES. ELLE VOUS PRÉPARE UN REPAS POUR VOUS REMERCIER !\nRECEVEZ 20M.")
@@ -41,7 +42,7 @@ public class HelpNeighborCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a aidé sa voisine et a reçu 20M !");
     }
 }
-public class LoudMusicCard : CommunityTile
+public class LoudMusicCard : CommunityCard
 {
     public LoudMusicCard()
         : base("VOUS ÉCOUTEZ DE LA MUSIQUE À FOND TARD DANS LA NUIT ?\nVOS VOISINS N'APPRÉCIENT PAS.\nALLEZ EN PRISON. ALLEZ TOUT DROIT EN PRISON.\nNE PASSEZ PAS PAR LA CASE DÉPART, NE RECEVEZ PAS 200M.")
@@ -59,7 +60,7 @@ public class LoudMusicCard : CommunityTile
     }
 }
 
-public class MarathonForHospitalCard : CommunityTile
+public class MarathonForHospitalCard : CommunityCard
 {
     public MarathonForHospitalCard()
         : base("ALORS QUE VOUS NE PENSAIEZ PAS POUVOIR FAIRE UN MÈTRE DE PLUS, VOUS FRANCHISSEZ LA LIGNE D'ARRIVÉE DU MARATHON, ET VOUS RÉCOLTEZ DES FONDS POUR L'HÔPITAL LOCAL !\n\nAVANCEZ JUSQU'À LA CASE DÉPART.\nRECEVEZ 200M.")
@@ -79,7 +80,7 @@ public class MarathonForHospitalCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a avancé jusqu'à la case Départ et a reçu 200M.");
     }
 }
-public class BloodDonationCard : CommunityTile
+public class BloodDonationCard : CommunityCard
 {
     public BloodDonationCard()
         : base("VOUS DONNEZ VOTRE SANG. IL Y'A DES GÂTEAUX GRATUITS !\n\nRECEVEZ 10M.")
@@ -96,7 +97,7 @@ public class BloodDonationCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a reçu 10M pour avoir donné son sang.");
     }
 }
-public class AnimalShelterDonationCard : CommunityTile
+public class AnimalShelterDonationCard : CommunityCard
 {
     public AnimalShelterDonationCard()
         : base("VOS AMIS À FOURRURE DU REFUGE ANIMALIER VOUS SERONT RECONNAISSANTS POUR VOTRE DON.\n\nPAYEZ 50M.")
@@ -113,7 +114,7 @@ public class AnimalShelterDonationCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a payé 50M en don au refuge animalier.");
     }
 }
-public class ChattingWithElderNeighborCard : CommunityTile
+public class ChattingWithElderNeighborCard : CommunityCard
 {
     public ChattingWithElderNeighborCard()
         : base("VOUS PRENEZ LE TEMPS CHAQUE SEMAINE DE BAVARDER AVEC VOTRE VOISIN ÂGÉ. VOUS AVEZ ENTENDU DES HISTOIRES ÉTONNANTES !\n\nRECEVEZ 100M.")
@@ -130,7 +131,7 @@ public class ChattingWithElderNeighborCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a reçu 100M pour avoir bavardé avec son voisin âgé.");
     }
 }
-public class PedestrianPathCleanupCard : CommunityTile
+public class PedestrianPathCleanupCard : CommunityCard
 {
     public PedestrianPathCleanupCard()
         : base("VOUS ORGANISEZ UN GROUPE POUR NETTOYER LE PARCOURS PIÉTON DE VOTRE VILLE.\n\nRECEVEZ 50M.")
@@ -148,7 +149,7 @@ public class PedestrianPathCleanupCard : CommunityTile
     }
 }
 
-public class HospitalPlayCard : CommunityTile
+public class HospitalPlayCard : CommunityCard
 {
     public HospitalPlayCard()
         : base("VOUS PASSEZ LA JOURNÉE À JOUER AVEC LES ENFANTS À L'HÔPITAL LOCAL.\n\nRECEVEZ 100M.")
@@ -165,7 +166,7 @@ public class HospitalPlayCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a reçu 100M pour avoir joué avec les enfants à l'hôpital local.");
     }
 }
-public class GardenCleanupCard : CommunityTile
+public class GardenCleanupCard : CommunityCard
 {
     public GardenCleanupCard()
         : base("VOUS AIDEZ VOS VOISINS À NETTOYER LEUR JARDIN APRÈS UNE GROSSE TEMPÊTE.\n\nRECEVEZ 200M.")
@@ -182,7 +183,7 @@ public class GardenCleanupCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a reçu 200M pour avoir aidé ses voisins à nettoyer leur jardin.");
     }
 }
-public class BakeSalePurchaseCard : CommunityTile
+public class BakeSalePurchaseCard : CommunityCard
 {
     public BakeSalePurchaseCard()
         : base("VOUS AVEZ ACHETÉ DES PETITS GÂTEAUX À LA VENTE DE PÂTISSERIES DE L'ÉCOLE. MIAM !\n\nPAYEZ 50M.")
@@ -199,7 +200,7 @@ public class BakeSalePurchaseCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a payé 50M pour des petits gâteaux délicieux.");
     }
 }
-public class CharityCarWashCard : CommunityTile
+public class CharityCarWashCard : CommunityCard
 {
     public CharityCarWashCard()
         : base("VOUS ALLEZ AU LAVE-AUTO CARITATIF DE L'ÉCOLE DU QUARTIER, MAIS VOUS OUBLIEZ DE REMONTER VOS VITRES !\n\nPAYER 100M.")
@@ -216,7 +217,7 @@ public class CharityCarWashCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a payé 100M après un passage au lave-auto caritatif.");
     }
 }
-public class HousingImprovementCard : CommunityTile
+public class HousingImprovementCard : CommunityCard
 {
     public HousingImprovementCard()
         : base("VOUS AURIEZ DÛ VOUS PORTER VOLONTAIRE POUR CE PROJET D'AMÉLIORATION DE L'HABITAT. CELA VOUS AURAIT PERMIS D'ACQUÉRIR DE NOUVELLES COMPÉTENCES UTILES !\n\nPOUR CHAQUE MAISON QUE VOUS POSSÉDEZ, PAYEZ 40M.\nPOUR CHAQUE HOTEL QUE VOUS POSSÉDEZ, PAYEZ 115M.")
@@ -239,7 +240,7 @@ public class HousingImprovementCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} doit payer un total de {totalCost}M pour le projet d'amélioration de l'habitat.");
     }
 }
-public class BakeSaleCard : CommunityTile
+public class BakeSaleCard : CommunityCard
 {
     public BakeSaleCard()
         : base("VOUS ORGANISEZ UNE VENTE DE PÂTISSERIES POUR L'ÉCOLE DE VOTRE QUARTIER.\n\nRECEVEZ 25M.")
@@ -256,7 +257,7 @@ public class BakeSaleCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} reçoit 25M pour avoir organisé une vente de pâtisseries.");
     }
 }
-public class NeighborhoodPartyCard : CommunityTile
+public class NeighborhoodPartyCard : CommunityCard
 {
     public NeighborhoodPartyCard()
         : base("VOUS ORGANISEZ UNE FÊTE DE QUARTIER POUR QUE LES HABITANTS DE VOTRE RUE PUISSENT FAIRE CONNAISSANCE ENTRE EUX.\n\nRECEVEZ 10M DE CHAQUE JOUEUR.")
@@ -286,7 +287,7 @@ public class NeighborhoodPartyCard : CommunityTile
         Debug.Log($"{MonopolyPlayer.Name} a reçu un total de {totalReceived}M des autres joueurs pour la fête.");
     }
 }
-public class PlaygroundDonationCard : CommunityTile
+public class PlaygroundDonationCard : CommunityCard
 {
     public PlaygroundDonationCard()
         : base("VOUS AVEZ AIDÉ À CONSTRUIRE UN NOUVEAU TERRAIN DE JEUX POUR L'ÉCOLE. VOUS ESSAYEZ LE TOBOGAN !\n\nRECEVEZ 100M.")

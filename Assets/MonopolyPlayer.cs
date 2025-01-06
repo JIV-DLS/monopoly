@@ -126,10 +126,14 @@ public class MonopolyPlayer
         _throwDices = throwDices;
         _throwDices.SetSelfMadePlayer(this);
         _monopolyGameManager = monopolyGameManager;
+        getOutOfJailChanceCards = new List<GetOutOfJailCard>();
+        adoptPuppyCards = new List<AdoptPuppyCard>();
     }
 
     public MonopolyPlayerDeck deck{get; private set;}
     private ThrowDices _throwDices;
+    public List<GetOutOfJailCard> getOutOfJailChanceCards{get; private set;}
+    public List<AdoptPuppyCard> adoptPuppyCards{get; private set;}
     public string name{get; private set;}
     private PlayerSummaryButton _playerSummaryButton;
     private PlayerElementOnMap _playerElementOnMap;
@@ -221,7 +225,7 @@ public class MonopolyPlayer
         {
             _monopolyGameManager.GameTextEvents.SetText($"{this} a paye une taxe de {taxTile.taxAmount}M");
             yield return new WaitForSeconds(1.5f);
-        }else if (tile is SpecialTile specialTile)
+        }else if (tile is SpecialCard specialTile)
         {
             _monopolyGameManager.GameTextEvents.SetText($"{this} est sur une case speciale");
             yield return new WaitForSeconds(1.5f);
@@ -334,7 +338,7 @@ public class MonopolyPlayer
 
     public bool CanContinuePlaying()
     {
-        return money > 0;
+        return money > 0 || HavePurchasedTiles();
     }
 
     private bool HavePurchasedTiles()
@@ -371,6 +375,15 @@ public class MonopolyPlayer
     public bool CanPlay()
     {
         return money > 0 && !IsInPrison();
+    }
+
+    public void HaveWonAGetOutOfJailChanceCard(GetOutOfJailCard getOutOfJailCard)
+    {
+        getOutOfJailChanceCards.Add(getOutOfJailCard);
+    }
+    public void HaveWonAnAdoptAPuppyCommunityCard(AdoptPuppyCard adoptPuppyCard)
+    {
+        adoptPuppyCards.Add(adoptPuppyCard);
     }
 }
 
