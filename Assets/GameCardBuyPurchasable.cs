@@ -32,7 +32,7 @@ public class GameCardBuyPurchasable : MonoBehaviour
         purchasableBehindCard.transform.position = transform.position;
         purchasableFaceCard.SetTargetPurchasableCard(purchasableBehindCard);
     }
-    public void ShowPurchasableTile(PurchasableTile purchasableTile)
+    public void ShowPurchasableTile(PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer)
     {
         ReplaceChildren(purchasableTile);
     }

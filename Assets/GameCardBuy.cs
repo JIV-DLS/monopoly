@@ -21,10 +21,10 @@ public class GameCardBuy : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
-    public void ShowPurchasableTile(PurchasableTile purchasableTile)
+    public void ShowPurchasableTile(PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer)
     {
         gameObject.SetActive(true);   
-        purchasable.ShowPurchasableTile(purchasableTile);
-        actions.ShowPurchasableTile(purchasableTile);
+        purchasable.ShowPurchasableTile(purchasableTile, monopolyPlayer);
+        actions.ShowPurchasableTile(purchasableTile, monopolyPlayer);
     }
 }

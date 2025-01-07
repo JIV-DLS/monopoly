@@ -2,13 +2,15 @@ using UnityEngine;
 
 public abstract class PurchasableActionButton : IClickableButtonHandler
 {
-    private PurchasableTile _purchasableTile;
-    private GameCardBuyActions _buyActions;
+    protected PurchasableTile _purchasableTile;
+    protected GameCardBuyActions _buyActions;
+    protected MonopolyPlayer _monopolyPlayer;
 
-    protected PurchasableActionButton(GameCardBuyActions buyActions, PurchasableTile purchasableTile)
+    protected PurchasableActionButton(GameCardBuyActions buyActions, PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer)
     {
         _purchasableTile = purchasableTile;
         _buyActions = buyActions;
+        _monopolyPlayer = monopolyPlayer;
     }
 
     protected abstract void OnClickAction();
@@ -22,17 +24,18 @@ public abstract class PurchasableActionButton : IClickableButtonHandler
 
 public class BuyActionButton : PurchasableActionButton
 {
-    public BuyActionButton(GameCardBuyActions buyActions, PurchasableTile purchasableTile) : base(buyActions, purchasableTile)
+    public BuyActionButton(GameCardBuyActions buyActions, PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer) : base(buyActions, purchasableTile, monopolyPlayer)
     {
     }
 
     protected override void OnClickAction()
     {
+        _monopolyPlayer.Buy(_purchasableTile);
     }
 }
 public class CancelActionButton : PurchasableActionButton
 {
-    public CancelActionButton(GameCardBuyActions buyActions, PurchasableTile purchasableTile) : base(buyActions, purchasableTile)
+    public CancelActionButton(GameCardBuyActions buyActions, PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer) : base(buyActions, purchasableTile, monopolyPlayer)
     {
     }
 
@@ -58,11 +61,11 @@ public class GameCardBuyActions : MonoBehaviour
     {
         
     }
-    public void ShowPurchasableTile(PurchasableTile purchasableTile)
+    public void ShowPurchasableTile(PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer)
     {
         _purchasableTile = purchasableTile;
-        buyButton.Handler = new BuyActionButton(this, purchasableTile);
-        cancelButton.Handler = new CancelActionButton(this, purchasableTile);
+        buyButton.Handler = new BuyActionButton(this, purchasableTile, monopolyPlayer);
+        cancelButton.Handler = new CancelActionButton(this, purchasableTile, monopolyPlayer);
         buyButton.SetButtonText($"ACHETER {purchasableTile.getPrice()}M");
     }
 

@@ -175,6 +175,10 @@ public class MonopolyGameManager : MonoBehaviour
                     yield return currentPlayer.TriggerPlay(rollDiceTimeout, buyTileTimeout);
                     gameState = GameState.TurnEnd;
 
+                    if (!currentPlayer.CanContinuePlaying())
+                    {
+                        TakeAllFrom(currentPlayer);
+                    }
                     // Switch to the next player
                     // currentPlayer = (currentPlayer == player1) ? player2 : player1;
                     break;
@@ -196,10 +200,13 @@ public class MonopolyGameManager : MonoBehaviour
                     GameTextEvents.SetText($"{currentPlayer.name} a finit son tour");
                     yield return new WaitForSeconds(1.5f);
                     AdvanceToNextPlayer();
-
+                    if (!currentPlayer.CanContinuePlaying())
+                    {
+                        gameState = GameState.TurnEnd;
+                    }
                     break;
             }
-            
+
             var remainingPlayers = monopolyPlayers.Where(player => player.CanContinuePlaying()).ToList();
 
             if (remainingPlayers.Count == 1)
@@ -213,6 +220,16 @@ public class MonopolyGameManager : MonoBehaviour
             yield return null; // 1 second delay before next turn
         }
     }
+
+    private void TakeAllFrom(MonopolyPlayer monopolyPlayer)
+    {
+        foreach (PurchasableTile tile in monopolyPlayer.deck.GetCollection())
+        {
+            tile.RemoveOwner();
+        }
+
+    }
+
     private void Update()
     {
         /*switch (gameState)
@@ -870,6 +887,16 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
             Debug.LogError($"The card type {typeof(T).Name} is not supported.");
         }
     }
+
+    public void BuyPurchasableTileBy(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile)
+    {
+        Debug.Assert(purchasableTile != null, nameof(purchasableTile) + " != null");
+        Debug.Assert(monopolyPlayer != null, nameof(monopolyPlayer) + " != null");
+        Debug.Assert(monopolyPlayer.canBeChargedOf(purchasableTile.getPrice()));
+        monopolyPlayer.ChargedOf(purchasableTile.getPrice());
+        purchasableTile.AssignOwner(monopolyPlayer);
+        SetGameTextEventsText($"{monopolyPlayer.name} bought a purchasable {purchasableTile.TileName}.");
+    }
 }
 
 public class Dice
@@ -1410,7 +1437,7 @@ public abstract class PurchasableTile : BoardTile, IGood
 
     public int GetSellPrice()
     {
-        return getPrice();
+        return mortgageCost;
     }
 
     public int Sell()
@@ -1422,6 +1449,18 @@ public abstract class PurchasableTile : BoardTile, IGood
     public string GetGoodName()
     {
         return $"Hypothèque sur {this}";
+    }
+
+    public void AssignOwner(MonopolyPlayer newOwner)
+    {
+        Debug.Assert(CanBeBought(), $"You can't assign owner to {this} tile");
+        monopolyPlayer = newOwner;
+    }
+
+    public void RemoveOwner()
+    {
+        isMortgaged = false;
+        monopolyPlayer = null;
     }
 }
 public abstract class PublicServiceTile : PurchasableTile

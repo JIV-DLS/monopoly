@@ -93,9 +93,9 @@ public class MonopolyPlayerDeck
         return null;
     }
 
-    public bool HaveAtLeastOneCard()
+    public bool HaveAtLeastOneNotMorgagedCard()
     {
-        return _purchasableTiles.Count > 0;
+        return _purchasableTiles.Values.Any(tile => !tile.isMortgaged);
     }
 
     public IGood GetSmallestGoodToSell()
@@ -110,6 +110,12 @@ public class MonopolyPlayerDeck
             .OrderBy(tile => tile.Value.GetSmallestGood())  // Sort by the price
             .FirstOrDefault().Value.GetSmallestGood();  // Get the first (smallest) one
             */
+    }
+    
+    // Access the collection (read-only)
+    public IReadOnlyList<PurchasableTile> GetCollection()
+    {
+        return _purchasableTiles.Values.ToList();
     }
 }
 public class MonopolyPlayer
@@ -225,11 +231,11 @@ public class MonopolyPlayer
     private IEnumerator HandleUserDoAction(float actionTimeout)
     {
         _timer = 0f;
-        if (tile is PurchasableTile)
+        if (tile is PurchasableTile purchasableTile)
         {
             if (tile.CanBeBought() && tile.getPrice()<=money)
             {
-                _monopolyGameManager.gameCardBuy.ShowPurchasableTile((PurchasableTile)tile);
+                _monopolyGameManager.gameCardBuy.ShowPurchasableTile(purchasableTile, this);
                 // Wait for the player to perform an action or timeout
                 while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
                 {
@@ -238,6 +244,16 @@ public class MonopolyPlayer
                     _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
                     yield return null; // Wait until the next frame
                 }
+
+                if (purchasableTile.IsOwnedBy(this))
+                {
+                    _monopolyGameManager.SetGameTextEventsText($"{name} a acquéris {tile.TileName}");
+                }
+                else
+                {
+                    _monopolyGameManager.SetGameTextEventsText($"{name} a décliné l'offre {tile.TileName}");
+                }
+                yield return new WaitForSeconds(1.5f);
                 //PlayerContent.EnableBuyAction(tile.getPrice());
             }
         }
@@ -376,7 +392,7 @@ public class MonopolyPlayer
 
     private bool HavePurchasedTiles()
     {
-        return deck.HaveAtLeastOneCard();
+        return deck.HaveAtLeastOneNotMorgagedCard();
     }
 
     public int GetAllHousesNumber()
@@ -467,6 +483,11 @@ public class MonopolyPlayer
         cardList.RemoveAt(0);
         fromPrisonButton.SetCardCanBeUsedInFuture(cardList.Count);
         _monopolyGameManager.TakeACardFromPlayer(card);
+    }
+
+    public void Buy(PurchasableTile purchasableTile)
+    {
+        _monopolyGameManager.BuyPurchasableTileBy(this, purchasableTile);
     }
 }
 public class PlayerClickOnChanceCommunityFreeFromPrisonButton<T>:IClickableButtonHandler where T:SpecialCard
