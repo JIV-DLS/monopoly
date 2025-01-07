@@ -115,7 +115,10 @@ public class MonopolyPlayerDeck
 public class MonopolyPlayer
 {
     public MonopolyPlayer(string playerName, PlayerSummaryButton playerSummaryButton,
-        PlayerElementOnMap playerElementOnMap, ThrowDices throwDices,
+        PlayerElementOnMap playerElementOnMap, 
+        ThrowDices throwDices,
+        FreeFromPrisonButton communityFreeFromPrisonButton,
+        FreeFromPrisonButton chanceFreeFromPrisonButton,
         MonopolyGameManager monopolyGameManager)
     {
         deck = new MonopolyPlayerDeck();
@@ -124,6 +127,10 @@ public class MonopolyPlayer
         _playerSummaryButton.setPlayer(this);
         _playerElementOnMap = playerElementOnMap;
         _throwDices = throwDices;
+        _communityFreeFromPrisonButton = communityFreeFromPrisonButton;
+        _communityFreeFromPrisonButton.Handler = new PlayerClickOnChanceCommunityFreeFromPrisonButton<CommunityCard>(this);
+        _chanceFreeFromPrisonButton = chanceFreeFromPrisonButton;
+        _chanceFreeFromPrisonButton.Handler = new PlayerClickOnChanceCommunityFreeFromPrisonButton<ChanceCard>(this);
         _throwDices.SetSelfMadePlayer(this);
         _monopolyGameManager = monopolyGameManager;
         getOutOfJailChanceCards = new List<GetOutOfJailCard>();
@@ -132,6 +139,8 @@ public class MonopolyPlayer
 
     public MonopolyPlayerDeck deck{get; private set;}
     private ThrowDices _throwDices;
+    private FreeFromPrisonButton _communityFreeFromPrisonButton;
+    private FreeFromPrisonButton _chanceFreeFromPrisonButton;
     public List<GetOutOfJailCard> getOutOfJailChanceCards{get; private set;}
     public List<AdoptPuppyCard> adoptPuppyCards{get; private set;}
     public string name{get; private set;}
@@ -197,7 +206,15 @@ public class MonopolyPlayer
         }else if (IsInPrison())
         {
             prison--;
-            _monopolyGameManager.SetGameTextEventsText($"{this} est en prison. Encore {prison} tours restant.");
+            if (prison > 0)
+            {
+                _monopolyGameManager.SetGameTextEventsText($"{this} est en prison. Encore {prison} tours restant.");
+            }
+            else
+            {
+                _monopolyGameManager.SetGameTextEventsText($"{this} est libéré de prison.");
+                DisableAllFreeFromPrisonButtons();
+            }
             yield return new WaitForSeconds(.5f);
         }
         
@@ -216,7 +233,7 @@ public class MonopolyPlayer
                 {
 
                     _timer += Time.deltaTime;
-                    _monopolyGameManager.GameTextEvents.SetText($"{this}, Veiullez decidez {actionTimeout-_timer:0.00} seconde(s)");
+                    _monopolyGameManager.GameTextEvents.SetText($"{this}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
                     yield return null; // Wait until the next frame
                 }
                 //PlayerContent.EnableBuyAction(tile.getPrice());
@@ -246,7 +263,7 @@ public class MonopolyPlayer
             }
             _timer += Time.deltaTime;
             
-            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veiullez lancer les des. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
+            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veuillez lancer les des. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
             yield return null; // Wait until the next frame
         }
 
@@ -374,30 +391,92 @@ public class MonopolyPlayer
     {
         Debug.Assert(tile is PrisonOrVisitTile, "Sorry make sure prison move to prison first.");
         prison = 3;
+        if (adoptPuppyCards.Count > 0)
+        {
+            _communityFreeFromPrisonButton.SetButtonInteractable(true);
+        }
+
+        if (getOutOfJailChanceCards.Count > 0)
+        {
+            _chanceFreeFromPrisonButton.SetButtonInteractable(true);
+        }
+    }
+
+    private void DisableAllFreeFromPrisonButtons()
+    {
+        _communityFreeFromPrisonButton.SetButtonInteractable(false);
+        _chanceFreeFromPrisonButton.SetButtonInteractable(false);
+
     }
 
     public int prison { get; private set; }
 
     public bool IsInPrison()
     {
-        return prison > 3;
+        return prison > 0;
     }
     public void FreeFromPrison()
     {
         prison = 0;
+        DisableAllFreeFromPrisonButtons();
     }
     public bool CanPlay()
     {
-        return money > 0 || !IsInPrison();
+        return CanContinuePlaying() && !IsInPrison();
     }
 
     public void HaveWonAGetOutOfJailChanceCard(GetOutOfJailCard getOutOfJailCard)
     {
         getOutOfJailChanceCards.Add(getOutOfJailCard);
+        _chanceFreeFromPrisonButton.SetCardCanBeUsedInFuture(getOutOfJailChanceCards.Count);
     }
     public void HaveWonAnAdoptAPuppyCommunityCard(AdoptPuppyCard adoptPuppyCard)
     {
         adoptPuppyCards.Add(adoptPuppyCard);
+        _communityFreeFromPrisonButton.SetCardCanBeUsedInFuture(adoptPuppyCards.Count);
+    }
+
+    public void ClickOnChanceCommunityFreeFromPrisonButton<T>() where T : SpecialCard
+    {
+        if (typeof(T) == typeof(ChanceCard))
+        {
+            HandleCardClick(getOutOfJailChanceCards, _chanceFreeFromPrisonButton);
+        }
+        else if (typeof(T) == typeof(CommunityCard))
+        {
+            HandleCardClick(adoptPuppyCards, _communityFreeFromPrisonButton);
+        }
+        else
+        {
+            Debug.LogError($"The card type {typeof(T).Name} is not supported.");
+        }
+    }
+
+    private void HandleCardClick<TCard>(List<TCard> cardList, FreeFromPrisonButton fromPrisonButton) where TCard : SpecialCard
+    {
+        if (cardList.Count == 0)
+        {
+            Debug.LogError($"No cards available in the list for {typeof(TCard).Name}.");
+            return;
+        }
+        TCard card = cardList[0];
+        FreeFromPrison();
+        _monopolyGameManager.SetGameTextEventsText($"{this} a utilisé la carte {card.description} pour se libérer de prison.");
+        cardList.RemoveAt(0);
+        fromPrisonButton.SetCardCanBeUsedInFuture(cardList.Count);
+        _monopolyGameManager.TakeACardFromPlayer(card);
+    }
+}
+public class PlayerClickOnChanceCommunityFreeFromPrisonButton<T>:IClickableButtonHandler where T:SpecialCard
+{
+    private MonopolyPlayer _monopolyPlayer;
+    public PlayerClickOnChanceCommunityFreeFromPrisonButton(MonopolyPlayer monopolyPlayer)
+    {
+        _monopolyPlayer = monopolyPlayer;
+    }
+    public void OnClick()
+    {
+        _monopolyPlayer.ClickOnChanceCommunityFreeFromPrisonButton<T>();
     }
 }
 

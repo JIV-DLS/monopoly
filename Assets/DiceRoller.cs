@@ -33,6 +33,11 @@ public class DiceRoller : MonoBehaviour
             Debug.LogError("Assign the Rigidbody of the dice in the inspector.");
         }
         OpposingDirectionValues = 7 * Vector3Int.one - DirectionValues;
+        transform.rotation= Quaternion.Euler(
+            UnityEngine.Random.Range(0f, 360f),
+            UnityEngine.Random.Range(0f, 360f),
+            UnityEngine.Random.Range(0f, 360f)
+        );
         // Store the initial position and rotation
         previousPosition = transform.position;
         previousRotation = transform.rotation;

@@ -27,6 +27,14 @@ public class ShuffableCollection<T>
         collection.Add(item);
     }
 
+    // Get an item from the start of the collection
+    public T GetFromStart()
+    {
+        if (collection.Count == 0)
+            throw new InvalidOperationException("The collection is empty.");
+
+        return collection[0];
+    }
     // Take an item from the start of the collection
     public T TakeFromStart()
     {

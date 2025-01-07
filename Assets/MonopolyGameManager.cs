@@ -57,6 +57,8 @@ public class MonopolyGameManager : MonoBehaviour
         localPlayer = new MonopolyPlayer("Toi",_playersHorizontalView.CreateNewChildAtEnd(),
             _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.TopHat, transform),
             GetComponentInChildren<ThrowDices>(),
+            ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "CommunityFreeFromPrisonButton"),
+            ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "ChanceFreeFromPrisonButton"),
             this
             );
 
@@ -93,9 +95,7 @@ public class MonopolyGameManager : MonoBehaviour
         {
             if (tile is StartTile || passHome)
             {
-                player.IncrementMoneyWith(StartTile.GetStartReward());
-                GameTextEvents.SetText($"Le joueur {currentPlayer} est passé par la case départ. Il reçoit 200M.");
-                yield return new WaitForSeconds(.5f);
+                yield return PassedHome(player);
             }
 
             if (tile is TaxTile)
@@ -111,7 +111,7 @@ public class MonopolyGameManager : MonoBehaviour
             
                 if (specialBoardTile is CommunitySpecialTile)
                 {
-                    CommunityCard communityCard = communitiesCards.TakeFromStart();
+                    CommunityCard communityCard = communitiesCards.GetFromStart();
                     yield return communityCard.TriggerEffectMain(player);
                     if (communityCard is not AdoptPuppyCard)
                     {
@@ -121,7 +121,7 @@ public class MonopolyGameManager : MonoBehaviour
                 else if (specialBoardTile is ChanceSpecialTile)
                 {
                     
-                    ChanceCard chanceCard = chancesCards.TakeFromStart();
+                    ChanceCard chanceCard = chancesCards.GetFromStart();
                     yield return chanceCard.TriggerEffectMain(player);
                     if (chanceCard is not GetOutOfJailCard)
                     {
@@ -131,8 +131,22 @@ public class MonopolyGameManager : MonoBehaviour
                 yield return new WaitForSeconds(1.5f);
             }
         }
+        else
+        {
+            if (tile is StartTile)
+            {
+                yield return PassedHome(player);
+            }
+        }
         yield return new WaitForSeconds(.5f);
 
+    }
+
+    private object PassedHome(MonopolyPlayer player)
+    {
+        player.IncrementMoneyWith(StartTile.GetStartReward());
+        GameTextEvents.SetText($"Le joueur {currentPlayer} est passé par la case départ. Il reçoit 200M.");
+        return new WaitForSeconds(.5f);
     }
 
     private IEnumerator GameLoop()
@@ -368,8 +382,10 @@ public class MonopolyGameManager : MonoBehaviour
 
     public IEnumerator APlayerRolledDice(MonopolyPlayer player, int rollResult)
     {
-        yield return MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
-            passHome, true);
+        /*yield return MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
+            passHome, true);*/
+        yield return MoveAPlayerToNextType<SpecialBoardTile>(player);
+        yield return MoveAPlayerToATile(player, player.tile);
         yield return null;
     }
     public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
@@ -581,10 +597,11 @@ public class MonopolyGameManager : MonoBehaviour
 
             // Add logic to update your player position or animations here
 
+            yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
             // Simulate a delay for each step
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.01f);
         }
-        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), lastPassHome);
+        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
 
         /*Console.WriteLine($"Final tile index: {finalIndex}");
         if (passedHome)
@@ -735,39 +752,62 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
     {
         yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileBackFromATileTo(monopolyPlayer, i));
     }
-
-    public IEnumerator GiveChanceCardToPlayerGetOutOfJailCard(MonopolyPlayer monopolyPlayer)
+    public IEnumerator GiveCardToPlayer<TCard, TSpecificCard>(
+        MonopolyPlayer monopolyPlayer, 
+        Func<TCard> takeCardFunc, 
+        Action<MonopolyPlayer, TSpecificCard> handleCardAction, 
+        string successMessage) 
+        where TCard : SpecialCard 
+        where TSpecificCard : TCard
     {
-        ChanceCard firstCard = chancesCards.TakeFromStart();
-        if (firstCard is GetOutOfJailCard chanceCard)
+        TCard firstCard = takeCardFunc();
+        if (firstCard is TSpecificCard specificCard)
         {
-            monopolyPlayer.HaveWonAGetOutOfJailChanceCard(chanceCard);
-            SetGameTextEventsText($"{monopolyPlayer} a gagné une carte chance pour sortir de prison s'il y va.");
-            yield return new WaitForSeconds(.5f);
+            handleCardAction(monopolyPlayer, specificCard);
+            SetGameTextEventsText(successMessage);
+            yield return new WaitForSeconds(0.5f);
         }
         else
         {
-            Debug.LogError("Sorry this is not a GetOutOfJailCard");
+            Debug.LogError($"Sorry, this is not a {typeof(TSpecificCard).Name}");
         }
-        
+
         yield return null;
+    }
+    public IEnumerator GiveChanceCardToPlayerGetOutOfJailCard(MonopolyPlayer monopolyPlayer)
+    {
+        return GiveCardToPlayer<ChanceCard, GetOutOfJailCard>(
+            monopolyPlayer,
+            () => chancesCards.TakeFromStart(),
+            (player, card) => player.HaveWonAGetOutOfJailChanceCard(card),
+            $"{monopolyPlayer} a gagné une carte chance pour sortir de prison s'il y va."
+        );
+        
     }
 
     public IEnumerator GiveCommunityCardToPlayerToAdoptAPuppyCard(MonopolyPlayer monopolyPlayer)
     {
-        CommunityCard firstCard = communitiesCards.TakeFromStart();
-        if (firstCard is AdoptPuppyCard adoptPuppyCard)
+        return GiveCardToPlayer<CommunityCard, AdoptPuppyCard>(
+            monopolyPlayer,
+            () => communitiesCards.TakeFromStart(),
+            (player, card) => player.HaveWonAnAdoptAPuppyCommunityCard(card),
+            $"{monopolyPlayer} a gagné une carte community pour sortir de prison s'il y va."
+        );
+    }
+    public void TakeACardFromPlayer<T>(T card) where T : SpecialCard
+    {
+        if (card is ChanceCard)
         {
-            monopolyPlayer.HaveWonAnAdoptAPuppyCommunityCard(adoptPuppyCard);
-            SetGameTextEventsText($"{monopolyPlayer} a gagné une carte community pour sortir de prison s'il y va.");
-            yield return new WaitForSeconds(.5f);
+            chancesCards.Add((ChanceCard)(object)card);
+        }
+        else if (card is CommunityCard)
+        {
+            communitiesCards.Add((CommunityCard)(object)card);
         }
         else
         {
-            Debug.LogError("Sorry this is not a GetOutOfJailCard");
+            Debug.LogError($"The card type {typeof(T).Name} is not supported.");
         }
-        
-        yield return null;
     }
 }
 
@@ -1065,14 +1105,14 @@ public class Board
             throw new ArgumentException("The provided tile is not part of the board.");
         }
         bool passHome = false;
-        currentIndex++;
-        while (GetTileAtIndex(currentIndex) is not T)
+
+        do
         {
             currentIndex = MoveFromTile(GetTileAtIndex(currentIndex), 1, out bool passedHomeOnce);
             passHome = passHome || passedHomeOnce; // Logical OR ensures passHome stays true.
             // Yield the current index and the passHome flag.
             yield return (currentIndex, passHome);
-        }
+        } while (GetTileAtIndex(currentIndex) is not T);
 
         // Yield the current index and the passHome flag.
         yield return (currentIndex, passHome);
@@ -1820,22 +1860,24 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
     {
         
         AddRange(new List<ChanceCard>{
-            new AdvanceToUtilityCard(monopolyGameManager),
+            /*new AdvanceToUtilityCard(monopolyGameManager),
             new BankDividendCard(monopolyGameManager),
             new AdvanceToStationCardChance(monopolyGameManager),
             new SpeedingFineCard(monopolyGameManager),
             new RepairCostCard(monopolyGameManager),
+            new AdvanceToStartCard(monopolyGameManager),*/
             new AdvanceToStartCard(monopolyGameManager),
+            new GetOutOfJailCard(monopolyGameManager),
             new AdvanceToRueDeLaPaixCard(monopolyGameManager),
             new GoToJailCard(monopolyGameManager),
-            new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
+            /*new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
             new AdvanceToGareMontparnasseCard(monopolyGameManager),
             new RealEstateLoanCard(monopolyGameManager),
             new MoveBackThreeSpacesCard(monopolyGameManager),
-            new GetOutOfJailCard(monopolyGameManager),
             new AdvanceToBoulevardDeLaVilletteCard(monopolyGameManager),
-            new ElectedChairmanCard(monopolyGameManager)
+            new ElectedChairmanCard(monopolyGameManager)*/
         });
+        Shuffle();
     }
 
 }
@@ -1849,7 +1891,7 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
     {
         
         AddRange(new List<CommunityCard>{
-            new PlaygroundDonationCard(monopolyGameManager),
+            /*new PlaygroundDonationCard(monopolyGameManager),
             new NeighborhoodPartyCard(monopolyGameManager),
             new BakeSaleCard(monopolyGameManager),
             new HousingImprovementCard(monopolyGameManager),
@@ -1861,12 +1903,15 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             new ChattingWithElderNeighborCard(monopolyGameManager),
             new AnimalShelterDonationCard(monopolyGameManager),
             new BloodDonationCard(monopolyGameManager),
+            new MarathonForHospitalCard(monopolyGameManager),*/
+            new HospitalPlayCard(monopolyGameManager),
             new MarathonForHospitalCard(monopolyGameManager),
+            new AdoptPuppyCard(monopolyGameManager),
             new LoudMusicCard(monopolyGameManager),
-            new HelpNeighborCard(monopolyGameManager),
-            new AdoptPuppyCard(monopolyGameManager), // Ajout de la carte "Adoption Chiot"
+            //new HelpNeighborCard(monopolyGameManager),
             // Ajoutez ici d'autres cartes Community...
         });
+        Shuffle();
         
     }
 }
