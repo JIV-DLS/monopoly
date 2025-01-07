@@ -1,12 +1,13 @@
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
-public class NumberOfFreeCardScript : MonoBehaviour
+public class NumberOfFreeCardScript : MonoBehaviour, IInitComponent
 {
     public BaseTextHandler textHandler;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        Init();
     }
 
     // Update is called once per frame
@@ -26,5 +27,10 @@ public class NumberOfFreeCardScript : MonoBehaviour
         {
             gameObject.SetActive(false);
         }
+    }
+
+    public void Init()
+    {
+        textHandler.Init();
     }
 }

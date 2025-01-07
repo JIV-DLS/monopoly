@@ -384,7 +384,7 @@ public class MonopolyGameManager : MonoBehaviour
     {
         /*yield return MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
             passHome, true);*/
-        yield return MoveAPlayerToNextType<SpecialBoardTile>(player);
+        yield return MoveAPlayerToNextType<GoInPrisonTile>(player);
         yield return MoveAPlayerToATile(player, player.tile);
         yield return null;
     }

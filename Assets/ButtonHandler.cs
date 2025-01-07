@@ -4,37 +4,15 @@ using TMPro;using UnityEngine.UIElements;using Button = UnityEngine.UI.Button;
 public interface IClickableButtonHandler{
     public void OnClick();
 }
-public class ButtonHandler : MonoBehaviour
+public class ButtonHandler : MonoBehaviour, IInitComponent
 {
     private Button _button;
     private TextMeshProUGUI _buttonText;
     public IClickableButtonHandler Handler;
+    
     protected virtual void Awake()
     {
-        // Get the Button component
-        _button = GetComponent<Button>();
-
-        if (_button == null)
-        {
-            Debug.LogError("Button component not found!");
-            return;
-        }
-
-        // Add a listener to handle button clicks
-        _button.onClick.AddListener(OnButtonClick);
-        
-        
-
-        // Get the Text component of the Button (if it exists)
-        _buttonText = _button.GetComponentInChildren<TextMeshProUGUI>();
-
-        if (_buttonText == null)
-        {
-            Debug.LogWarning("Text component not found as a child of the Button!");
-        }
-
-        // Add a listener to handle button clicks
-        _button.onClick.AddListener(OnButtonClick);
+        Init();
     }
 
     protected virtual void OnDestroy()
@@ -79,6 +57,35 @@ public class ButtonHandler : MonoBehaviour
         {
             // Debug.LogWarning("Button text component is not assigned!");
         }
+    }
+
+    public virtual void Init()
+    {
+        
+        // Get the Button component
+        _button = GetComponent<Button>();
+
+        if (_button == null)
+        {
+            Debug.LogError("Button component not found!");
+            return;
+        }
+
+        // Add a listener to handle button clicks
+        _button.onClick.AddListener(OnButtonClick);
+        
+        
+
+        // Get the Text component of the Button (if it exists)
+        _buttonText = _button.GetComponentInChildren<TextMeshProUGUI>();
+
+        if (_buttonText == null)
+        {
+            Debug.LogWarning("Text component not found as a child of the Button!");
+        }
+
+        // Add a listener to handle button clicks
+        _button.onClick.AddListener(OnButtonClick);
     }
 }
 

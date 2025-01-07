@@ -128,8 +128,10 @@ public class MonopolyPlayer
         _playerElementOnMap = playerElementOnMap;
         _throwDices = throwDices;
         _communityFreeFromPrisonButton = communityFreeFromPrisonButton;
+        _communityFreeFromPrisonButton.Init();
         _communityFreeFromPrisonButton.Handler = new PlayerClickOnChanceCommunityFreeFromPrisonButton<CommunityCard>(this);
         _chanceFreeFromPrisonButton = chanceFreeFromPrisonButton;
+        _chanceFreeFromPrisonButton.Init();
         _chanceFreeFromPrisonButton.Handler = new PlayerClickOnChanceCommunityFreeFromPrisonButton<ChanceCard>(this);
         _throwDices.SetSelfMadePlayer(this);
         _monopolyGameManager = monopolyGameManager;
@@ -263,7 +265,7 @@ public class MonopolyPlayer
             }
             _timer += Time.deltaTime;
             
-            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veuillez lancer les des. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
+            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veuillez lancer les dés. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
             yield return null; // Wait until the next frame
         }
 
@@ -289,7 +291,7 @@ public class MonopolyPlayer
         }
         else
         {
-            _monopolyGameManager.SetGameTextEventsText("les dés ont été jeté automatiquement.");
+            _monopolyGameManager.SetGameTextEventsText("les dés ont été jetés automatiquement.");
         }
         
         int rolledResult = 0;
@@ -456,7 +458,7 @@ public class MonopolyPlayer
     {
         if (cardList.Count == 0)
         {
-            Debug.LogError($"No cards available in the list for {typeof(TCard).Name}.");
+            // Debug.LogError($"No cards available in the list for {typeof(TCard).Name}.");
             return;
         }
         TCard card = cardList[0];

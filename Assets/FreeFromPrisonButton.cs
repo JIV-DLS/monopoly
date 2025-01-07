@@ -21,4 +21,10 @@ public class FreeFromPrisonButton : ButtonHandler {
     {
         
     }
+
+    public override void Init()
+    {
+        base.Init();
+        NumberOfFreeCardScript.Init();
+    }
 }
