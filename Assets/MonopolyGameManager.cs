@@ -636,7 +636,7 @@ public class MonopolyGameManager : MonoBehaviour
             lastPassHome = moveEnumerator.Current.passHome;
 
             // Perform actions with the current tile index and passHome flag
-            Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
+            // Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
 
             // Add logic to update your player position or animations here
 

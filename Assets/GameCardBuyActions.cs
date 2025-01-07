@@ -17,6 +17,7 @@ public abstract class PurchasableActionButton : IClickableButtonHandler
 
     public void OnClick()
     {
+        Debug.Log("OnClick");
         OnClickAction();
         _buyActions.Hide();
     }
