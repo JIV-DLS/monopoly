@@ -1453,7 +1453,7 @@ public abstract class PurchasableTile : BoardTile, IGood
 
     public void AssignOwner(MonopolyPlayer newOwner)
     {
-        Debug.Assert(CanBeBought(), $"You can't assign owner to {this} tile");
+        Debug.Assert(CanBeBought()||newOwner==monopolyPlayer, $"You can't assign owner to {this} tile");
         monopolyPlayer = newOwner;
     }
 

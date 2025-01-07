@@ -387,7 +387,7 @@ public class MonopolyPlayer
 
     public bool CanContinuePlaying()
     {
-        return money > 0 || HavePurchasedTiles();
+        return money > -1 || HavePurchasedTiles();
     }
 
     private bool HavePurchasedTiles()
