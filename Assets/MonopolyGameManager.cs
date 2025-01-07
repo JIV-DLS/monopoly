@@ -1940,22 +1940,22 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
     {
         
         AddRange(new List<ChanceCard>{
-            /*new AdvanceToUtilityCard(monopolyGameManager),
+            new AdvanceToUtilityCard(monopolyGameManager),
             new BankDividendCard(monopolyGameManager),
             new AdvanceToStationCardChance(monopolyGameManager),
             new SpeedingFineCard(monopolyGameManager),
             new RepairCostCard(monopolyGameManager),
-            new AdvanceToStartCard(monopolyGameManager),*/
+            new AdvanceToStartCard(monopolyGameManager),
             new AdvanceToStartCard(monopolyGameManager),
             new GetOutOfJailCard(monopolyGameManager),
             new AdvanceToRueDeLaPaixCard(monopolyGameManager),
             new GoToJailCard(monopolyGameManager),
-            /*new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
+            new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
             new AdvanceToGareMontparnasseCard(monopolyGameManager),
             new RealEstateLoanCard(monopolyGameManager),
             new MoveBackThreeSpacesCard(monopolyGameManager),
             new AdvanceToBoulevardDeLaVilletteCard(monopolyGameManager),
-            new ElectedChairmanCard(monopolyGameManager)*/
+            new ElectedChairmanCard(monopolyGameManager)
         });
         Shuffle();
     }
@@ -1971,7 +1971,7 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
     {
         
         AddRange(new List<CommunityCard>{
-            /*new PlaygroundDonationCard(monopolyGameManager),
+            new PlaygroundDonationCard(monopolyGameManager),
             new NeighborhoodPartyCard(monopolyGameManager),
             new BakeSaleCard(monopolyGameManager),
             new HousingImprovementCard(monopolyGameManager),
@@ -1983,12 +1983,12 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             new ChattingWithElderNeighborCard(monopolyGameManager),
             new AnimalShelterDonationCard(monopolyGameManager),
             new BloodDonationCard(monopolyGameManager),
-            new MarathonForHospitalCard(monopolyGameManager),*/
+            new MarathonForHospitalCard(monopolyGameManager),
             new HospitalPlayCard(monopolyGameManager),
             new MarathonForHospitalCard(monopolyGameManager),
             new AdoptPuppyCard(monopolyGameManager),
             new LoudMusicCard(monopolyGameManager),
-            //new HelpNeighborCard(monopolyGameManager),
+            new HelpNeighborCard(monopolyGameManager),
             // Ajoutez ici d'autres cartes Community...
         });
         Shuffle();
