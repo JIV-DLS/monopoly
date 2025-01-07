@@ -91,8 +91,10 @@ public class MonopolyGameManager : MonoBehaviour
     {
         player.MoveTo(tile);
         GameTextEvents.SetText($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
+        
         if (doLandAction)
         {
+            yield return new WaitForSeconds(.5f);
             if (tile is StartTile || passHome)
             {
                 yield return PassedHome(player);
@@ -109,6 +111,7 @@ public class MonopolyGameManager : MonoBehaviour
             {
                 GameTextEvents.SetText($"{this} est sur la case speciale {specialBoardTile}");
             
+                yield return new WaitForSeconds(.5f);
                 if (specialBoardTile is CommunitySpecialTile)
                 {
                     CommunityCard communityCard = communitiesCards.GetFromStart();
@@ -138,7 +141,6 @@ public class MonopolyGameManager : MonoBehaviour
                 yield return PassedHome(player);
             }
         }
-        yield return new WaitForSeconds(.5f);
 
     }
 
@@ -384,7 +386,7 @@ public class MonopolyGameManager : MonoBehaviour
     {
         /*yield return MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
             passHome, true);*/
-        yield return MoveAPlayerToNextType<GoInPrisonTile>(player);
+        yield return MoveAPlayerFromTileByJumping(player, rollResult);
         yield return MoveAPlayerToATile(player, player.tile);
         yield return null;
     }
@@ -599,23 +601,58 @@ public class MonopolyGameManager : MonoBehaviour
 
             yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
             // Simulate a delay for each step
-            yield return new WaitForSeconds(0.01f);
+            yield return new WaitForSeconds(0.09f);
         }
         yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
+    }
+    public IEnumerator MoveAPlayerFromTileByJumping(MonopolyPlayer monopolyPlayer, int tileIndex)
+    {
+        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveAPlayerFromTileByJumping(monopolyPlayer.tile, tileIndex);
 
-        /*Console.WriteLine($"Final tile index: {finalIndex}");
-        if (passedHome)
+        // Variable to keep track of the last result
+        (int lastTileIndex, bool lastPassHome) = (-1, false);
+        
+        while (moveEnumerator.MoveNext())
         {
-            Console.WriteLine("Passed home!");
+            // Deconstruct the current value
+            // Update the last result with the current one
+            lastTileIndex = moveEnumerator.Current.tileIndex;
+            lastPassHome = moveEnumerator.Current.passHome;
+
+            // Perform actions with the current tile index and passHome flag
+            Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
+
+            // Add logic to update your player position or animations here
+
+            yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
+            // Simulate a delay for each step
+            yield return new WaitForSeconds(0.09f);
         }
-        BoardTile nextPublicServiceTile = board.MoveFromTileToNextPublicService(monopolyPlayer.tile, out bool passHome);
-        string resultText = $"Le prochain service trouvé est {nextPublicServiceTile}";
-        if (passHome)
+        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
+    }public IEnumerator MoveAPlayerToTileIndex(MonopolyPlayer monopolyPlayer, int tileIndex)
+    {
+        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveAPlayerToTileIndex(monopolyPlayer.tile, tileIndex);
+
+        // Variable to keep track of the last result
+        (int lastTileIndex, bool lastPassHome) = (-1, false);
+        
+        while (moveEnumerator.MoveNext())
         {
-            resultText += resultText+$" Et {monopolyPlayer} est passé par la case Départ";
+            // Deconstruct the current value
+            // Update the last result with the current one
+            lastTileIndex = moveEnumerator.Current.tileIndex;
+            lastPassHome = moveEnumerator.Current.passHome;
+
+            // Perform actions with the current tile index and passHome flag
+            Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
+
+            // Add logic to update your player position or animations here
+
+            yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
+            // Simulate a delay for each step
+            yield return new WaitForSeconds(0.09f);
         }
-        GameTextEvents.SetText(resultText);
-        yield return new WaitForSeconds(3f);*/
+        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
     }
 
     public void SetGameTextEventsText(string text)
@@ -1135,6 +1172,49 @@ public class Board
         }
 
         return index;
+    }
+    public IEnumerator<(int tileIndex, bool passHome)> MoveAPlayerFromTileByJumping(BoardTile monopolyPlayerTile, int jumpings)
+    {
+        int currentIndex = GetTileIndex(monopolyPlayerTile);
+        if (currentIndex == -1)
+        {
+            throw new ArgumentException("The provided tile is not part of the board.");
+        }
+
+        bool passHome = false;
+
+        for (int i = 0; i < jumpings; i++)
+        {
+            currentIndex = MoveFromTile(GetTileAtIndex(currentIndex), 1, out bool passedHomeOnce);
+            passHome = passHome || passedHomeOnce; // Accumulate the passHome state.
+
+            // Yield the current index and the passHome flag for each jump.
+            yield return (currentIndex, passHome);
+        }
+
+        // Final yield after completing all jumps.
+        yield return (currentIndex, passHome);
+    }
+    public IEnumerator<(int tileIndex, bool passHome)> MoveAPlayerToTileIndex(BoardTile monopolyPlayerTile, int tileIndex)
+    {
+        int currentIndex = GetTileIndex(monopolyPlayerTile);
+        if (currentIndex == -1)
+        {
+            throw new ArgumentException("The provided tile is not part of the board.");
+        }
+        bool passHome = false;
+
+        while (currentIndex != tileIndex)
+        {
+            currentIndex = MoveFromTile(GetTileAtIndex(currentIndex), 1, out bool passedHomeOnce);
+            passHome = passHome || passedHomeOnce; // Accumulate the passHome state.
+
+            // Yield the current index and the passHome flag.
+            yield return (currentIndex, passHome);
+        }
+
+        // Once at the target tile, yield the final index and the passHome flag.
+        yield return (currentIndex, passHome);
     }
 }
 
