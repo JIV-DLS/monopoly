@@ -54,7 +54,7 @@ public class MonopolyGameManager : MonoBehaviour
         }
         
 
-        localPlayer = new MonopolyPlayer("Toi",_playersHorizontalView.CreateNewChildAtEnd(),
+        localPlayer = new MonopolyPlayer("Jojo",_playersHorizontalView.CreateNewChildAtEnd(),
             _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.TopHat, transform),
             GetComponentInChildren<ThrowDices>(),
             ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "CommunityFreeFromPrisonButton"),
@@ -65,6 +65,13 @@ public class MonopolyGameManager : MonoBehaviour
         currentPlayer = localPlayer;
         monopolyPlayers = new List<MonopolyPlayer>();
         monopolyPlayers.Add(localPlayer);
+        monopolyPlayers.Add(new MonopolyPlayer("Ami",_playersHorizontalView.CreateNewChildAtEnd(),
+            _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.BattleShip, transform),
+            GetComponentInChildren<ThrowDices>(),
+            ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "CommunityFreeFromPrisonButton"),
+            ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "ChanceFreeFromPrisonButton"),
+            this
+        ));
         chancesCards = new ChancesCards(this);
         communitiesCards = new CommunitiesCards(this);
         // Start the waiting process
@@ -90,7 +97,7 @@ public class MonopolyGameManager : MonoBehaviour
     public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool passHome, bool doLandAction)
     {
         player.MoveTo(tile);
-        GameTextEvents.SetText($"Le joueur {currentPlayer} s'est déplacé à {tile.TileName}");
+        GameTextEvents.SetText($"Le joueur {currentPlayer.name} s'est déplacé à {tile.TileName}");
         
         if (doLandAction)
         {
@@ -147,7 +154,7 @@ public class MonopolyGameManager : MonoBehaviour
     private object PassedHome(MonopolyPlayer player)
     {
         player.IncrementMoneyWith(StartTile.GetStartReward());
-        GameTextEvents.SetText($"Le joueur {currentPlayer} est passé par la case départ. Il reçoit 200M.");
+        GameTextEvents.SetText($"Le joueur {currentPlayer.name} est passé par la case départ. Il reçoit 200M.");
         return new WaitForSeconds(.5f);
     }
 
@@ -163,7 +170,7 @@ public class MonopolyGameManager : MonoBehaviour
             switch (gameState)
             {
                 case GameState.WaitingForRoll:
-                    GameTextEvents.SetText($"En attente du joueur {currentPlayer}");
+                    GameTextEvents.SetText($"En attente du joueur {currentPlayer.name}");
                     // Call the player's Play method to start their turn
                     yield return currentPlayer.TriggerPlay(rollDiceTimeout, buyTileTimeout);
                     gameState = GameState.TurnEnd;
@@ -174,16 +181,32 @@ public class MonopolyGameManager : MonoBehaviour
 
                 case GameState.MovingPiece:
                     break;
+                case GameState.GameOver:
+                    foreach (var player in monopolyPlayers.Where(player => player.CanContinuePlaying()))
+                    {
+                        GameTextEvents.SetText($"Le joueur {player.name} a remporté la partie.");
+                        break;
+                    }
+                    break;
 
                 case GameState.TurnEnd:
 
                     // Optionally wait 2 seconds before the next player's turn starts
                     
-                    GameTextEvents.SetText($"{currentPlayer} a finit son tour");
+                    GameTextEvents.SetText($"{currentPlayer.name} a finit son tour");
                     yield return new WaitForSeconds(1.5f);
                     AdvanceToNextPlayer();
 
                     break;
+            }
+            
+            var remainingPlayers = monopolyPlayers.Where(player => player.CanContinuePlaying()).ToList();
+
+            if (remainingPlayers.Count == 1)
+            {
+                var winner = remainingPlayers.First();
+                GameTextEvents.SetText($"Le joueur {winner.name} a remporté la partie.");
+                break;
             }
 
             // Optionally add a delay between turns
@@ -576,7 +599,8 @@ public class MonopolyGameManager : MonoBehaviour
 
     private void AdvanceToNextPlayer()
     {
-        // currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
+        currentPlayerIndex = (currentPlayerIndex + 1) % monopolyPlayers.Count;
+        currentPlayer = monopolyPlayers[currentPlayerIndex];
         gameState = GameState.WaitingForRoll;
     }
 
@@ -2001,5 +2025,6 @@ public enum GameState
 {
     WaitingForRoll,
     MovingPiece,
-    TurnEnd
+    TurnEnd,
+    GameOver
 }

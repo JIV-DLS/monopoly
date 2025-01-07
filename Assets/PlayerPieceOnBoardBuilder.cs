@@ -14,9 +14,11 @@ public class PlayerPieceOnBoardBuilder : MonoBehaviour
     {
         switch (playerTypeToCreate)
         {
+            case PlayerPieceEnum.BattleShip:
+                return ChildUtility.GetChildComponentByName<PlayerElementOnMap>(transform, "BattleShip");
             case PlayerPieceEnum.TopHat:
             default:
-                return GetComponentInChildren<TopHatPlayerOnMap>(true);
+                return ChildUtility.GetChildComponentByName<PlayerElementOnMap>(transform, "TopHat");
         }
         
     }

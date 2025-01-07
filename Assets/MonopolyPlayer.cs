@@ -210,11 +210,11 @@ public class MonopolyPlayer
             prison--;
             if (prison > 0)
             {
-                _monopolyGameManager.SetGameTextEventsText($"{this} est en prison. Encore {prison} tours restant.");
+                _monopolyGameManager.SetGameTextEventsText($"{name} est en prison. Encore {prison} tours restant.");
             }
             else
             {
-                _monopolyGameManager.SetGameTextEventsText($"{this} est libéré de prison.");
+                _monopolyGameManager.SetGameTextEventsText($"{name} est libéré de prison.");
                 DisableAllFreeFromPrisonButtons();
             }
             yield return new WaitForSeconds(.5f);
@@ -235,7 +235,7 @@ public class MonopolyPlayer
                 {
 
                     _timer += Time.deltaTime;
-                    _monopolyGameManager.GameTextEvents.SetText($"{this}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
+                    _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
                     yield return null; // Wait until the next frame
                 }
                 //PlayerContent.EnableBuyAction(tile.getPrice());
@@ -243,7 +243,7 @@ public class MonopolyPlayer
         }
         else
         {
-            _monopolyGameManager.GameTextEvents.SetText($"{this} ne peut effectuer aucune action");
+            _monopolyGameManager.GameTextEvents.SetText($"{name} ne peut effectuer aucune action");
             yield return new WaitForSeconds(1.5f);
         }
 
@@ -265,7 +265,7 @@ public class MonopolyPlayer
             }
             _timer += Time.deltaTime;
             
-            _monopolyGameManager.GameTextEvents.SetText($"{this}, Veuillez lancer les dés. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
+            _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez lancer les dés. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
             yield return null; // Wait until the next frame
         }
 
@@ -287,7 +287,7 @@ public class MonopolyPlayer
         DisableAllActionButtons();
         if (_askedPlayFromButton)
         {
-            _monopolyGameManager.SetGameTextEventsText($"{this} a jeté les dés.");
+            _monopolyGameManager.SetGameTextEventsText($"{name} a jeté les dés.");
         }
         else
         {
@@ -307,7 +307,7 @@ public class MonopolyPlayer
 
         if (_askedPlayFromButton)
         {
-            _monopolyGameManager.SetGameTextEventsText($"{this} a joué {rolledResult}.");
+            _monopolyGameManager.SetGameTextEventsText($"{name} a joué {rolledResult}.");
         }else
         {
 
@@ -356,14 +356,14 @@ public class MonopolyPlayer
             {
                 int sellAmount = good.Sell();;
                 HaveWon(sellAmount);
-                _monopolyGameManager.SetGameTextEventsText($"{this} a vendu {good}. Nouveau solde {sellAmount}.");
+                _monopolyGameManager.SetGameTextEventsText($"{name} a vendu {good}. Nouveau solde {sellAmount}.");
                 yield return new WaitForSeconds(1f);
             }
         }
 
         if (!CanContinuePlaying())
         {
-            _monopolyGameManager.SetGameTextEventsText($"{this} ne peut pas payer {chargedOf}.");
+            _monopolyGameManager.SetGameTextEventsText($"{name} ne peut pas payer {chargedOf}.");
             yield return new WaitForSeconds(1f);
         }
         yield return null;
@@ -463,7 +463,7 @@ public class MonopolyPlayer
         }
         TCard card = cardList[0];
         FreeFromPrison();
-        _monopolyGameManager.SetGameTextEventsText($"{this} a utilisé la carte {card.description} pour se libérer de prison.");
+        _monopolyGameManager.SetGameTextEventsText($"{name} a utilisé la carte {card.description} pour se libérer de prison.");
         cardList.RemoveAt(0);
         fromPrisonButton.SetCardCanBeUsedInFuture(cardList.Count);
         _monopolyGameManager.TakeACardFromPlayer(card);

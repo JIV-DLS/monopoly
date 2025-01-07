@@ -1,4 +1,5 @@
 public enum PlayerPieceEnum
 {
-    TopHat
+    TopHat,
+    BattleShip
 }
