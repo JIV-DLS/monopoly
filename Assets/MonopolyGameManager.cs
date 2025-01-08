@@ -670,7 +670,8 @@ public class MonopolyGameManager : MonoBehaviour
             yield return new WaitForSeconds(0.09f);
         }
         yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
-    }public IEnumerator MoveAPlayerToTileIndex(MonopolyPlayer monopolyPlayer, int tileIndex)
+    }
+    public IEnumerator MoveAPlayerToTileIndex(MonopolyPlayer monopolyPlayer, int tileIndex)
     {
         IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveAPlayerToTileIndex(monopolyPlayer.tile, tileIndex);
 
@@ -812,11 +813,12 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
 
     public IEnumerator PutPlayerIntoPrison(MonopolyPlayer monopolyPlayer)
     {
-        yield return MoveAPlayerTo<PrisonOrVisitTile>(monopolyPlayer);
+        yield return new WaitForSeconds(.5f);
+        /*yield return MoveAPlayerTo<PrisonOrVisitTile>(monopolyPlayer);
         monopolyPlayer.GoInPrison();
         
         SetGameTextEventsText($"{monopolyPlayer} est partit en prison.");
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(.5f);*/
     }
 
     private IEnumerator MoveAPlayerTo<T>(MonopolyPlayer monopolyPlayer) where T:BoardTile
@@ -901,13 +903,15 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
     {
         return board.GetAllGroupOfThisPropertyTile(getTargetType);
     }
-    public int GetAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(PurchasableTile pourchasableTile)
+    public int GetAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(PurchasableTile purchasableTile)
     {
-        return pourchasableTile.IsOwned()? board.GetAllGroupOfThisPropertyTile(pourchasableTile.GetType()).Count(_pourchasableTile=>_pourchasableTile.IsOwnedBy(pourchasableTile.GetOwner())): 0;
+        return purchasableTile.IsOwned()? board.GetAllGroupOfThisPropertyTile(purchasableTile.GetTargetType()).Count(
+            _purchasableTile=>_purchasableTile.IsOwnedBy(purchasableTile.GetOwner())): 0;
     }
     public bool DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(PurchasableTile pourchasableTile)
     {
-        return pourchasableTile.IsOwned()? board.GetAllGroupOfThisPropertyTile(pourchasableTile.GetType()).All(_pourchasableTile=>_pourchasableTile.IsOwnedBy(pourchasableTile.GetOwner())): false;
+        return pourchasableTile.IsOwned()? board.GetAllGroupOfThisPropertyTile(pourchasableTile.GetTargetType()).All(
+            _pourchasableTile=>_pourchasableTile.IsOwnedBy(pourchasableTile.GetOwner())): false;
     }
 }
 
@@ -1453,7 +1457,7 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
         return monopolyPlayer != null;
     }
 
-    protected abstract Type GetTargetType();
+    public abstract Type GetTargetType();
     public virtual int GetLevel()
     {
         if (!IsOwned())
@@ -1464,7 +1468,7 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
     }
     public virtual int GetLevelOnTypeCount()
     {
-        return monopolyGameManager.GetAllGroupOfThisPropertyTile(GetTargetType()).Length - 1;
+        return monopolyGameManager.GetAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this) - 1;
     }
     public bool IsOwnedBy(MonopolyPlayer testMonopolyPlayer)
     {
@@ -1516,7 +1520,7 @@ public abstract class PublicServiceTile : PurchasableTile
     public PublicServiceCard publicService { get; private set; }
     public CardBehind titleDeedBehindCard { get; private set; }
 
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(PublicServiceTile);
     }
@@ -1817,7 +1821,7 @@ public class PropertyTileStateWithOneHotel : PropertyTileState
 
 public class BrownPropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(BrownPropertyGroupTile);
     }
@@ -1832,7 +1836,7 @@ public class BrownPropertyGroupTile : PropertyTile
 
 public class LightBluePropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(LightBluePropertyGroupTile);
     }
@@ -1847,7 +1851,7 @@ public class LightBluePropertyGroupTile : PropertyTile
 
 public class PinkPropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(PinkPropertyGroupTile);
     }
@@ -1862,7 +1866,7 @@ public class PinkPropertyGroupTile : PropertyTile
 
 public class OrangePropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(OrangePropertyGroupTile);
     }
@@ -1877,7 +1881,7 @@ public class OrangePropertyGroupTile : PropertyTile
 
 public class RedPropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(RedPropertyGroupTile);
     }
@@ -1891,7 +1895,7 @@ public class RedPropertyGroupTile : PropertyTile
 }
 public class YellowPropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(YellowPropertyGroupTile);
     }
@@ -1906,7 +1910,7 @@ public class YellowPropertyGroupTile : PropertyTile
 
 public class GreenPropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(GreenPropertyGroupTile);
     }
@@ -1922,7 +1926,7 @@ public class GreenPropertyGroupTile : PropertyTile
 
 public class DarkBluePropertyGroupTile : PropertyTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(DarkBluePropertyGroupTile);
     }
@@ -1948,15 +1952,11 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
 
     public override int GetLevelOnTypeCount()
     {
-        if (propertyTileState is PropertyTileStateWithNoHouse)
+        if (!monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this))
         {
             return 0;
         }
 
-        if (monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this))
-        {
-            return 1;
-        }
         return propertyTileState.GetLevel()+1;
     }
     public override PurchasableFaceCard GetFaceCard()
@@ -1986,15 +1986,6 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
         propertyTileState = propertyTileStateToSet;
     }
 
-    public override int GetLevel()
-    {
-        if (!IsOwned())
-        {
-            return -1;
-        }
-        
-        return GetLevel();
-    }
     public void UpgradeGood()
     {
         propertyTileState.Upgrade(this);
@@ -2048,7 +2039,7 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
 
 public class RailroadTile : PurchasableTile
 {
-    protected override Type GetTargetType()
+    public override Type GetTargetType()
     {
         return typeof(RailroadTile);
     }

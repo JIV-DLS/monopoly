@@ -233,10 +233,14 @@ public class MonopolyPlayer
         _timer = 0f;
         if (tile is PurchasableTile purchasableTile)
         {
-            if (tile.CanBeBought())
+            foreach (PurchasableTile p in _monopolyGameManager.GetAllGroupOfThisPropertyTile(purchasableTile.GetTargetType()))
             {
-                _monopolyGameManager.BuyPurchasableTileBy(this, purchasableTile);
+                if (p.CanBeBought())
+                {
+                    _monopolyGameManager.BuyPurchasableTileBy(this, p);
+                }
             }
+            
             if (tile.CanBeBought() && tile.getPrice()<=money)
             {
                 _monopolyGameManager.gameCardBuy.ShowPurchasableTile(purchasableTile, this);
@@ -266,7 +270,7 @@ public class MonopolyPlayer
                 {
 
                     _timer += Time.deltaTime;
-                    _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
+                    _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decider {actionTimeout-_timer:0.00} seconde(s)");
                     yield return null; // Wait until the next frame
                 }
             }
@@ -324,8 +328,8 @@ public class MonopolyPlayer
             _monopolyGameManager.SetGameTextEventsText("les dés ont été jetés automatiquement.");
         }
         
-        int rolledResult = 0;
-        foreach (int gottenResult in _monopolyGameManager.AskAPlayerToRollDices(this))
+        int rolledResult = 1;
+        /*foreach (int gottenResult in _monopolyGameManager.AskAPlayerToRollDices(this))
         {
             yield return null;
             rolledResult = gottenResult;
@@ -333,7 +337,7 @@ public class MonopolyPlayer
             {
                 break;
             }
-        }
+        }*/
 
         if (_askedPlayFromButton)
         {
