@@ -51,6 +51,10 @@ public class RailRoadCard : PurchasableFaceCard
     }
 
 
+    public override PurchasableCard Clone ()
+    {
+        return base.Clone<RailRoadCard>();
+    }
     public override PurchasableCard Clone(PurchasableTile purchasableTile)
     {
         RailRoadCard clone = ((RailRoadCard)Clone()).UpdateTile((RailroadTile)purchasableTile);

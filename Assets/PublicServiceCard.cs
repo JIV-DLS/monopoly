@@ -51,6 +51,10 @@ public class PublicServiceCard : PurchasableFaceCard
         return this;
     }
     
+    public override PurchasableCard Clone ()
+    {
+        return base.Clone<PublicServiceCard>();
+    }
     public override void HandlePurchase(IPurchasableTileLevel purchasableTileLevel)
     {
         CleanPurchases();

@@ -78,9 +78,14 @@ public class TitleDeedCard : PurchasableFaceCard
         }
     }
 
+    public override PurchasableCard Clone ()
+    {
+        return base.Clone<TitleDeedCard>();
+    }
     public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        TitleDeedCard clone = ((TitleDeedCard)Clone()).UpdateTile((PropertyTile)purchasableTile);
+        TitleDeedCard titleDeedCard = ((TitleDeedCard)Clone());
+        TitleDeedCard clone = titleDeedCard.UpdateTile((PropertyTile)purchasableTile);
         clone.HandlePurchase((PropertyTile)purchasableTile);
         return clone;
     }

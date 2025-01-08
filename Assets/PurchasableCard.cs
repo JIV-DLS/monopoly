@@ -52,7 +52,7 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
 
     public abstract PurchasableCard Clone (PurchasableTile purchasableTile);
 
-    public PurchasableCard Clone()
+    public virtual PurchasableCard Clone()
     {
         return Clone(_lastPurchasableTile);
     }
