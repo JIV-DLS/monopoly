@@ -22,9 +22,9 @@ public class FreeFromPrisonButton : ButtonHandler {
         
     }
 
-    public override void Init()
+    public override void OtherInit()
     {
-        base.Init();
+        base.OtherInit();
         NumberOfFreeCardScript.Init();
     }
 }

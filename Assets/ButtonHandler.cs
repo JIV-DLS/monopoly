@@ -4,7 +4,7 @@ using TMPro;using UnityEngine.UIElements;using Button = UnityEngine.UI.Button;
 public interface IClickableButtonHandler{
     public void OnClick();
 }
-public class ButtonHandler : MonoBehaviour, IInitComponent
+public class ButtonHandler : MonoBehaviourWithInitComponent
 {
     private Button _button;
     private TextMeshProUGUI _buttonText;
@@ -59,7 +59,7 @@ public class ButtonHandler : MonoBehaviour, IInitComponent
         }
     }
 
-    public virtual void Init()
+    public override void OtherInit()
     {
         
         // Get the Button component
@@ -70,7 +70,6 @@ public class ButtonHandler : MonoBehaviour, IInitComponent
             Debug.LogError("Button component not found!");
             return;
         }
-
         // Add a listener to handle button clicks
         _button.onClick.AddListener(OnButtonClick);
         
@@ -84,8 +83,6 @@ public class ButtonHandler : MonoBehaviour, IInitComponent
             Debug.LogWarning("Text component not found as a child of the Button!");
         }
 
-        // Add a listener to handle button clicks
-        _button.onClick.AddListener(OnButtonClick);
     }
 }
 

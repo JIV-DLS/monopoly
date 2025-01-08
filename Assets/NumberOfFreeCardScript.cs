@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public class NumberOfFreeCardScript : MonoBehaviour, IInitComponent
+public class NumberOfFreeCardScript : MonoBehaviourWithInitComponent
 {
     public BaseTextHandler textHandler;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -29,8 +29,8 @@ public class NumberOfFreeCardScript : MonoBehaviour, IInitComponent
         }
     }
 
-    public void Init()
+    public override void OtherInit()
     {
-        textHandler.Init();
+        textHandler.OtherInit();
     }
 }

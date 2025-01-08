@@ -1,11 +1,38 @@
+using System;
 using UnityEngine;
 using TMPro;
 
 public interface IInitComponent
 {
     public void Init();
+    public bool IsAlreadyInitialized();
 }
-public class BaseTextHandler : MonoBehaviour, IInitComponent
+
+public class MonoBehaviourWithInitComponent : MonoBehaviour, IInitComponent
+{
+    private bool _isInitialized = false;
+    public void Init()
+    {
+        if (IsAlreadyInitialized())
+        {
+            return;
+        }
+
+        _isInitialized = true;
+        OtherInit();
+    }
+
+    public virtual void OtherInit()
+    {
+        
+    }
+
+    public bool IsAlreadyInitialized()
+    {
+        return _isInitialized;
+    }
+}
+public class BaseTextHandler : MonoBehaviourWithInitComponent
 {
     protected TextMeshProUGUI textComponent;
 
@@ -22,8 +49,9 @@ public class BaseTextHandler : MonoBehaviour, IInitComponent
         Init();
     }
 
-    public void Init()
+    public override void OtherInit()
     {
+        base.OtherInit();
         // Get the Text component
         textComponent = GetComponentInChildren<TextMeshProUGUI>(true);
 
@@ -32,6 +60,7 @@ public class BaseTextHandler : MonoBehaviour, IInitComponent
             Debug.LogError("Text component not found!");
         }
     }
+
 
     // Virtual method to set text (can be overridden in child classes)
     public virtual void SetText(string newText)

@@ -2,61 +2,100 @@ using UnityEngine;
 
 public class RailRoadCard : PurchasableFaceCard
 {
-    private BaseTextHandler _railroadNameValue;
-    private BaseTextHandler _rentValueBaseTextHandler;
-    private BaseTextHandler _rentWith2TrainsStationValueBaseTextHandler;
-    private BaseTextHandler _rentWith3TrainsStationValueBaseTextHandler;
-    private BaseTextHandler _rentWith4TrainsStationValueBaseTextHandler;
+    private TitleValuePlayerPosition _railroadNameValue;
+    private TitleValuePlayerPosition _rentValueTitleValuePlayerPosition;
+    private TitleValuePlayerPosition _rentWith2TrainsStationValueTitleValuePlayerPosition;
+    private TitleValuePlayerPosition _rentWith3TrainsStationValueTitleValuePlayerPosition;
+
+    private TitleValuePlayerPosition _rentWith4TrainsStationValueTitleValuePlayerPosition;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected override void Init()
     {
         base.Init();
-        _railroadNameValue = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RailroadNameValue");
+        _railroadNameValue =
+            ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "RailroadNameValue");
 
         if (_railroadNameValue == null)
         {
             Debug.LogError("Rail road name value not found");
         }
-        _rentValueBaseTextHandler = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RentValue");
-        if (_rentValueBaseTextHandler == null)
+
+        _rentValueTitleValuePlayerPosition =
+            ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "RentValue");
+        if (_rentValueTitleValuePlayerPosition == null)
         {
             Debug.LogError("rent value not found");
         }
-        _rentWith2TrainsStationValueBaseTextHandler  = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RentWith2TrainsStationValue");
-        if (_rentWith2TrainsStationValueBaseTextHandler == null)
+
+        _rentWith2TrainsStationValueTitleValuePlayerPosition =
+            ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "RentWith2TrainsStationValue");
+        if (_rentWith2TrainsStationValueTitleValuePlayerPosition == null)
         {
             Debug.LogError("rent with 2 houses value not found");
         }
-        _rentWith3TrainsStationValueBaseTextHandler  = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RentWith3TrainsStationValue");
-        if (_rentWith3TrainsStationValueBaseTextHandler == null)
+
+        _rentWith3TrainsStationValueTitleValuePlayerPosition =
+            ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "RentWith3TrainsStationValue");
+        if (_rentWith3TrainsStationValueTitleValuePlayerPosition == null)
         {
             Debug.LogError("rent with 3 houses value not found");
         }
-        _rentWith4TrainsStationValueBaseTextHandler  = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RentWith4TrainsStationValue");
-        if (_rentWith4TrainsStationValueBaseTextHandler == null)
+
+        _rentWith4TrainsStationValueTitleValuePlayerPosition =
+            ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "RentWith4TrainsStationValue");
+        if (_rentWith4TrainsStationValueTitleValuePlayerPosition == null)
         {
             Debug.LogError("rent with 4 houses value not found");
         }
-        
     }
 
-    
-    public override PurchasableCard Clone (PurchasableTile purchasableTile)
+
+    public override PurchasableCard Clone(PurchasableTile purchasableTile)
     {
-        return ((RailRoadCard)Clone()).UpdateTile((RailroadTile)purchasableTile);
-    }
-    public PurchasableCard Clone ()
-    {
-        return base.Clone<RailRoadCard>();
+        RailRoadCard clone = ((RailRoadCard)Clone()).UpdateTile((RailroadTile)purchasableTile);
+        clone.HandlePurchase((RailroadTile)purchasableTile);
+        return clone;
     }
     public RailRoadCard UpdateTile(RailroadTile railroadTile)
     {
         base.UpdateTile(railroadTile);
         _railroadNameValue.SetText(railroadTile.TileName.ToUpper());
-        _rentValueBaseTextHandler.SetText($"{railroadTile.costs[0]}M");
-        _rentWith2TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[1]}M");
-        _rentWith3TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[2]}M");
-        _rentWith4TrainsStationValueBaseTextHandler.SetText($"{railroadTile.costs[3]}M");
+        _rentValueTitleValuePlayerPosition.SetText($"{railroadTile.costs[0]}M");
+        _rentWith2TrainsStationValueTitleValuePlayerPosition.SetText($"{railroadTile.costs[1]}M");
+        _rentWith3TrainsStationValueTitleValuePlayerPosition.SetText($"{railroadTile.costs[2]}M");
+        _rentWith4TrainsStationValueTitleValuePlayerPosition.SetText($"{railroadTile.costs[3]}M");
         return this;
+    }
+
+    public override void HandlePurchase(IPurchasableTileLevel purchasableTileLevel)
+    {
+        CleanPurchases();
+        
+        
+        switch (purchasableTileLevel.GetLevel())
+        {
+            case 0:
+                _rentValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                break;
+            case 1:
+                _rentWith2TrainsStationValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                break;
+            case 2:
+                _rentWith3TrainsStationValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                break;
+            case 3:
+                _rentWith4TrainsStationValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                break;
+
+        }
+    }
+
+    public override void CleanPurchases()
+    {
+        _rentValueTitleValuePlayerPosition.ClearPlayerPosition();
+        _rentWith2TrainsStationValueTitleValuePlayerPosition.ClearPlayerPosition();
+        _rentWith3TrainsStationValueTitleValuePlayerPosition.ClearPlayerPosition();
+        _rentWith4TrainsStationValueTitleValuePlayerPosition.ClearPlayerPosition();
     }
 }

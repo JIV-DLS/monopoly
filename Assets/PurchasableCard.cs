@@ -77,6 +77,9 @@ public abstract class PurchasableFaceCard : PurchasableCard
         SetTargetPurchasableCard(purchasableTile, purchasableTile.GetBehindCard());
     }
 
+    public abstract void HandlePurchase(IPurchasableTileLevel purchasableTileLevel);
+    public abstract void CleanPurchases();
+
 }
 public abstract class PurchasableBehindCard : PurchasableCard
 {

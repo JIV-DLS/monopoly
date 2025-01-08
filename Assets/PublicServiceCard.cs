@@ -1,15 +1,12 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class PublicServiceCard : PurchasableFaceCard
 {
     private BaseTextHandler _publicServiceNameValue;
     private BaseImageHandler _serviceImageNameValue;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    private TitleValuePlayerPosition _haveOneValueTitleValuePlayerPosition;
+    private TitleValuePlayerPosition _haveTwoValueTitleValuePlayerPosition;
+
 
     protected override void Init()
     {
@@ -24,29 +21,55 @@ public class PublicServiceCard : PurchasableFaceCard
         {
             Debug.LogError("service image is null");
         }
+        
+        _haveOneValueTitleValuePlayerPosition  = ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "haveOneValue");
+        if (_haveOneValueTitleValuePlayerPosition == null)
+        {
+            Debug.LogError("rent with 2 houses value not found");
+        }
+        _haveTwoValueTitleValuePlayerPosition  = ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "haveTwoValue");
+        if (_haveTwoValueTitleValuePlayerPosition == null)
+        {
+            Debug.LogError("rent with 3 houses value not found");
+        }
     }
 
     
     
     public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        return ((PublicServiceCard)Clone()).UpdateTile((PublicServiceTile)purchasableTile);
+        PublicServiceCard clone = ((PublicServiceCard)Clone()).UpdateTile((PublicServiceTile)purchasableTile);
+        clone.HandlePurchase((PublicServiceTile)purchasableTile);
+        return clone;
     }
-    public PurchasableCard Clone ()
-    {
-        return base.Clone<PublicServiceCard>();
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    
-    public PublicServiceCard UpdateTile(PublicServiceTile publicServiceTile)
+
+    private PublicServiceCard UpdateTile(PublicServiceTile publicServiceTile)
     {
         base.UpdateTile(publicServiceTile);
         _publicServiceNameValue.SetText(publicServiceTile.TileName);
         _serviceImageNameValue.UpdateImage(publicServiceTile.GetImageSprite());
         return this;
+    }
+    
+    public override void HandlePurchase(IPurchasableTileLevel purchasableTileLevel)
+    {
+        CleanPurchases();
+        
+        
+        switch (purchasableTileLevel.GetLevel())
+        {
+            case 0:
+                _haveOneValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                break;
+            case 1:
+                _haveTwoValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                break;
+        }
+    }
+
+    public override void CleanPurchases()
+    {
+        _haveOneValueTitleValuePlayerPosition.ClearPlayerPosition();
+        _haveTwoValueTitleValuePlayerPosition.ClearPlayerPosition();
     }
 }

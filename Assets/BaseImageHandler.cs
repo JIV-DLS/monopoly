@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BaseImageHandler : MonoBehaviour, IInitComponent
+public class BaseImageHandler : MonoBehaviourWithInitComponent
 {
     
     protected Image image;
@@ -24,7 +24,7 @@ public class BaseImageHandler : MonoBehaviour, IInitComponent
         
     }
 
-    public void Init()
+    public override void OtherInit()
     {
         
         // Get the Text component

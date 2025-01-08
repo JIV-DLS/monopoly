@@ -65,13 +65,13 @@ public class MonopolyGameManager : MonoBehaviour
         currentPlayer = localPlayer;
         monopolyPlayers = new List<MonopolyPlayer>();
         monopolyPlayers.Add(localPlayer);
-        monopolyPlayers.Add(new MonopolyPlayer("Ami",_playersHorizontalView.CreateNewChildAtEnd(),
+        /*monopolyPlayers.Add(new MonopolyPlayer("Ami",_playersHorizontalView.CreateNewChildAtEnd(),
             _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.BattleShip, transform),
             GetComponentInChildren<ThrowDices>(),
             ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "CommunityFreeFromPrisonButton"),
             ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "ChanceFreeFromPrisonButton"),
             this
-        ));
+        ));*/
         chancesCards = new ChancesCards(this);
         communitiesCards = new CommunitiesCards(this);
         // Start the waiting process
@@ -109,7 +109,7 @@ public class MonopolyGameManager : MonoBehaviour
 
             if (tile is TaxTile)
             {
-                player.DecrementMoneyWith(((TaxTile)tile).taxAmount);
+                player.ChargedOf(((TaxTile)tile).taxAmount);
             }
             else if (tile is GoInPrisonTile)
             {
@@ -153,7 +153,7 @@ public class MonopolyGameManager : MonoBehaviour
 
     private object PassedHome(MonopolyPlayer player)
     {
-        player.IncrementMoneyWith(StartTile.GetStartReward());
+        player.HaveWon(StartTile.GetStartReward());
         GameTextEvents.SetText($"Le joueur {currentPlayer.name} est passé par la case départ. Il reçoit 200M.");
         return new WaitForSeconds(.5f);
     }
@@ -207,14 +207,14 @@ public class MonopolyGameManager : MonoBehaviour
                     break;
             }
 
-            var remainingPlayers = monopolyPlayers.Where(player => player.CanContinuePlaying()).ToList();
+            /*var remainingPlayers = monopolyPlayers.Where(player => player.CanContinuePlaying()).ToList();
 
             if (remainingPlayers.Count == 1)
             {
                 var winner = remainingPlayers.First();
                 GameTextEvents.SetText($"Le joueur {winner.name} a remporté la partie.");
                 break;
-            }
+            }*/
 
             // Optionally add a delay between turns
             yield return null; // 1 second delay before next turn
@@ -795,7 +795,6 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
     {
         yield return monopolyPlayer.GatherMoneyToReach(dueAmount);
     }
-
     public T[] GetAllGroupOfThisPropertyTile<T>() where T : PurchasableTile
     {
         return board.GetTilesOfType<T>();
@@ -897,6 +896,11 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
         purchasableTile.AssignOwner(monopolyPlayer);
         SetGameTextEventsText($"{monopolyPlayer.name} bought a purchasable {purchasableTile.TileName}.");
     }
+
+    public PurchasableTile[] GetAllGroupOfThisPropertyTile(Type getTargetType)
+    {
+        return board.GetAllGroupOfThisPropertyTile(getTargetType);
+    }
 }
 
 public class Dice
@@ -917,6 +921,25 @@ public class Board
     public PublicServiceCard publicServiceCardPrefab { get; private set; }
     public CardBehind cardBehindPrefab { get; private set; }
     
+    public PurchasableTile[] GetAllGroupOfThisPropertyTile(Type targetType)
+    {
+        if (!typeof(PurchasableTile).IsAssignableFrom(targetType))
+        {
+            throw new ArgumentException($"Type {targetType} must inherit from PurchasableTile", nameof(targetType));
+        }
+
+        // Use reflection to invoke the method dynamically
+        var method = typeof(Board).GetMethod("GetTilesOfType")?.MakeGenericMethod(targetType);
+        if (method != null)
+        {
+            return (PurchasableTile[])method.Invoke(this, null);
+        }
+        else
+        {
+            throw new ArgumentException("GetTilesOfType not found");
+        }
+        
+    }
     public T[] GetTilesOfType<T>() where T : PurchasableTile
     {
         return tiles.OfType<T>().ToArray();
@@ -1378,7 +1401,7 @@ public abstract class TileGood : IGood
         return goodName;
     }
 }
-public abstract class PurchasableTile : BoardTile, IGood
+public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
 {
     public int[] costs { get; private set; }
     private int price { get; set; }
@@ -1421,10 +1444,17 @@ public abstract class PurchasableTile : BoardTile, IGood
         return monopolyPlayer != null;
     }
 
+    protected abstract Type GetTargetType();
+    public virtual int GetLevel()
+    {
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile(GetTargetType()).Length;
+    }
     public bool IsOwnedBy(MonopolyPlayer monopolyPlayer)
     {
         return this.monopolyPlayer == monopolyPlayer;
     }
+
+
     public MonopolyPlayer GetOwner()
     {
         return monopolyPlayer;
@@ -1468,6 +1498,10 @@ public abstract class PublicServiceTile : PurchasableTile
     public PublicServiceCard publicService { get; private set; }
     public CardBehind titleDeedBehindCard { get; private set; }
 
+    protected override Type GetTargetType()
+    {
+        return typeof(PublicServiceTile);
+    }
     public override PurchasableFaceCard GetFaceCard()
     {
         return publicService;
@@ -1502,6 +1536,7 @@ public class ElectricityTile : PublicServiceTile
     {
         return ChildUtility.GetChildComponentByName<BaseImageHandler>(tileGameObject.transform.parent, "ElectricityPrefab").GetSprite();
     }
+
 }
 
 public class WaterPumpTile : PublicServiceTile
@@ -1556,42 +1591,72 @@ public class GoInPrisonTile : CornerTile
 public interface IPropertyTileStateHolder
 {
     
-    void SetPropertyTileState(IPropertyTileState propertyTileState);
+    void SetPropertyTileState(PropertyTileState propertyTileState);
 }
 public interface IPropertyTileActionsPossibilityState
 {
     public bool CanBuildBeUpgraded();
     public bool CanBuildBeDowngraded();
 }
-public interface IPropertyTileState:IPropertyTileActionsPossibilityState
+public interface IPurchasableTileLevel
 {
-    void Upgrade(IPropertyTileStateHolder holder);
-    void Downgrade(IPropertyTileStateHolder holder);
-    int GetHousesNumber();
-    int GetHotelNumber();
+    public int GetLevel();
+    public MonopolyPlayer GetOwner();
 }
-public abstract class PropertyTileStateCanBuildHouse : IPropertyTileState
+public abstract class PropertyTileState:IPropertyTileActionsPossibilityState, IPurchasableTileLevel
 {
-    public bool CanBuildBeUpgraded()
+    private MonopolyPlayer _owner;
+
+    protected PropertyTileState(MonopolyPlayer owner)
+    {
+        _owner = owner;
+    }
+    public abstract void Upgrade(IPropertyTileStateHolder holder);
+    public abstract void Downgrade(IPropertyTileStateHolder holder);
+    public abstract int GetHousesNumber();
+    public abstract int GetHotelNumber();
+    public abstract bool CanBuildBeUpgraded();
+
+    public abstract bool CanBuildBeDowngraded();
+
+    public abstract int GetLevel();
+
+    public MonopolyPlayer GetOwner()
+    {
+        return _owner;
+    }
+}
+public abstract class PropertyTileStateCanBuildHouse : PropertyTileState
+{
+    protected PropertyTileStateCanBuildHouse(MonopolyPlayer owner) : base(owner)
+    {
+    }
+
+    public override bool CanBuildBeUpgraded()
     {
         return true;
     }
-    public virtual bool CanBuildBeDowngraded()
+    public override bool CanBuildBeDowngraded()
     {
         return true;
     }
 
-    public abstract void Upgrade(IPropertyTileStateHolder holder);
-    public abstract void Downgrade(IPropertyTileStateHolder holder);
-    public abstract int GetHousesNumber();
-    public int GetHotelNumber()
+    public override int GetHotelNumber()
     {
         return 0;
+    }
+
+    public override int GetLevel()
+    {
+        return GetHousesNumber();
     }
 }
 public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
 {
-    
+    public PropertyTileStateWithNoHouse(MonopolyPlayer owner) : base(owner)
+    {
+    }
+
     public override int GetHousesNumber()
     {
         return 0;
@@ -1600,9 +1665,11 @@ public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
     {
         return false;
     }
+
+
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse());
+        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse(GetOwner()));
     }
 
     public override void Downgrade(IPropertyTileStateHolder holder)
@@ -1612,104 +1679,130 @@ public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
 }
 public class PropertyTileStateWithOneHouse : PropertyTileStateCanBuildHouse
 {
-    
+    public PropertyTileStateWithOneHouse(MonopolyPlayer owner) : base(owner)
+    {
+    }
+
     public override int GetHousesNumber()
     {
         return 1;
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses());
+        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses(GetOwner()));
     }
     
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithNoHouse());
+        holder.SetPropertyTileState(new PropertyTileStateWithNoHouse(GetOwner()));
     }
 }
 public class PropertyTileStateWithTwoHouses : PropertyTileStateCanBuildHouse
 {
-    
+    public PropertyTileStateWithTwoHouses(MonopolyPlayer owner) : base(owner)
+    {
+    }
+
     public override int GetHousesNumber()
     {
         return 2;
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses());
+        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses(GetOwner()));
     }
     
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse());
+        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse(GetOwner()));
     }
 }
 public class PropertyTileStateWithThreeHouses : PropertyTileStateCanBuildHouse
 {
-    
+    public PropertyTileStateWithThreeHouses(MonopolyPlayer owner) : base(owner)
+    {
+    }
+
     public override int GetHousesNumber()
     {
         return 3;
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses());
+        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses(GetOwner()));
     }
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses());
+        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses(GetOwner()));
     }
 }
 public class PropertyTileStateWithFourHouses : PropertyTileStateCanBuildHouse
 {
-    
+    public PropertyTileStateWithFourHouses(MonopolyPlayer owner) : base(owner)
+    {
+    }
+
     public override int GetHousesNumber()
     {
         return 4;
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithOneHotel());
+        holder.SetPropertyTileState(new PropertyTileStateWithOneHotel(GetOwner()));
     }
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses());
+        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses(GetOwner()));
     }
 }
 
-public class PropertyTileStateWithOneHotel : IPropertyTileState
+public class PropertyTileStateWithOneHotel : PropertyTileState
 {
-    public bool CanBuildBeUpgraded()
+    public PropertyTileStateWithOneHotel(MonopolyPlayer owner) : base(owner)
+    {
+    }
+
+    public override bool CanBuildBeUpgraded()
     {
         return false;
     }
-    public bool CanBuildBeDowngraded()
+    public override bool CanBuildBeDowngraded()
     {
         return true;
     }
 
-    public void Upgrade(IPropertyTileStateHolder holder)
+    public override void Upgrade(IPropertyTileStateHolder holder)
     {
         throw new System.Exception("PropertyTileStateCanBuildHotel can't be upgraded");
     }
-    public void Downgrade(IPropertyTileStateHolder holder)
+    public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses());
+        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses(GetOwner()));
     }
 
-    public int GetHousesNumber()
+    public override int GetHousesNumber()
     {
         return 4;
     }
 
-    public int GetHotelNumber()
+
+    public override int GetHotelNumber()
     {
         return 1;
+    }
+
+    public override int GetLevel()
+    {
+        return 5;
     }
 }
 
 public class BrownPropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(BrownPropertyGroupTile);
+    }
     public BrownPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Brown), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1721,6 +1814,10 @@ public class BrownPropertyGroupTile : PropertyTile
 
 public class LightBluePropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(LightBluePropertyGroupTile);
+    }
     public LightBluePropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.LightBlue), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1732,6 +1829,10 @@ public class LightBluePropertyGroupTile : PropertyTile
 
 public class PinkPropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(PinkPropertyGroupTile);
+    }
     public PinkPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Pink), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1743,6 +1844,10 @@ public class PinkPropertyGroupTile : PropertyTile
 
 public class OrangePropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(OrangePropertyGroupTile);
+    }
     public OrangePropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Orange), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1754,6 +1859,10 @@ public class OrangePropertyGroupTile : PropertyTile
 
 public class RedPropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(RedPropertyGroupTile);
+    }
     public RedPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Red), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1764,6 +1873,10 @@ public class RedPropertyGroupTile : PropertyTile
 }
 public class YellowPropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(YellowPropertyGroupTile);
+    }
     public YellowPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Yellow), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1775,6 +1888,10 @@ public class YellowPropertyGroupTile : PropertyTile
 
 public class GreenPropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(GreenPropertyGroupTile);
+    }
     public GreenPropertyGroupTile(GameObject tileGameObject, string name, int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.Green), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1787,6 +1904,10 @@ public class GreenPropertyGroupTile : PropertyTile
 
 public class DarkBluePropertyGroupTile : PropertyTile
 {
+    protected override Type GetTargetType()
+    {
+        return typeof(DarkBluePropertyGroupTile);
+    }
     public DarkBluePropertyGroupTile(GameObject tileGameObject, string name,  int[] costs, int houseCost, int hotelCost, int price, TitleDeedCard titleDeedFaceCard, CardBehind titleDeedBehindCard) : base(tileGameObject, name, MonopolyColors.GetColor(MonopolyColors.PropertyColor.DarkBlue), costs, houseCost, hotelCost, price, titleDeedFaceCard, titleDeedBehindCard)
     {
     }
@@ -1799,7 +1920,7 @@ public class DarkBluePropertyGroupTile : PropertyTile
 public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, IPropertyTileActionsPossibilityState
 {
     public abstract PropertyTile[] GetAllGroupOfThisPropertyTile();
-    public IPropertyTileState propertyTileState { get; private set; }
+    public PropertyTileState propertyTileState { get; private set; }
     public int houseCost { get; private set; }
     public int hotelCost { get; private set; }
     public string owner { get; private set; }
@@ -1825,11 +1946,11 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
         this.color = color;
         this.titleDeedFaceCard = (TitleDeedCard)titleDeedFaceCard.Clone(this);
         this.titleDeedBehindCard = (CardBehind)titleDeedBehindCard.Clone(this);
-        propertyTileState = new PropertyTileStateWithNoHouse();
+        propertyTileState = new PropertyTileStateWithNoHouse(GetOwner());
         owner = null; // No owner initially
     }
 
-    public void SetPropertyTileState(IPropertyTileState propertyTileStateToSet)
+    public void SetPropertyTileState(PropertyTileState propertyTileStateToSet)
     {
         propertyTileState = propertyTileStateToSet;
     }
@@ -1887,7 +2008,10 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
 
 public class RailroadTile : PurchasableTile
 {
-    
+    protected override Type GetTargetType()
+    {
+        return typeof(RailroadTile);
+    }
     public RailRoadCard railRoadCard { get; private set; }
     public CardBehind titleDeedBehindCard { get; private set; }
 

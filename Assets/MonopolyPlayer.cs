@@ -153,7 +153,7 @@ public class MonopolyPlayer
     public List<AdoptPuppyCard> adoptPuppyCards{get; private set;}
     public string name{get; private set;}
     private PlayerSummaryButton _playerSummaryButton;
-    private PlayerElementOnMap _playerElementOnMap;
+    public PlayerElementOnMap _playerElementOnMap{get; private set;}
     public int money { get; private set; } = 0;
     public PlayerContent PlayerContent;
     private MonopolyGameManager _monopolyGameManager;
@@ -210,7 +210,7 @@ public class MonopolyPlayer
         if (CanPlay())
         {
             yield return HandlePlayerRollDice(rollDiceTimeout);
-            yield return HandleUserDoAction(userBuyTileTimeout);
+            yield return HandlePlayBuyAction(userBuyTileTimeout);
         }else if (IsInPrison())
         {
             prison--;
@@ -228,11 +228,15 @@ public class MonopolyPlayer
         
     }
 
-    private IEnumerator HandleUserDoAction(float actionTimeout)
+    private IEnumerator HandlePlayBuyAction(float actionTimeout)
     {
         _timer = 0f;
         if (tile is PurchasableTile purchasableTile)
         {
+            if (tile.CanBeBought())
+            {
+                _monopolyGameManager.BuyPurchasableTileBy(this, purchasableTile);
+            }
             if (tile.CanBeBought() && tile.getPrice()<=money)
             {
                 _monopolyGameManager.gameCardBuy.ShowPurchasableTile(purchasableTile, this);
@@ -347,7 +351,7 @@ public class MonopolyPlayer
 
     public bool canBeChargedOf(int dueAmount)
     {
-        return money > dueAmount;
+        return money >= dueAmount;
     }
 
     public int ChargedOf(int dueAmount)
@@ -359,7 +363,7 @@ public class MonopolyPlayer
 
     public void HaveWon(int won)
     {
-        money += won;
+        money = 99999;
         _playerSummaryButton.Refresh();
     }
 
