@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 
-public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
+public abstract class PurchasableCard : MonoBehaviourWithInitComponent, IClickableButtonHandler
 {
     private ButtonHandler _flipButton;
     private PurchasableCard _targetPurchasableCard;
@@ -60,7 +60,7 @@ public abstract class PurchasableCard : MonoBehaviour, IClickableButtonHandler
     {
         gameObject.SetActive(true);
     }
-    protected virtual void Init()
+    public override void OtherInit()
     {
         _flipButton = GetComponentInChildren<ButtonHandler>();
         if (_flipButton == null)

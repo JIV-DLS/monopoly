@@ -4,7 +4,7 @@ using UnityEngine.UI; // Required for the Image component
 public class TitleDeedCard : PurchasableFaceCard
 {
     private Image _cardHeaderImage;
-    private TitleValuePlayerPosition _tileDeedValueTitleValuePlayerPosition;
+    private BaseTextHandler _tileDeedValueTitleValuePlayerPosition;
     private TitleValuePlayerPosition _rentValueTitleValuePlayerPosition;
     private TitleValuePlayerPosition _rentFullGroupValueTitleValuePlayerPosition;
     private TitleValuePlayerPosition _rentWith1HouseValueTitleValuePlayerPosition;
@@ -12,12 +12,12 @@ public class TitleDeedCard : PurchasableFaceCard
     private TitleValuePlayerPosition _rentWith3HousesValueTitleValuePlayerPosition;
     private TitleValuePlayerPosition _rentWith4HousesValueTitleValuePlayerPosition;
     private TitleValuePlayerPosition _rentWith1HotelValueTitleValuePlayerPosition;
-    private TitleValuePlayerPosition _houseCostValueTitleValuePlayerPosition;
-    private TitleValuePlayerPosition _hotelCostValueTitleValuePlayerPosition;
+    private BaseTextHandler _houseCostValueTitleValuePlayerPosition;
+    private BaseTextHandler _hotelCostValueTitleValuePlayerPosition;
     
-    protected override void Init()
+    public override void OtherInit()
     {
-        base.Init();
+        base.OtherInit();
         // Use the utility method to get the Image component from a child named "ChildWithImage"
         _cardHeaderImage = ChildUtility.GetChildComponentByName<Image>(transform, "CardHeader");
 
@@ -25,7 +25,7 @@ public class TitleDeedCard : PurchasableFaceCard
         {
             Debug.LogError("Card header image value not found");
         }
-        _tileDeedValueTitleValuePlayerPosition = ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "TitleDeedValue");
+        _tileDeedValueTitleValuePlayerPosition = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "TitleDeedValue");
 
         if (_tileDeedValueTitleValuePlayerPosition == null)
         {
@@ -66,12 +66,12 @@ public class TitleDeedCard : PurchasableFaceCard
         {
             Debug.LogError("rent with 1 hotel value not found");
         }
-        _houseCostValueTitleValuePlayerPosition  = ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "HouseCostValue");
+        _houseCostValueTitleValuePlayerPosition  = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "HouseCostValue");
         if (_houseCostValueTitleValuePlayerPosition == null)
         {
             Debug.LogError("house cost value not found");
         }
-        _hotelCostValueTitleValuePlayerPosition  = ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "HotelCostValue");
+        _hotelCostValueTitleValuePlayerPosition  = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "HotelCostValue");
         if (_hotelCostValueTitleValuePlayerPosition == null)
         {
             Debug.LogError("hotel cost value not found");
@@ -84,10 +84,7 @@ public class TitleDeedCard : PurchasableFaceCard
     }
     public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        TitleDeedCard titleDeedCard = ((TitleDeedCard)Clone());
-        TitleDeedCard clone = titleDeedCard.UpdateTile((PropertyTile)purchasableTile);
-        clone.HandlePurchase((PropertyTile)purchasableTile);
-        return clone;
+        return ((TitleDeedCard)Clone()).UpdateTile((PropertyTile)purchasableTile);
     }
 
     private TitleDeedCard UpdateTile(PropertyTile propertyTile)
@@ -117,19 +114,22 @@ public class TitleDeedCard : PurchasableFaceCard
                 _rentValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
                 break;
             case 1:
-                _rentWith1HotelValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentFullGroupValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
                 break;
             case 2:
-                _rentWith2HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith1HotelValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
                 break;
             case 3:
-                _rentWith3HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith2HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
                 break;
             case 4:
-                _rentWith4HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith3HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
                 break;
             case 5:
-                _hotelCostValueTitleValuePlayerPosition.ClearPlayerPosition();
+                _rentWith4HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                break;
+            case 6:
+                _rentWith1HotelValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
                 break;
         }
 
@@ -147,7 +147,5 @@ public class TitleDeedCard : PurchasableFaceCard
         _rentWith3HousesValueTitleValuePlayerPosition.ClearPlayerPosition();
         _rentWith4HousesValueTitleValuePlayerPosition.ClearPlayerPosition();
         _rentWith1HotelValueTitleValuePlayerPosition.ClearPlayerPosition();
-        _houseCostValueTitleValuePlayerPosition.ClearPlayerPosition();
-        _hotelCostValueTitleValuePlayerPosition.ClearPlayerPosition();
     }
 }

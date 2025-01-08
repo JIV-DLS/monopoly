@@ -23,6 +23,7 @@ public class GameCardBuyPurchasable : MonoBehaviour
 
         // Create and add the new child
         PurchasableFaceCard purchasableFaceCard = (PurchasableFaceCard)purchasableTile.GetFaceCard().Clone();
+        purchasableFaceCard.HandlePurchase(purchasableTile);
         purchasableFaceCard.transform.SetParent(transform, false); // Maintain local transform settings
         purchasableFaceCard.transform.position = transform.position;
         purchasableFaceCard.Show();

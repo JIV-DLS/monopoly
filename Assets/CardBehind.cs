@@ -6,9 +6,9 @@ public class CardBehind : PurchasableBehindCard
     private BaseTextHandler _mortgageValueBaseTextHandler;
     private BaseTextHandler _mortgageFinishedValueBaseTextHandler;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    protected override void Init()
+    public override void OtherInit()
     {
-        base.Init();
+        base.OtherInit();
         _backCardTitleBaseTextHandler = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "BackCardTitle");
 
         if (_backCardTitleBaseTextHandler == null)

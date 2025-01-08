@@ -8,9 +8,9 @@ public class PublicServiceCard : PurchasableFaceCard
     private TitleValuePlayerPosition _haveTwoValueTitleValuePlayerPosition;
 
 
-    protected override void Init()
+    public override void OtherInit()
     {
-        base.Init();
+        base.OtherInit();
         _publicServiceNameValue = ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "PublicServiceNameValue");
         if (_publicServiceNameValue == null)
         {
@@ -38,9 +38,7 @@ public class PublicServiceCard : PurchasableFaceCard
     
     public override PurchasableCard Clone (PurchasableTile purchasableTile)
     {
-        PublicServiceCard clone = ((PublicServiceCard)Clone()).UpdateTile((PublicServiceTile)purchasableTile);
-        clone.HandlePurchase((PublicServiceTile)purchasableTile);
-        return clone;
+        return ((PublicServiceCard)Clone()).UpdateTile((PublicServiceTile)purchasableTile);
     }
 
     private PublicServiceCard UpdateTile(PublicServiceTile publicServiceTile)

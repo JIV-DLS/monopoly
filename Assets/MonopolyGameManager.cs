@@ -661,7 +661,7 @@ public class MonopolyGameManager : MonoBehaviour
             lastPassHome = moveEnumerator.Current.passHome;
 
             // Perform actions with the current tile index and passHome flag
-            Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
+            //Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
 
             // Add logic to update your player position or animations here
 
@@ -685,7 +685,7 @@ public class MonopolyGameManager : MonoBehaviour
             lastPassHome = moveEnumerator.Current.passHome;
 
             // Perform actions with the current tile index and passHome flag
-            Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
+            //Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
 
             // Add logic to update your player position or animations here
 
@@ -900,6 +900,14 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
     public PurchasableTile[] GetAllGroupOfThisPropertyTile(Type getTargetType)
     {
         return board.GetAllGroupOfThisPropertyTile(getTargetType);
+    }
+    public int GetAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(PurchasableTile pourchasableTile)
+    {
+        return pourchasableTile.IsOwned()? board.GetAllGroupOfThisPropertyTile(pourchasableTile.GetType()).Count(_pourchasableTile=>_pourchasableTile.IsOwnedBy(pourchasableTile.GetOwner())): 0;
+    }
+    public bool DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(PurchasableTile pourchasableTile)
+    {
+        return pourchasableTile.IsOwned()? board.GetAllGroupOfThisPropertyTile(pourchasableTile.GetType()).All(_pourchasableTile=>_pourchasableTile.IsOwnedBy(pourchasableTile.GetOwner())): false;
     }
 }
 
@@ -1322,6 +1330,7 @@ public class BoardTile
     {
         // Debug.Log($"Player {player} landed on {TileName}.");
     }
+
 }
 
 public class CornerTile : BoardTile
@@ -1447,11 +1456,19 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
     protected abstract Type GetTargetType();
     public virtual int GetLevel()
     {
-        return monopolyGameManager.GetAllGroupOfThisPropertyTile(GetTargetType()).Length;
+        if (!IsOwned())
+        {
+            return -1;
+        }
+        return GetLevelOnTypeCount();
     }
-    public bool IsOwnedBy(MonopolyPlayer monopolyPlayer)
+    public virtual int GetLevelOnTypeCount()
     {
-        return this.monopolyPlayer == monopolyPlayer;
+        return monopolyGameManager.GetAllGroupOfThisPropertyTile(GetTargetType()).Length - 1;
+    }
+    public bool IsOwnedBy(MonopolyPlayer testMonopolyPlayer)
+    {
+        return monopolyPlayer == testMonopolyPlayer;
     }
 
 
@@ -1492,6 +1509,7 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
         isMortgaged = false;
         monopolyPlayer = null;
     }
+
 }
 public abstract class PublicServiceTile : PurchasableTile
 {
@@ -1928,6 +1946,19 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     public TitleDeedCard titleDeedFaceCard { get; private set; }
     public CardBehind titleDeedBehindCard { get; private set; }
 
+    public override int GetLevelOnTypeCount()
+    {
+        if (propertyTileState is PropertyTileStateWithNoHouse)
+        {
+            return 0;
+        }
+
+        if (monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this))
+        {
+            return 1;
+        }
+        return propertyTileState.GetLevel()+1;
+    }
     public override PurchasableFaceCard GetFaceCard()
     {
         return titleDeedFaceCard;
@@ -1955,6 +1986,15 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
         propertyTileState = propertyTileStateToSet;
     }
 
+    public override int GetLevel()
+    {
+        if (!IsOwned())
+        {
+            return -1;
+        }
+        
+        return GetLevel();
+    }
     public void UpgradeGood()
     {
         propertyTileState.Upgrade(this);
@@ -1966,7 +2006,7 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
 
     public bool CanBuildBeUpgraded()
     {
-        return propertyTileState.CanBuildBeUpgraded();
+        return monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this) && propertyTileState.CanBuildBeUpgraded();
     }
 
     public bool CanBuildBeDowngraded()

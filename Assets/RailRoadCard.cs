@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class RailRoadCard : PurchasableFaceCard
 {
-    private TitleValuePlayerPosition _railroadNameValue;
+    private BaseTextHandler _railroadNameValue;
     private TitleValuePlayerPosition _rentValueTitleValuePlayerPosition;
     private TitleValuePlayerPosition _rentWith2TrainsStationValueTitleValuePlayerPosition;
     private TitleValuePlayerPosition _rentWith3TrainsStationValueTitleValuePlayerPosition;
@@ -10,11 +10,11 @@ public class RailRoadCard : PurchasableFaceCard
     private TitleValuePlayerPosition _rentWith4TrainsStationValueTitleValuePlayerPosition;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    protected override void Init()
+    public override void OtherInit()
     {
-        base.Init();
+        base.OtherInit();
         _railroadNameValue =
-            ChildUtility.GetChildComponentByName<TitleValuePlayerPosition>(transform, "RailroadNameValue");
+            ChildUtility.GetChildComponentByName<BaseTextHandler>(transform, "RailroadNameValue");
 
         if (_railroadNameValue == null)
         {
@@ -57,9 +57,7 @@ public class RailRoadCard : PurchasableFaceCard
     }
     public override PurchasableCard Clone(PurchasableTile purchasableTile)
     {
-        RailRoadCard clone = ((RailRoadCard)Clone()).UpdateTile((RailroadTile)purchasableTile);
-        clone.HandlePurchase((RailroadTile)purchasableTile);
-        return clone;
+        return ((RailRoadCard)Clone()).UpdateTile((RailroadTile)purchasableTile);
     }
     public RailRoadCard UpdateTile(RailroadTile railroadTile)
     {

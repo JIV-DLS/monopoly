@@ -210,7 +210,7 @@ public class MonopolyPlayer
         if (CanPlay())
         {
             yield return HandlePlayerRollDice(rollDiceTimeout);
-            yield return HandlePlayBuyAction(userBuyTileTimeout);
+            yield return HandlePlayerBuyAction(userBuyTileTimeout);
         }else if (IsInPrison())
         {
             prison--;
@@ -228,7 +228,7 @@ public class MonopolyPlayer
         
     }
 
-    private IEnumerator HandlePlayBuyAction(float actionTimeout)
+    private IEnumerator HandlePlayerBuyAction(float actionTimeout)
     {
         _timer = 0f;
         if (tile is PurchasableTile purchasableTile)
@@ -259,6 +259,16 @@ public class MonopolyPlayer
                 }
                 yield return new WaitForSeconds(1.5f);
                 //PlayerContent.EnableBuyAction(tile.getPrice());
+            }else if (purchasableTile.IsOwnedBy(this))
+            {
+                _monopolyGameManager.gameCardBuy.ShowPurchasableTile(purchasableTile, this);
+                while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
+                {
+
+                    _timer += Time.deltaTime;
+                    _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
+                    yield return null; // Wait until the next frame
+                }
             }
         }
         else
