@@ -243,9 +243,9 @@ public class MonopolyPlayer
             
             if (tile.CanBeBought() && tile.getPrice()<=money)
             {
-                _monopolyGameManager.gameCardBuy.ShowPurchasableTile(purchasableTile, this);
+                _monopolyGameManager.gameCard.ShowPurchasableCard(purchasableTile, this);
                 // Wait for the player to perform an action or timeout
-                while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
+                while (_timer < actionTimeout && _monopolyGameManager.gameCard.gameObject.activeSelf)
                 {
 
                     _timer += Time.deltaTime;
@@ -265,8 +265,8 @@ public class MonopolyPlayer
                 //PlayerContent.EnableBuyAction(tile.getPrice());
             }else if (purchasableTile.IsOwnedBy(this))
             {
-                _monopolyGameManager.gameCardBuy.ShowPurchasableTile(purchasableTile, this);
-                while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
+                _monopolyGameManager.gameCard.ShowPurchasableCard(purchasableTile, this);
+                while (_timer < actionTimeout && _monopolyGameManager.gameCard.gameObject.activeSelf)
                 {
 
                     _timer += Time.deltaTime;
@@ -281,7 +281,7 @@ public class MonopolyPlayer
             yield return new WaitForSeconds(1.5f);
         }
 
-        _monopolyGameManager.gameCardBuy.Hide();
+        _monopolyGameManager.gameCard.Hide();
     }
 
     private IEnumerator HandlePlayerRollDice(float actionTimeout)
@@ -507,6 +507,11 @@ public class MonopolyPlayer
     {
         _monopolyGameManager.BuyPurchasableTileBy(this, purchasableTile);
     }
+
+    public void BuildOnPropertyTile(PropertyTile propertyTile)
+    {
+        _monopolyGameManager.BuildOnPropertyTile(propertyTile);
+    }
 }
 public class PlayerClickOnChanceCommunityFreeFromPrisonButton<T>:IClickableButtonHandler where T:SpecialCard
 {
@@ -525,11 +530,14 @@ public interface IGood
 {
     public int GetSellPrice();
     public int Sell();
+    public bool CanBeSelled();
 }
 public abstract class Good: IGood
 {
     // You can leave this method abstract or provide a default implementation.
     public abstract int GetSellPrice();
     public abstract int Sell();
+    public abstract bool CanBeSelled();
+
     public abstract string GetGoodName();
 }

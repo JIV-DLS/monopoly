@@ -4,12 +4,13 @@ using TMPro;
 using System;
 using System.Collections;
 using System.Linq;
+using UnityEngine.Serialization;
 
 public class MonopolyGameManager : MonoBehaviour
 {
     public CommunitiesCards communitiesCards{get;private set;}
     public ChancesCards chancesCards{get;private set;}
-    public GameCardBuy gameCardBuy;
+    public GameCardBuy gameCard;
     private PlayersHorizontalView _playersHorizontalView;
     private PlayerPieceOnBoardBuilder _playerPieceOnBoardBuilder;
     public List<MonopolyPlayer> monopolyPlayers;
@@ -913,6 +914,11 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
         return pourchasableTile.IsOwned()? board.GetAllGroupOfThisPropertyTile(pourchasableTile.GetTargetType()).All(
             _pourchasableTile=>_pourchasableTile.IsOwnedBy(pourchasableTile.GetOwner())): false;
     }
+
+    public void BuildOnPropertyTile(PropertyTile propertyTile)
+    {
+        propertyTile.BuildTileGood();
+    }
 }
 
 public class Dice
@@ -1409,6 +1415,11 @@ public abstract class TileGood : IGood
         return purchasableTile.Sell();
     }
 
+    public bool CanBeSelled()
+    {
+        return purchasableTile.CanCurrentTileGoodBeSelled();
+    }
+
     public string GetGoodName()
     {
         return goodName;
@@ -1497,6 +1508,11 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
         return GetSellPrice();
     }
 
+    public bool CanBeSelled()
+    {
+        return !isMortgaged;
+    }
+
     public string GetGoodName()
     {
         return $"Hypothèque sur {this}";
@@ -1514,6 +1530,25 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
         monopolyPlayer = null;
     }
 
+    public bool CanCurrentTileGoodBeSelled()
+    {
+        return HaveTilesGood();
+    }
+
+    public virtual bool HaveTilesGood()
+    {
+        return false;
+    }
+
+    public virtual bool CanBeUpgraded()
+    {
+        return false;
+    }
+
+    public virtual int GetUpgradePrice()
+    {
+        return -1;
+    }
 }
 public abstract class PublicServiceTile : PurchasableTile
 {
@@ -1950,6 +1985,10 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     public TitleDeedCard titleDeedFaceCard { get; private set; }
     public CardBehind titleDeedBehindCard { get; private set; }
 
+    public override bool HaveTilesGood()
+    {
+        return CanBuildBeDowngraded();
+    }
     public override int GetLevelOnTypeCount()
     {
         if (!monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this))
@@ -1986,13 +2025,38 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
         propertyTileState = propertyTileStateToSet;
     }
 
+    public override bool CanBeUpgraded()
+    {
+        return CanBuildBeUpgraded();
+    }
+    
+    public override int GetUpgradePrice()
+    {
+        switch (propertyTileState)
+        {
+            case PropertyTileStateWithNoHouse:
+            case PropertyTileStateWithOneHouse:
+            case PropertyTileStateWithTwoHouses:
+            case PropertyTileStateWithThreeHouses:
+                return houseCost;
+            case PropertyTileStateWithFourHouses:
+                return hotelCost;
+        }
+        throw new NotImplementedException();
+    }
     public void UpgradeGood()
     {
-        propertyTileState.Upgrade(this);
+        if (CanBuildBeUpgraded())
+        {
+            propertyTileState.Upgrade(this);
+        }
     }
     public void DowngradeGood()
     {
-        propertyTileState.Downgrade(this);
+        if (CanBuildBeDowngraded())
+        {
+            propertyTileState.Downgrade(this);
+        }
     }
 
     public bool CanBuildBeUpgraded()
@@ -2033,6 +2097,11 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     public int GetHotelNumber()
     {
         return propertyTileState.GetHotelNumber();
+    }
+
+    public void BuildTileGood()
+    {
+        UpgradeGood();
     }
 }
 
