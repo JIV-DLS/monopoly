@@ -1,22 +1,12 @@
 using System;
 using UnityEngine;
-public class BuildAction : IAction
+public class BuildAction : ActionOnCardLayout
 {
-    private readonly MonopolyPlayer _player;
-    private readonly PurchasableTile _tile;
-
-    public BuildAction(MonopolyPlayer player, PurchasableTile tile)
+    public BuildAction(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout) : base(player, tile, gameCardLayout)
     {
-        _player = player ?? throw new ArgumentNullException(nameof(player));
-        _tile = tile ?? throw new ArgumentNullException(nameof(tile));
     }
 
-    public void Execute()
-    {
-        Execute(_player, _tile);
-    }
-
-    public void Execute(MonopolyPlayer player = null, PurchasableTile tile = null)
+    public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         // Check if the player can build on the tile
         if (_tile.CanBeUpgraded() && _player.canBeChargedOf(_tile.GetUpgradePrice()) && _tile is PropertyTile propertyTile)
@@ -29,38 +19,32 @@ public class BuildAction : IAction
         }
     }
 
-    public void Cancel()
-    {
-        Debug.Log("Build action canceled.");
-    }
 }
-public class CancelBuildAction : IAction
+public class CancelBuildAction : ActionOnCardLayout
 {
-    public void Execute()
+    public CancelBuildAction(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout) : base(player, tile, gameCardLayout)
     {
-        Execute(null, null);
     }
 
-    public void Execute(MonopolyPlayer player = null, PurchasableTile tile = null)
+    public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         Debug.Log("Cancel build action executed.");
     }
 
-    public void Cancel()
-    {
-        Debug.Log("Cancel build action canceled.");
-    }
 }
 public class GameCardBuildActions : GameCardActionsBase
 {
-    protected override IAction CreatePrimaryAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile)
+
+    protected override IAction CreatePrimaryAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile,
+        GameCardLayout gameCardLayout)
     {
-        return new BuildAction(monopolyPlayer, purchasableTile);
+        return new BuildAction(monopolyPlayer, purchasableTile, gameCardLayout);
     }
 
-    protected override IAction CreateCancelAction()
+    protected override IAction CreateCancelAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile,
+        GameCardLayout gameCardLayout)
     {
-        return new CancelBuildAction();
+        return new CancelBuildAction(monopolyPlayer, purchasableTile, gameCardLayout);
     }
 
     protected override string GetPrimaryButtonText(PurchasableTile purchasableTile)

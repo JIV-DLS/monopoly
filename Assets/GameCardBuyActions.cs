@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 public interface IAction
 {
     void Execute();
-    void Execute(MonopolyPlayer player, PurchasableTile tile);
+    void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout);
     void Cancel();
 }
 public class ActionButtonHandler : IClickableButtonHandler
@@ -44,53 +44,58 @@ public abstract class PurchasableActionButton : IClickableButtonHandler
     public void OnClick()
     {
         Debug.Log("OnClick");
-        _action.Execute(_player, _tile);
+        _action.Execute(_player, _tile, null);
         OnClickAction();
     }
 }
 
-public class BuyAction : IAction
+public abstract class ActionOnCardLayout : IAction
 {
-    private readonly MonopolyPlayer _player;
-    private readonly PurchasableTile _tile;
+    protected readonly MonopolyPlayer _player;
+    protected readonly PurchasableTile _tile;
+    protected readonly GameCardLayout _gameCardLayout;
 
-    public BuyAction(MonopolyPlayer player, PurchasableTile tile)
+    public ActionOnCardLayout(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         _player = player ?? throw new ArgumentNullException(nameof(player));
         _tile = tile ?? throw new ArgumentNullException(nameof(tile));
+        _gameCardLayout = gameCardLayout ?? throw new ArgumentNullException(nameof(gameCardLayout));
     }
 
-    public void Execute()
+    public virtual void Execute()
     {
-        Execute(_player, _tile);
+        Execute(_player, _tile, _gameCardLayout);
     }
 
-    public void Execute(MonopolyPlayer player = null, PurchasableTile tile = null)
+    public abstract void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout);
+
+    public virtual void Cancel()
+    {
+        Debug.Log("Buy action canceled.") ;
+    }
+}
+public class BuyAction : ActionOnCardLayout
+{
+
+    public BuyAction(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout) : base(player, tile, gameCardLayout)
+    {
+    }
+
+    public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         _player.Buy(_tile);
     }
-
-    public void Cancel()
-    {
-        Debug.Log("Buy action canceled.");
-    }
 }
 
-public class CancelAction : IAction
+public class CancelAction : ActionOnCardLayout
 {
-    public void Execute()
+    public CancelAction(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout) : base(player, tile, gameCardLayout)
     {
-        Execute(null, null);
     }
 
-    public void Execute(MonopolyPlayer player, PurchasableTile tile)
+    public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         Debug.Log("Cancel action executed.");
-    }
-
-    public void Cancel()
-    {
-        Debug.Log("Cancel action canceled.");
     }
 }
 public class PurchasableButton : PurchasableActionButton
@@ -117,8 +122,8 @@ public abstract class GameCardActionsBase : MonoBehaviour
         _purchasableTile = purchasableTile;
 
         // Assign handlers dynamically using the wrapper
-        primaryButton.Handler = new ActionButtonHandler(CreatePrimaryAction(monopolyPlayer, purchasableTile));
-        cancelButton.Handler = new ActionButtonHandler(CreateCancelAction());
+        primaryButton.Handler = new ActionButtonHandler(CreatePrimaryAction(monopolyPlayer, purchasableTile, gameCardLayout));
+        cancelButton.Handler = new ActionButtonHandler(CreateCancelAction(monopolyPlayer, purchasableTile, gameCardLayout));
 
         // Set button text dynamically
         primaryButton.SetButtonText(GetPrimaryButtonText(purchasableTile));
@@ -132,21 +137,22 @@ public abstract class GameCardActionsBase : MonoBehaviour
     public void ShowPurchasableTile(PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer)
     {
         gameObject.SetActive(true);
+        ShowActions(purchasableTile, monopolyPlayer);
     }
-    protected abstract IAction CreatePrimaryAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile);
-    protected abstract IAction CreateCancelAction();
+    protected abstract IAction CreatePrimaryAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile, GameCardLayout gameCardLayout);
+    protected abstract IAction CreateCancelAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile, GameCardLayout gameCardLayout);
     protected abstract string GetPrimaryButtonText(PurchasableTile purchasableTile);
 }
 public class GameCardBuyActions : GameCardActionsBase
 {
-    protected override IAction CreatePrimaryAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile)
+    protected override IAction CreatePrimaryAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile, GameCardLayout gameCardLayout)
     {
-        return new BuyAction(monopolyPlayer, purchasableTile);
+        return new BuyAction(monopolyPlayer, purchasableTile, gameCardLayout);
     }
 
-    protected override IAction CreateCancelAction()
+    protected override IAction CreateCancelAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile, GameCardLayout gameCardLayout)
     {
-        return new CancelAction();
+        return new CancelAction(monopolyPlayer, purchasableTile, gameCardLayout);
     }
 
     protected override string GetPrimaryButtonText(PurchasableTile purchasableTile)

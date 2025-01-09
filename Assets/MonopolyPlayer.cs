@@ -261,9 +261,10 @@ public class MonopolyPlayer
                 {
                     _monopolyGameManager.SetGameTextEventsText($"{name} a décliné l'offre {tile.TileName}");
                 }
+                _monopolyGameManager.gameCardBuy.Hide();
                 yield return new WaitForSeconds(1.5f);
                 //PlayerContent.EnableBuyAction(tile.getPrice());
-            }else if (purchasableTile.IsOwnedBy(this))
+            }else if (purchasableTile.IsOwnedBy(this) && purchasableTile is PropertyTile propertyTile && propertyTile.CanBeUpgraded())
             {
                 _monopolyGameManager.gameCardBuild.ShowPurchasableCard(purchasableTile, this);
                 while (_timer < actionTimeout && _monopolyGameManager.gameCardBuild.gameObject.activeSelf)
@@ -273,6 +274,17 @@ public class MonopolyPlayer
                     _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decider {actionTimeout-_timer:0.00} seconde(s)");
                     yield return null; // Wait until the next frame
                 }
+                if (purchasableTile.IsOwnedBy(this))
+                {
+                    _monopolyGameManager.SetGameTextEventsText($"{name} a acquéris {tile.TileName}");
+                }
+                else
+                {
+                    _monopolyGameManager.SetGameTextEventsText($"{name} a décliné l'offre {tile.TileName}");
+                }
+                _monopolyGameManager.gameCardBuild.Hide();
+                yield return new WaitForSeconds(1.5f);
+                
             }
         }
         else
@@ -281,7 +293,6 @@ public class MonopolyPlayer
             yield return new WaitForSeconds(1.5f);
         }
 
-        _monopolyGameManager.gameCardBuy.Hide();
     }
 
     private IEnumerator HandlePlayerRollDice(float actionTimeout)
