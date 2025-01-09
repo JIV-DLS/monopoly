@@ -317,7 +317,12 @@ public class MonopolyPlayer
             }else if (purchasableTile.IsOwnedBy(this))
             {
                 if(purchasableTile is PropertyTile propertyTile){
-                    if (propertyTile.CanBeUpgraded())
+                    while (propertyTile.CanBeUpgraded())
+                    {
+                        BuildOnPropertyTile(propertyTile);
+                    }
+
+                    if (propertyTile.CanBeUpgraded() && CanBeChargedOf(propertyTile.GetUpgradePrice()))
                     {
                         PropertyTileState oldPropertyState = propertyTile.propertyTileState;
                         int oldCost = propertyTile.GetLevelCost();

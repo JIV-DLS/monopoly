@@ -2070,7 +2070,7 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     public bool CheckIfOwnerDeckGroupHasBuildAtLeastFourHouses()
     {
         return GetOwner().deck.GetAllGroupOfThisPropertyTile(GetTargetType()).All(propertyTile =>
-            ((PropertyTile)propertyTile).HaveFourHousesOrHotel()) && CanBuildBeUpgraded();
+            ((PropertyTile)propertyTile).HaveFourHousesOrHotel());
     }
     public bool HaveFourHousesOrHotel()
     {
@@ -2221,7 +2221,7 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     public bool CheckIfOwnerDeckGroupHasNoHotel()
     {
         return GetOwner().deck.GetAllGroupOfThisPropertyTile(GetTargetType()).All(propertyTile =>
-            ((PropertyTile)propertyTile).propertyTileState is PropertyTileStateWithOneHotel) && CanBuildBeUpgraded();
+            ((PropertyTile)propertyTile).propertyTileState is PropertyTileStateWithOneHotel);
     }
     public bool CheckIfOwnerDeckHasThisGroup()
     {
