@@ -376,8 +376,21 @@ public class MonopolyPlayer
             }
             else
             {
-                _monopolyGameManager.SetGameTextEventsText(
-                    $"{name} doit payer {purchasableTile.GetLevelCost()} à {purchasableTile.GetOwner().name}, ({purchasableTile.GetOwner().name} {purchasableTile.GetLevelText()}).");
+                if (purchasableTile.IsOwned())
+                {
+                    _monopolyGameManager.SetGameTextEventsText(
+                        $"{name} doit payer {purchasableTile.GetLevelCost()} à {purchasableTile.GetOwner().name}, ({purchasableTile.GetOwner().name} {purchasableTile.GetLevelText()}).");
+                }
+                else if(purchasableTile.IsMortgaged)
+                {
+                    _monopolyGameManager.SetGameTextEventsText(
+                        $"{purchasableTile.TileName} appartient à {purchasableTile.GetOwner().name}. Mais il a été hypothéqué.");
+                }
+                else
+                {
+                    _monopolyGameManager.SetGameTextEventsText(
+                        $"{purchasableTile.TileName} n'appartient à aucun joueur.");
+                }
                 yield return new WaitForSeconds(4f);
             }
         }
