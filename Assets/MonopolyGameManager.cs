@@ -816,12 +816,11 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
 
     public IEnumerator PutPlayerIntoPrison(MonopolyPlayer monopolyPlayer)
     {
-        yield return new WaitForSeconds(.5f);
-        /*yield return MoveAPlayerTo<PrisonOrVisitTile>(monopolyPlayer);
+        yield return MoveAPlayerTo<PrisonOrVisitTile>(monopolyPlayer);
         monopolyPlayer.GoInPrison();
         
         SetGameTextEventsText($"{monopolyPlayer} est partit en prison.");
-        yield return new WaitForSeconds(.5f);*/
+        yield return new WaitForSeconds(.5f);
     }
 
     private IEnumerator MoveAPlayerTo<T>(MonopolyPlayer monopolyPlayer) where T:BoardTile
@@ -1571,7 +1570,7 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
 
     public virtual string GetLevelText()
     {
-        return IsOwned()? $"vous possédéz {GetLevel() + 1} au total":"Unknwon";
+        return IsOwned()? $"vous possédez {GetLevel() + 1} au total":"Unknwon";
     }
 
 }
@@ -2351,22 +2350,22 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
     {
         
         AddRange(new List<ChanceCard>{
-            /*new AdvanceToUtilityCard(monopolyGameManager),
+            new AdvanceToUtilityCard(monopolyGameManager),
             new BankDividendCard(monopolyGameManager),
             new AdvanceToStationCardChance(monopolyGameManager),
             new SpeedingFineCard(monopolyGameManager),
             new RepairCostCard(monopolyGameManager),
             new AdvanceToStartCard(monopolyGameManager),
             new AdvanceToStartCard(monopolyGameManager),
-            new GetOutOfJailCard(monopolyGameManager),*/
+            new GetOutOfJailCard(monopolyGameManager),
             new AdvanceToRueDeLaPaixCard(monopolyGameManager),
-            /*new GoToJailCard(monopolyGameManager),
+            new GoToJailCard(monopolyGameManager),
             new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
             new AdvanceToGareMontparnasseCard(monopolyGameManager),
             new RealEstateLoanCard(monopolyGameManager),
             new MoveBackThreeSpacesCard(monopolyGameManager),
             new AdvanceToBoulevardDeLaVilletteCard(monopolyGameManager),
-            new ElectedChairmanCard(monopolyGameManager)*/
+            new ElectedChairmanCard(monopolyGameManager)
         });
         Shuffle();
     }
@@ -2382,7 +2381,7 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
     {
         
         AddRange(new List<CommunityCard>{
-            /*new PlaygroundDonationCard(monopolyGameManager),
+            new PlaygroundDonationCard(monopolyGameManager),
             new NeighborhoodPartyCard(monopolyGameManager),
             new BakeSaleCard(monopolyGameManager),
             new CharityCarWashCard(monopolyGameManager),
@@ -2397,8 +2396,8 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             new HospitalPlayCard(monopolyGameManager),
             new MarathonForHospitalCard(monopolyGameManager),
             new AdoptPuppyCard(monopolyGameManager),
-            new LoudMusicCard(monopolyGameManager),*/
-            //new HelpNeighborCard(monopolyGameManager),
+            new LoudMusicCard(monopolyGameManager),
+            new HelpNeighborCard(monopolyGameManager),
             new HousingImprovementCard(monopolyGameManager),
             // Ajoutez ici d'autres cartes Community...
         });

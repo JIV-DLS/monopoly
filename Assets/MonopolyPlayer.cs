@@ -287,14 +287,14 @@ public class MonopolyPlayer
         _timer = 0f;
         if (tile is PurchasableTile purchasableTile)
         {
-            foreach (PurchasableTile p in _monopolyGameManager.GetAllGroupOfThisPropertyTile(purchasableTile.GetTargetType()))
+            /*foreach (PurchasableTile p in _monopolyGameManager.GetAllGroupOfThisPropertyTile(purchasableTile.GetTargetType()))
             {
                 if (p.CanBeBought())
                 {
                     _monopolyGameManager.BuyPurchasableTileBy(this, p);
                 }
-            }
-            
+            }*/
+
             if (tile.CanBeBought() && tile.getPrice()<=money)
             {
                 _monopolyGameManager.gameCardBuy.ShowPurchasableCard(purchasableTile, this);
@@ -321,10 +321,10 @@ public class MonopolyPlayer
             }else if (purchasableTile.IsOwnedBy(this))
             {
                 if(purchasableTile is PropertyTile propertyTile){
-                    while (propertyTile.CanBeUpgraded())
+                    /*while (propertyTile.CanBeUpgraded())
                     {
                         BuildOnPropertyTile(propertyTile);
-                    }
+                    }*/
 
                     if (propertyTile.CanBeUpgraded() && CanBeChargedOf(propertyTile.GetUpgradePrice()))
                     {
@@ -396,7 +396,7 @@ public class MonopolyPlayer
 
         EnableRollDiceAction();
         // Wait for the player to perform an action or timeout
-        /*while (_timer < actionTimeout)
+        while (_timer < actionTimeout)
         {
             if (hasPerformedAction || _askedPlayFromButton)
             {
@@ -406,7 +406,7 @@ public class MonopolyPlayer
             
             _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez lancer les dés. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
             yield return null; // Wait until the next frame
-        }*/
+        }
 
         // If the player didn't perform the action, notify them
         if (!hasPerformedAction)
@@ -433,8 +433,8 @@ public class MonopolyPlayer
             _monopolyGameManager.SetGameTextEventsText("les dés ont été jetés automatiquement.");
         }
         
-        int rolledResult = 1;
-        /*foreach (int gottenResult in _monopolyGameManager.AskAPlayerToRollDices(this))
+        int rolledResult = 0;
+        foreach (int gottenResult in _monopolyGameManager.AskAPlayerToRollDices(this))
         {
             yield return null;
             rolledResult = gottenResult;
@@ -442,7 +442,7 @@ public class MonopolyPlayer
             {
                 break;
             }
-        }*/
+        }
 
         if (_askedPlayFromButton)
         {
@@ -482,7 +482,7 @@ public class MonopolyPlayer
 
     public void HaveWon(int won)
     {
-        money = 99999;
+        money += won;
         _playerSummaryButton.Refresh();
     }
 
