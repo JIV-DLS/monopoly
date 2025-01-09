@@ -4,77 +4,137 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.Tilemaps; // Ensure this is included for LINQ methods
-
+using UnityEngine.Tilemaps;
+using Object = System.Object; // Ensure this is included for LINQ methods
 
 public class MonopolyPlayerDeck
 {
-    private Dictionary<int, PurchasableTile> _purchasableTiles = new Dictionary<int, PurchasableTile>();
+    private Dictionary<Type, Dictionary<int, PurchasableTile>> _purchasableTiles = new Dictionary<Type, Dictionary<int, PurchasableTile>>();
 
-    // Add any object of type T where T inherits from Mother
-    public void Add<T>(int key, T value) where T : PurchasableTile
+    // Add any object of type T where T inherits from PurchasableTile
+    public void Add<T>(T value) where T : PurchasableTile
     {
-        if (!_purchasableTiles.ContainsKey(key))
+        var targetType = value.GetTargetType();
+        var groupIndex = value.groupIndex;
+
+        if (!_purchasableTiles.ContainsKey(targetType))
         {
-            _purchasableTiles.Add(key, value);
-            Console.WriteLine($"Added {typeof(T).Name} with key {key}");
+            _purchasableTiles[targetType] = new Dictionary<int, PurchasableTile>();
+        }
+
+        if (_purchasableTiles[targetType].ContainsKey(groupIndex))
+        {
+            Console.WriteLine($"A {typeof(T).Name} with group index {groupIndex} already exists in the {targetType.Name} group.");
+            return;
+        }
+
+        _purchasableTiles[targetType][groupIndex] = value;
+        Console.WriteLine($"Added {typeof(T).Name} with group index {groupIndex} to target type {targetType.Name}.");
+    }
+
+    public bool RemoveByGroupAtIndex(Type targetType, int groupIndex)
+    {
+        if (!typeof(PurchasableTile).IsAssignableFrom(targetType))
+        {
+            throw new ArgumentException($"Type {targetType} must inherit from PurchasableTile", nameof(targetType));
+        }
+
+        // Use reflection to invoke the method dynamically
+        var method = typeof(MonopolyPlayerDeck).GetMethod("Remove")?.MakeGenericMethod(targetType);
+        if (method != null)
+        {
+            return (bool)method.Invoke(this, new Object[] { groupIndex });
         }
         else
         {
-            Console.WriteLine($"{typeof(T).Name} with key {key} already exists.");
+            throw new ArgumentException("Remove not found");
         }
+        
     }
-
-    // Remove an object by key
-    public bool RemoveByKey(int key)
+    // Remove an object by group index
+    public bool Remove<T>(int groupIndex) where T : PurchasableTile
     {
-        if (_purchasableTiles.ContainsKey(key))
+        var targetType = typeof(T);
+
+        if (_purchasableTiles.ContainsKey(targetType) && _purchasableTiles[targetType].ContainsKey(groupIndex))
         {
-            _purchasableTiles.Remove(key);
-            Console.WriteLine($"Removed object with key {key}");
+            _purchasableTiles[targetType].Remove(groupIndex);
+            Console.WriteLine($"Removed {typeof(T).Name} with group index {groupIndex} from {targetType.Name} group.");
             return true;
         }
+
         return false;
     }
 
-    // Remove an object by reference
-    public bool RemoveObject<T>(T value) where T : PurchasableTile
+    // Get an object by group index
+    public T Get<T>(int groupIndex) where T : PurchasableTile
     {
-        var key = FindKey<T>(value);
-        if (key.HasValue)
-        {
-            _purchasableTiles.Remove(key.Value);
-            Console.WriteLine($"Removed {typeof(T).Name} object: {value}");
-            return true;
-        }
-        return false;
-    }
+        var targetType = typeof(T);
 
-    // Get an object by key
-    public T Get<T>(int key) where T : PurchasableTile
-    {
-        if (_purchasableTiles.ContainsKey(key) && _purchasableTiles[key] is T)
+        if (_purchasableTiles.ContainsKey(targetType) && _purchasableTiles[targetType].ContainsKey(groupIndex))
         {
-            return (T)_purchasableTiles[key];
+            return (T)_purchasableTiles[targetType][groupIndex];
         }
+
         return null;
     }
 
-    // Display all entries
+    // Display all entries grouped by type
     public void Display()
     {
-        foreach (var item in _purchasableTiles)
+        foreach (var group in _purchasableTiles)
         {
-            Console.WriteLine($"Key: {item.Key}, Type: {item.Value.GetType().Name}");
+            Console.WriteLine($"Type: {group.Key.Name}");
+            foreach (var item in group.Value)
+            {
+                Console.WriteLine($"    Group Index: {item.Key}, Tile: {item.Value}");
+            }
         }
     }
 
-    // Get the count of objects of a specific type T
+    // Get all objects of a specific type
+    public IEnumerable<T> GetAllOfType<T>() where T : PurchasableTile
+    {
+        var targetType = typeof(T);
+
+        if (_purchasableTiles.ContainsKey(targetType))
+        {
+            return _purchasableTiles[targetType].Values.OfType<T>();
+        }
+
+        return Enumerable.Empty<T>();
+    }
+
+    // Get the count of objects of a specific type
     public int GetCountOfType<T>() where T : PurchasableTile
     {
-        return _purchasableTiles.Values.Count(value => value is T);
+        var targetType = typeof(T);
+
+        return _purchasableTiles.ContainsKey(targetType) ? _purchasableTiles[targetType].Count : 0;
     }
-    
+
+    // Check if a specific type has at least one non-mortgaged card
+    public bool HaveAtLeastOneNotMortgagedCard()
+    {
+        return GetAllTiles().Any(tile => !tile.IsMortgaged);
+    }
+
+    // Get the smallest good to sell across all groups
+    public IGood GetSmallestGoodToSell()
+    {
+        return _purchasableTiles.Values
+            .SelectMany(group => group.Values)
+            .Select(tile => tile.GetMinimumGoodToSell())
+            .Where(good => good != null)
+            .OrderBy(good => good.GetSellPrice())
+            .FirstOrDefault();
+    }
+
+    // Access the entire collection (read-only)
+    public IReadOnlyDictionary<Type, Dictionary<int, PurchasableTile>> GetCollection()
+    {
+        return _purchasableTiles;
+    }
     public IEnumerable<PurchasableTile> GetAllGroupOfThisPropertyTile(Type targetType)
     {
         if (!typeof(PurchasableTile).IsAssignableFrom(targetType))
@@ -94,53 +154,18 @@ public class MonopolyPlayerDeck
         }
         
     }
-    
-    public int GetCountOfType(Type targetType)
+    // Get an array of all PurchasableTile objects sorted by their TileIndex
+    public PurchasableTile[] GetAllTilesSortedByTileIndex()
     {
-        return GetAllGroupOfThisPropertyTile(targetType).ToList().Count;
-    }
-    // Get the count of objects of a specific type T
-    public IEnumerable<T> GetAllOfType<T>() where T : PurchasableTile
-    {
-        return _purchasableTiles.Values.OfType<T>();
+        return GetAllTiles() // Flatten all tiles into a single collection
+            .OrderBy(tile => tile.GetTileIndex()) // Sort by TileIndex
+            .ToArray(); // Convert to an array
     }
 
-    // Helper to find the key of an object
-    private int? FindKey<T>(T value) where T : PurchasableTile
+    public IEnumerable<PurchasableTile> GetAllTiles()
     {
-        foreach (var item in _purchasableTiles)
-        {
-            if (item.Value is T && EqualityComparer<T>.Default.Equals((T)item.Value, value))
-            {
-                return item.Key;
-            }
-        }
-        return null;
-    }
-
-    public bool HaveAtLeastOneNotMorgagedCard()
-    {
-        return _purchasableTiles.Values.Any(tile => !tile.isMortgaged);
-    }
-
-    public IGood GetSmallestGoodToSell()
-    {
-        // Transform the dictionary into a collection of prices
-        return _purchasableTiles
-            .Select(tile => tile.Value.GetMinimumGoodToSell())  // Get the price from each tile
-            .Where(good=>good!=null).OrderBy<IGood, object>(good => good.GetSellPrice())                      // Sort by price
-            .FirstOrDefault();  
-        /*
-         return _purchasableTiles
-            .OrderBy(tile => tile.Value.GetSmallestGood())  // Sort by the price
-            .FirstOrDefault().Value.GetSmallestGood();  // Get the first (smallest) one
-            */
-    }
-    
-    // Access the collection (read-only)
-    public IReadOnlyList<PurchasableTile> GetCollection()
-    {
-        return _purchasableTiles.Values.ToList();
+        return _purchasableTiles.Values
+            .SelectMany(group => group.Values);
     }
 }
 public class MonopolyPlayer
@@ -474,7 +499,7 @@ public class MonopolyPlayer
 
     private bool HavePurchasedTiles()
     {
-        return deck.HaveAtLeastOneNotMorgagedCard();
+        return deck.HaveAtLeastOneNotMortgagedCard();
     }
 
     public int GetAllHousesNumber()
