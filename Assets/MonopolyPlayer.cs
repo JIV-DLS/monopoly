@@ -75,7 +75,7 @@ public class MonopolyPlayerDeck
         return _purchasableTiles.Values.Count(value => value is T);
     }
     
-    public PurchasableTile[] GetAllGroupOfThisPropertyTile(Type targetType)
+    public IEnumerable<PurchasableTile> GetAllGroupOfThisPropertyTile(Type targetType)
     {
         if (!typeof(PurchasableTile).IsAssignableFrom(targetType))
         {
@@ -83,21 +83,21 @@ public class MonopolyPlayerDeck
         }
 
         // Use reflection to invoke the method dynamically
-        var method = typeof(Board).GetMethod("GetTilesOfType")?.MakeGenericMethod(targetType);
+        var method = typeof(MonopolyPlayerDeck).GetMethod("GetAllOfType")?.MakeGenericMethod(targetType);
         if (method != null)
         {
-            return (PurchasableTile[])method.Invoke(this, null);
+            return (IEnumerable<PurchasableTile>)method.Invoke(this, null);
         }
         else
         {
-            throw new ArgumentException("GetTilesOfType not found");
+            throw new ArgumentException("GetAllOfType not found");
         }
         
     }
     
     public int GetCountOfType(Type targetType)
     {
-        return GetAllGroupOfThisPropertyTile(targetType).Length;
+        return GetAllGroupOfThisPropertyTile(targetType).ToList().Count;
     }
     // Get the count of objects of a specific type T
     public IEnumerable<T> GetAllOfType<T>() where T : PurchasableTile
@@ -325,25 +325,25 @@ public class MonopolyPlayer
                         
                         _monopolyGameManager.SetGameTextEventsText(
                             $"{name} ne peut plus faire de travaux sur {tile.TileName}.");
-                        yield return new WaitForSeconds(1.5f);
+                        yield return new WaitForSeconds(3f);
                     }
                 }
                 
                 _monopolyGameManager.SetGameTextEventsText(
                     $"{name}, chaque joueur passant sur {tile.TileName} devra vous payer {purchasableTile.GetLevelCost()}, vous {purchasableTile.GetLevelText()}.");
-                yield return new WaitForSeconds(1.5f);
+                yield return new WaitForSeconds(4f);
             }
             else
             {
                 _monopolyGameManager.SetGameTextEventsText(
                     $"{name} doit payer {purchasableTile.GetLevelCost()} à {purchasableTile.GetOwner().name}, ({purchasableTile.GetOwner().name} {purchasableTile.GetLevelText()}).");
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(4f);
             }
         }
         else
         {
             _monopolyGameManager.GameTextEvents.SetText($"{name} ne peut effectuer aucune action");
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(4f);
         }
 
     }
