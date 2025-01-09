@@ -181,7 +181,7 @@ public class MonopolyPlayer
         name = playerName;
         _playerSummaryButton = playerSummaryButton;
         _playerSummaryButton.setPlayer(this);
-        _playerElementOnMap = playerElementOnMap;
+        this.playerElementOnMap = playerElementOnMap;
         _throwDices = throwDices;
         _communityFreeFromPrisonButton = communityFreeFromPrisonButton;
         _communityFreeFromPrisonButton.Init();
@@ -196,14 +196,14 @@ public class MonopolyPlayer
     }
 
     public MonopolyPlayerDeck deck{get; private set;}
-    private ThrowDices _throwDices;
-    private FreeFromPrisonButton _communityFreeFromPrisonButton;
-    private FreeFromPrisonButton _chanceFreeFromPrisonButton;
+    private readonly ThrowDices _throwDices;
+    private readonly FreeFromPrisonButton _communityFreeFromPrisonButton;
+    private readonly FreeFromPrisonButton _chanceFreeFromPrisonButton;
     public List<GetOutOfJailCard> getOutOfJailChanceCards{get; private set;}
     public List<AdoptPuppyCard> adoptPuppyCards{get; private set;}
     public string name{get; private set;}
-    private PlayerSummaryButton _playerSummaryButton;
-    public PlayerElementOnMap _playerElementOnMap{get; private set;}
+    private readonly PlayerSummaryButton _playerSummaryButton;
+    public PlayerElementOnMap playerElementOnMap{get; private set;}
     public int money { get; private set; } = 0;
     public PlayerContent PlayerContent;
     private MonopolyGameManager _monopolyGameManager;
@@ -234,8 +234,8 @@ public class MonopolyPlayer
     {
         tile = tileToLandOn;
         // Debug.Log($"assigning tile {tile.tileGameObject}");
-        _playerElementOnMap.transform.position = new Vector3(tile.getTransform().position.x,
-            _playerElementOnMap.transform.position.y, tile.getTransform().position.z);
+        playerElementOnMap.transform.position = new Vector3(tile.getTransform().position.x,
+            playerElementOnMap.transform.position.y, tile.getTransform().position.z);
         // PlayerContent.UpdateTile(tile);
 
     }
@@ -331,10 +331,10 @@ public class MonopolyPlayer
                             yield return null; // Wait until the next frame
                         }
 
-                        if (oldPropertyState.CompareTo(propertyTile.propertyTileState) > 0)
+                        if (oldPropertyState.CompareTo(propertyTile.propertyTileState) < 0)
                         {
                             _monopolyGameManager.SetGameTextEventsText(
-                                $"{name} a construit un {propertyTile.propertyTileState.GetName()} sur {tile.TileName}. Le prix de passage passe de {oldCost}M à {propertyTile.GetLevelCost()}");
+                                $"{name} a construit un {propertyTile.propertyTileState.GetName()} sur {tile.TileName}. Le prix de passage passe de {oldCost}M à {propertyTile.GetLevelCost()}M");
                         }
                         else
                         {
@@ -347,15 +347,22 @@ public class MonopolyPlayer
                     }
                     else
                     {
-                        
-                        _monopolyGameManager.SetGameTextEventsText(
-                            $"{name} ne peut plus faire de travaux sur {tile.TileName}.");
+                        if (!propertyTile.CheckIfOwnerDeckHasThisGroup())
+                        {
+                            _monopolyGameManager.SetGameTextEventsText(
+                                $"{name} ne peut pas faire de travaux sur {tile.TileName}. {propertyTile.GetLevelText()}");
+                        }
+                        else
+                        {
+                            _monopolyGameManager.SetGameTextEventsText(
+                                $"{name} ne peut plus faire de travaux sur {tile.TileName}.");
+                        }
                         yield return new WaitForSeconds(3f);
                     }
                 }
                 
                 _monopolyGameManager.SetGameTextEventsText(
-                    $"{name}, chaque joueur passant sur {tile.TileName} devra vous payer {purchasableTile.GetLevelCost()}, vous {purchasableTile.GetLevelText()}.");
+                    $"{name}, chaque joueur passant sur {tile.TileName} devra vous payer {purchasableTile.GetLevelCost()}, {purchasableTile.GetLevelText()}.");
                 yield return new WaitForSeconds(4f);
             }
             else
@@ -380,7 +387,7 @@ public class MonopolyPlayer
 
         EnableRollDiceAction();
         // Wait for the player to perform an action or timeout
-        while (_timer < actionTimeout)
+        /*while (_timer < actionTimeout)
         {
             if (hasPerformedAction || _askedPlayFromButton)
             {
@@ -390,7 +397,7 @@ public class MonopolyPlayer
             
             _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez lancer les dés. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
             yield return null; // Wait until the next frame
-        }
+        }*/
 
         // If the player didn't perform the action, notify them
         if (!hasPerformedAction)
@@ -452,7 +459,7 @@ public class MonopolyPlayer
         _throwDices.SetButtonInteractable(true);
     }
 
-    public bool canBeChargedOf(int dueAmount)
+    public bool CanBeChargedOf(int dueAmount)
     {
         return money >= dueAmount;
     }
@@ -472,7 +479,7 @@ public class MonopolyPlayer
 
     public IEnumerator GatherMoneyToReach(int chargedOf)
     {
-        while (!canBeChargedOf(chargedOf) && HavePurchasedTiles() && CanContinuePlaying())
+        while (!CanBeChargedOf(chargedOf) && HavePurchasedTiles() && CanContinuePlaying())
         {
             IGood good = deck.GetSmallestGoodToSell();
             if (good != null)
@@ -599,7 +606,7 @@ public class MonopolyPlayer
 
     public void BuildOnPropertyTile(PropertyTile propertyTile)
     {
-        _monopolyGameManager.BuildOnPropertyTile(propertyTile);
+        _monopolyGameManager.BuildOnPropertyTile(propertyTile, this);
     }
 }
 public class PlayerClickOnChanceCommunityFreeFromPrisonButton<T>:IClickableButtonHandler where T:SpecialCard

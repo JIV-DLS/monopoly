@@ -61,10 +61,10 @@ public class PublicServiceCard : PurchasableFaceCard
         switch (purchasableTileLevel.GetLevel())
         {
             case 0:
-                _haveOneValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _haveOneValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
             case 1:
-                _haveTwoValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _haveTwoValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
         }
     }

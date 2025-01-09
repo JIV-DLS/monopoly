@@ -714,7 +714,7 @@ public class MonopolyGameManager : MonoBehaviour
     }
 public IEnumerator HandlePayment(MonopolyPlayer payer, MonopolyPlayer receiver, int dueAmount, bool isBankPayment)
 {
-    if (payer.CanContinuePlaying() && payer.canBeChargedOf(dueAmount))
+    if (payer.CanContinuePlaying() && payer.CanBeChargedOf(dueAmount))
     {
         ProcessPayment(payer, receiver, dueAmount, isBankPayment);
     }
@@ -896,7 +896,7 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
     {
         Debug.Assert(purchasableTile != null, nameof(purchasableTile) + " != null");
         Debug.Assert(monopolyPlayer != null, nameof(monopolyPlayer) + " != null");
-        Debug.Assert(monopolyPlayer.canBeChargedOf(purchasableTile.getPrice()));
+        Debug.Assert(monopolyPlayer.CanBeChargedOf(purchasableTile.getPrice()));
         monopolyPlayer.ChargedOf(purchasableTile.getPrice());
         purchasableTile.AssignOwner(monopolyPlayer);
         SetGameTextEventsText($"{monopolyPlayer.name} bought a purchasable {purchasableTile.TileName}.");
@@ -917,8 +917,10 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
             _pourchasableTile=>_pourchasableTile.IsOwnedBy(pourchasableTile.GetOwner())): false;
     }
 
-    public void BuildOnPropertyTile(PropertyTile propertyTile)
+    public void BuildOnPropertyTile(PropertyTile propertyTile, MonopolyPlayer monopolyPlayer)
     {
+        Debug.Assert(monopolyPlayer.CanBeChargedOf(propertyTile.GetUpgradePrice()), $"{monopolyPlayer} can not be charged of {propertyTile.GetUpgradePrice()}. It only have {monopolyPlayer.money}.");
+        monopolyPlayer.ChargedOf(propertyTile.GetUpgradePrice());
         propertyTile.BuildTileGood();
     }
 }
@@ -1533,6 +1535,7 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
     {
         Debug.Assert(CanBeBought()||newOwner==monopolyPlayer, $"You can't assign owner to {this} tile");
         monopolyPlayer = newOwner;
+        monopolyPlayer.deck.Add(this);
     }
 
     public void RemoveOwner()
@@ -1684,11 +1687,11 @@ public interface IPurchasableTileLevel
 }
 public abstract class PropertyTileState:IPropertyTileActionsPossibilityState, IPurchasableTileLevel
 {
-    private MonopolyPlayer _owner;
+    protected readonly PropertyTile PropertyTile;
 
-    protected PropertyTileState(MonopolyPlayer owner)
+    protected PropertyTileState(PropertyTile propertyTile)
     {
-        _owner = owner;
+        PropertyTile = propertyTile;
     }
 
     public int CompareTo(PropertyTileState other)
@@ -1720,17 +1723,16 @@ public abstract class PropertyTileState:IPropertyTileActionsPossibilityState, IP
     public abstract bool CanBuildBeDowngraded();
 
     public abstract int GetLevel();
-
     public MonopolyPlayer GetOwner()
     {
-        return _owner;
+        return PropertyTile.GetOwner();
     }
 
     public abstract string GetName();
 }
 public abstract class PropertyTileStateCanBuildHouse : PropertyTileState
 {
-    protected PropertyTileStateCanBuildHouse(MonopolyPlayer owner) : base(owner)
+    protected PropertyTileStateCanBuildHouse(PropertyTile propertyTile) : base(propertyTile)
     {
     }
 
@@ -1760,7 +1762,7 @@ public abstract class PropertyTileStateCanBuildHouse : PropertyTileState
 }
 public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
 {
-    public PropertyTileStateWithNoHouse(MonopolyPlayer owner) : base(owner)
+    public PropertyTileStateWithNoHouse(PropertyTile propertyTile) : base(propertyTile)
     {
     }
 
@@ -1768,7 +1770,11 @@ public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
     {
         return 0;
     }
-    public virtual bool CanBuildBeDowngraded()
+    public override bool CanBuildBeUpgraded()
+    {
+        return PropertyTile.CheckIfOwnerDeckHasThisGroup();
+    }
+    public override bool CanBuildBeDowngraded()
     {
         return false;
     }
@@ -1776,7 +1782,7 @@ public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
 
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse(PropertyTile));
     }
 
     public override void Downgrade(IPropertyTileStateHolder holder)
@@ -1786,7 +1792,7 @@ public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
 }
 public class PropertyTileStateWithOneHouse : PropertyTileStateCanBuildHouse
 {
-    public PropertyTileStateWithOneHouse(MonopolyPlayer owner) : base(owner)
+    public PropertyTileStateWithOneHouse(PropertyTile propertyTile) : base(propertyTile)
     {
     }
 
@@ -1796,17 +1802,17 @@ public class PropertyTileStateWithOneHouse : PropertyTileStateCanBuildHouse
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses(PropertyTile));
     }
     
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithNoHouse(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithNoHouse(PropertyTile));
     }
 }
 public class PropertyTileStateWithTwoHouses : PropertyTileStateCanBuildHouse
 {
-    public PropertyTileStateWithTwoHouses(MonopolyPlayer owner) : base(owner)
+    public PropertyTileStateWithTwoHouses(PropertyTile propertyTile) : base(propertyTile)
     {
     }
 
@@ -1816,17 +1822,17 @@ public class PropertyTileStateWithTwoHouses : PropertyTileStateCanBuildHouse
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses(PropertyTile));
     }
     
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithOneHouse(PropertyTile));
     }
 }
 public class PropertyTileStateWithThreeHouses : PropertyTileStateCanBuildHouse
 {
-    public PropertyTileStateWithThreeHouses(MonopolyPlayer owner) : base(owner)
+    public PropertyTileStateWithThreeHouses(PropertyTile propertyTile) : base(propertyTile)
     {
     }
 
@@ -1836,36 +1842,44 @@ public class PropertyTileStateWithThreeHouses : PropertyTileStateCanBuildHouse
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses(PropertyTile));
     }
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithTwoHouses(PropertyTile));
     }
 }
 public class PropertyTileStateWithFourHouses : PropertyTileStateCanBuildHouse
 {
-    public PropertyTileStateWithFourHouses(MonopolyPlayer owner) : base(owner)
+    public PropertyTileStateWithFourHouses(PropertyTile propertyTile) : base(propertyTile)
     {
     }
 
+    public override bool CanBuildBeUpgraded()
+    {
+        return PropertyTile.CheckIfOwnerDeckGroupHasBuildAtLeastFourHouses();
+    }
+    public override bool CanBuildBeDowngraded()
+    {
+        return PropertyTile.CheckIfOwnerDeckGroupHasNoHotel();
+    }
     public override int GetHousesNumber()
     {
         return 4;
     }
     public override void Upgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithOneHotel(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithOneHotel(PropertyTile));
     }
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithThreeHouses(PropertyTile));
     }
 }
 
 public class PropertyTileStateWithOneHotel : PropertyTileState
 {
-    public PropertyTileStateWithOneHotel(MonopolyPlayer owner) : base(owner)
+    public PropertyTileStateWithOneHotel(PropertyTile propertyTile) : base(propertyTile)
     {
     }
 
@@ -1884,7 +1898,7 @@ public class PropertyTileStateWithOneHotel : PropertyTileState
     }
     public override void Downgrade(IPropertyTileStateHolder holder)
     {
-        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses(GetOwner()));
+        holder.SetPropertyTileState(new PropertyTileStateWithFourHouses(PropertyTile));
     }
 
     public override int GetHousesNumber()
@@ -2053,7 +2067,15 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
 
         return propertyTileState.GetLevel()+1;
     }
-
+    public bool CheckIfOwnerDeckGroupHasBuildAtLeastFourHouses()
+    {
+        return GetOwner().deck.GetAllGroupOfThisPropertyTile(GetTargetType()).All(propertyTile =>
+            ((PropertyTile)propertyTile).HaveFourHousesOrHotel()) && CanBuildBeUpgraded();
+    }
+    public bool HaveFourHousesOrHotel()
+    {
+        return propertyTileState is PropertyTileStateWithFourHouses or PropertyTileStateWithOneHotel;
+    }
     private bool DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer()
     {
         return monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this);
@@ -2077,7 +2099,7 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
         this.color = color;
         this.titleDeedFaceCard = (TitleDeedCard)titleDeedFaceCard.Clone(this);
         this.titleDeedBehindCard = (CardBehind)titleDeedBehindCard.Clone(this);
-        propertyTileState = new PropertyTileStateWithNoHouse(GetOwner());
+        propertyTileState = new PropertyTileStateWithNoHouse(this);
         owner = null; // No owner initially
     }
 
@@ -2122,7 +2144,7 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
 
     public bool CanBuildBeUpgraded()
     {
-        return monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this) && propertyTileState.CanBuildBeUpgraded();
+        return propertyTileState.CanBuildBeUpgraded();
     }
 
     public bool CanBuildBeDowngraded()
@@ -2169,17 +2191,41 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     {
         if (!IsOwned())
         {
-            return "Unknown";
+            return "Unknown.";
         }
         var allGroupPossession = string.Join(", ", GetOwner().deck.GetAllGroupOfThisPropertyTile(GetTargetType()).Select(purchasableTile => purchasableTile.TileName));
         if (DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer())
         {
-            return $"Vous ne possédez tout le groupe. Vous possédez {allGroupPossession}";
+            switch (propertyTileState)
+            {
+                case PropertyTileStateWithNoHouse:
+                    return $"Vous possédez tout le groupe. Vous possédez {allGroupPossession}.";
+                case PropertyTileStateWithOneHotel:
+                    return $"Vous possédez {propertyTileState.GetHotelNumber()} hotel.";
+                case PropertyTileStateWithOneHouse:
+                case PropertyTileStateWithTwoHouses:
+                case PropertyTileStateWithThreeHouses:
+                case PropertyTileStateWithFourHouses:
+                    return $"Vous possédez {propertyTileState.GetHousesNumber()} maison(s).";
+            }
+            
         }
         else
         {
-            return $"Vous ne possédez pas tout le groupe. Vous possédez {allGroupPossession}";
+            return $"Vous ne possédez pas tout le groupe. Vous possédez {allGroupPossession}.";
         }
+
+        throw new NotImplementedException();
+    }
+
+    public bool CheckIfOwnerDeckGroupHasNoHotel()
+    {
+        return GetOwner().deck.GetAllGroupOfThisPropertyTile(GetTargetType()).All(propertyTile =>
+            ((PropertyTile)propertyTile).propertyTileState is PropertyTileStateWithOneHotel) && CanBuildBeUpgraded();
+    }
+    public bool CheckIfOwnerDeckHasThisGroup()
+    {
+        return monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this); 
     }
 }
 
@@ -2305,22 +2351,22 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
     {
         
         AddRange(new List<ChanceCard>{
-            new AdvanceToUtilityCard(monopolyGameManager),
+            /*new AdvanceToUtilityCard(monopolyGameManager),
             new BankDividendCard(monopolyGameManager),
             new AdvanceToStationCardChance(monopolyGameManager),
             new SpeedingFineCard(monopolyGameManager),
             new RepairCostCard(monopolyGameManager),
             new AdvanceToStartCard(monopolyGameManager),
             new AdvanceToStartCard(monopolyGameManager),
-            new GetOutOfJailCard(monopolyGameManager),
+            new GetOutOfJailCard(monopolyGameManager),*/
             new AdvanceToRueDeLaPaixCard(monopolyGameManager),
-            new GoToJailCard(monopolyGameManager),
+            /*new GoToJailCard(monopolyGameManager),
             new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
             new AdvanceToGareMontparnasseCard(monopolyGameManager),
             new RealEstateLoanCard(monopolyGameManager),
             new MoveBackThreeSpacesCard(monopolyGameManager),
             new AdvanceToBoulevardDeLaVilletteCard(monopolyGameManager),
-            new ElectedChairmanCard(monopolyGameManager)
+            new ElectedChairmanCard(monopolyGameManager)*/
         });
         Shuffle();
     }
@@ -2336,7 +2382,7 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
     {
         
         AddRange(new List<CommunityCard>{
-            new PlaygroundDonationCard(monopolyGameManager),
+            /*new PlaygroundDonationCard(monopolyGameManager),
             new NeighborhoodPartyCard(monopolyGameManager),
             new BakeSaleCard(monopolyGameManager),
             new HousingImprovementCard(monopolyGameManager),
@@ -2352,7 +2398,7 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             new HospitalPlayCard(monopolyGameManager),
             new MarathonForHospitalCard(monopolyGameManager),
             new AdoptPuppyCard(monopolyGameManager),
-            new LoudMusicCard(monopolyGameManager),
+            new LoudMusicCard(monopolyGameManager),*/
             new HelpNeighborCard(monopolyGameManager),
             // Ajoutez ici d'autres cartes Community...
         });

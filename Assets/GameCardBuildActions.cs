@@ -9,7 +9,7 @@ public class BuildAction : ActionOnCardLayout
     public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         // Check if the player can build on the tile
-        if (_tile.CanBeUpgraded() && _player.canBeChargedOf(_tile.GetUpgradePrice()) && _tile is PropertyTile propertyTile)
+        if (_tile.CanBeUpgraded() && _player.CanBeChargedOf(_tile.GetUpgradePrice()) && _tile is PropertyTile propertyTile)
         {
             _player.BuildOnPropertyTile(propertyTile);
         }

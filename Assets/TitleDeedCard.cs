@@ -111,25 +111,25 @@ public class TitleDeedCard : PurchasableFaceCard
         switch (purchasableTileLevel.GetLevel())
         {
             case 0:
-                _rentValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
             case 1:
-                _rentFullGroupValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentFullGroupValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
             case 2:
-                _rentWith1HotelValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith1HouseValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
             case 3:
-                _rentWith2HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith2HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
             case 4:
-                _rentWith3HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith3HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
             case 5:
-                _rentWith4HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith4HousesValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
             case 6:
-                _rentWith1HotelValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner()._playerElementOnMap.GetSprite());
+                _rentWith1HotelValueTitleValuePlayerPosition.SetPlayerPosition(purchasableTileLevel.GetOwner().playerElementOnMap.GetSprite());
                 break;
         }
 
