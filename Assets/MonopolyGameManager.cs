@@ -1550,6 +1550,16 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
     {
         return -1;
     }
+
+    public int GetLevelCost()
+    {
+        return costs[GetLevel()];
+    }
+
+    public virtual string GetLevelText()
+    {
+        return IsOwned()? $"vous possédéz {GetLevel() + 1} au total":"Unknwon";
+    }
 }
 public abstract class PublicServiceTile : PurchasableTile
 {
@@ -1669,6 +1679,27 @@ public abstract class PropertyTileState:IPropertyTileActionsPossibilityState, IP
     {
         _owner = owner;
     }
+
+    public int CompareTo(PropertyTileState other)
+    {
+        if (other == null)
+        {
+            return 1;
+        }
+        int currentLevel = GetLevel();
+        int otherLevel = other.GetLevel();
+        if (currentLevel > otherLevel)
+        {
+            return 1;
+        }
+        if (currentLevel < otherLevel)
+        {
+            return -1;
+        }
+
+        return 0;
+
+    }
     public abstract void Upgrade(IPropertyTileStateHolder holder);
     public abstract void Downgrade(IPropertyTileStateHolder holder);
     public abstract int GetHousesNumber();
@@ -1683,6 +1714,8 @@ public abstract class PropertyTileState:IPropertyTileActionsPossibilityState, IP
     {
         return _owner;
     }
+
+    public abstract string GetName();
 }
 public abstract class PropertyTileStateCanBuildHouse : PropertyTileState
 {
@@ -1707,6 +1740,11 @@ public abstract class PropertyTileStateCanBuildHouse : PropertyTileState
     public override int GetLevel()
     {
         return GetHousesNumber();
+    }
+
+    public override string GetName()
+    {
+        return "maison";
     }
 }
 public class PropertyTileStateWithNoHouse : PropertyTileStateCanBuildHouse
@@ -1853,6 +1891,11 @@ public class PropertyTileStateWithOneHotel : PropertyTileState
     {
         return 5;
     }
+    
+    public override string GetName()
+    {
+        return "maison";
+    }
 }
 
 public class BrownPropertyGroupTile : PropertyTile
@@ -1992,13 +2035,19 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     }
     public override int GetLevelOnTypeCount()
     {
-        if (!monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this))
+        if (!DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer())
         {
             return 0;
         }
 
         return propertyTileState.GetLevel()+1;
     }
+
+    private bool DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer()
+    {
+        return monopolyGameManager.DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer(this);
+    }
+
     public override PurchasableFaceCard GetFaceCard()
     {
         return titleDeedFaceCard;
@@ -2103,6 +2152,23 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     public void BuildTileGood()
     {
         UpgradeGood();
+    }
+    
+    public override string GetLevelText()
+    {
+        if (!IsOwned())
+        {
+            return "Unknown";
+        }
+        var allGroupPossession = string.Join(", ", GetOwner().deck.GetAllGroupOfThisPropertyTile(GetTargetType()).Select(purchasableTile => purchasableTile.TileName));
+        if (DoesAllGroupOfThisPropertyTileIsOwnedByTheSamePlayer())
+        {
+            return $"Vous ne possédez tout le groupe. Vous possédez {allGroupPossession}";
+        }
+        else
+        {
+            return $"Vous ne possédez pas tout le groupe. Vous possédez {allGroupPossession}";
+        }
     }
 }
 

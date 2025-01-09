@@ -17,6 +17,7 @@ public class BuildAction : ActionOnCardLayout
         {
             Debug.LogError("Build action cannot be executed. Either tile or player conditions are not met.");
         }
+        gameCardLayout.Hide();
     }
 
 }
@@ -29,6 +30,7 @@ public class CancelBuildAction : ActionOnCardLayout
     public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         Debug.Log("Cancel build action executed.");
+        gameCardLayout.Hide();
     }
 
 }

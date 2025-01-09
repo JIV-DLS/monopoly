@@ -74,6 +74,31 @@ public class MonopolyPlayerDeck
     {
         return _purchasableTiles.Values.Count(value => value is T);
     }
+    
+    public PurchasableTile[] GetAllGroupOfThisPropertyTile(Type targetType)
+    {
+        if (!typeof(PurchasableTile).IsAssignableFrom(targetType))
+        {
+            throw new ArgumentException($"Type {targetType} must inherit from PurchasableTile", nameof(targetType));
+        }
+
+        // Use reflection to invoke the method dynamically
+        var method = typeof(Board).GetMethod("GetTilesOfType")?.MakeGenericMethod(targetType);
+        if (method != null)
+        {
+            return (PurchasableTile[])method.Invoke(this, null);
+        }
+        else
+        {
+            throw new ArgumentException("GetTilesOfType not found");
+        }
+        
+    }
+    
+    public int GetCountOfType(Type targetType)
+    {
+        return GetAllGroupOfThisPropertyTile(targetType).Length;
+    }
     // Get the count of objects of a specific type T
     public IEnumerable<T> GetAllOfType<T>() where T : PurchasableTile
     {
@@ -264,27 +289,55 @@ public class MonopolyPlayer
                 _monopolyGameManager.gameCardBuy.Hide();
                 yield return new WaitForSeconds(1.5f);
                 //PlayerContent.EnableBuyAction(tile.getPrice());
-            }else if (purchasableTile.IsOwnedBy(this) && purchasableTile is PropertyTile propertyTile && propertyTile.CanBeUpgraded())
+            }else if (purchasableTile.IsOwnedBy(this))
             {
-                _monopolyGameManager.gameCardBuild.ShowPurchasableCard(purchasableTile, this);
-                while (_timer < actionTimeout && _monopolyGameManager.gameCardBuild.gameObject.activeSelf)
-                {
+                if(purchasableTile is PropertyTile propertyTile){
+                    if (propertyTile.CanBeUpgraded())
+                    {
+                        PropertyTileState oldPropertyState = propertyTile.propertyTileState;
+                        int oldCost = propertyTile.GetLevelCost();
+                        _monopolyGameManager.gameCardBuild.ShowPurchasableCard(purchasableTile, this);
+                        while (_timer < actionTimeout && _monopolyGameManager.gameCardBuild.gameObject.activeSelf)
+                        {
 
-                    _timer += Time.deltaTime;
-                    _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decider {actionTimeout-_timer:0.00} seconde(s)");
-                    yield return null; // Wait until the next frame
+                            _timer += Time.deltaTime;
+                            _monopolyGameManager.GameTextEvents.SetText(
+                                $"{name}, Veuillez decider {actionTimeout - _timer:0.00} seconde(s)");
+                            yield return null; // Wait until the next frame
+                        }
+
+                        if (oldPropertyState.CompareTo(propertyTile.propertyTileState) > 0)
+                        {
+                            _monopolyGameManager.SetGameTextEventsText(
+                                $"{name} a construit un {propertyTile.propertyTileState.GetName()} sur {tile.TileName}. Le prix de passage passe de {oldCost}M à {propertyTile.GetLevelCost()}");
+                        }
+                        else
+                        {
+                            _monopolyGameManager.SetGameTextEventsText(
+                                $"{name} n'a pas fait des travaux sur {tile.TileName}");
+                        }
+
+                        _monopolyGameManager.gameCardBuild.Hide();
+                        yield return new WaitForSeconds(1.5f);
+                    }
+                    else
+                    {
+                        
+                        _monopolyGameManager.SetGameTextEventsText(
+                            $"{name} ne peut plus faire de travaux sur {tile.TileName}.");
+                        yield return new WaitForSeconds(1.5f);
+                    }
                 }
-                if (purchasableTile.IsOwnedBy(this))
-                {
-                    _monopolyGameManager.SetGameTextEventsText($"{name} a acquéris {tile.TileName}");
-                }
-                else
-                {
-                    _monopolyGameManager.SetGameTextEventsText($"{name} a décliné l'offre {tile.TileName}");
-                }
-                _monopolyGameManager.gameCardBuild.Hide();
-                yield return new WaitForSeconds(1.5f);
                 
+                _monopolyGameManager.SetGameTextEventsText(
+                    $"{name}, chaque joueur passant sur {tile.TileName} devra vous payer {purchasableTile.GetLevelCost()}, vous {purchasableTile.GetLevelText()}.");
+                yield return new WaitForSeconds(1.5f);
+            }
+            else
+            {
+                _monopolyGameManager.SetGameTextEventsText(
+                    $"{name} doit payer {purchasableTile.GetLevelCost()} à {purchasableTile.GetOwner().name}, ({purchasableTile.GetOwner().name} {purchasableTile.GetLevelText()}).");
+                yield return new WaitForSeconds(1f);
             }
         }
         else

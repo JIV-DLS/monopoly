@@ -84,6 +84,7 @@ public class BuyAction : ActionOnCardLayout
     public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         _player.Buy(_tile);
+        gameCardLayout.Hide();
     }
 }
 
@@ -96,6 +97,7 @@ public class CancelAction : ActionOnCardLayout
     public override void Execute(MonopolyPlayer player, PurchasableTile tile, GameCardLayout gameCardLayout)
     {
         Debug.Log("Cancel action executed.");
+        gameCardLayout.Hide();
     }
 }
 public class PurchasableButton : PurchasableActionButton
