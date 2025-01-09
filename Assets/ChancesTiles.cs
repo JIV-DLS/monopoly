@@ -90,7 +90,7 @@ public class ElectedChairmanCard : ChanceCard
     {
         
         monopolyGameManager.SetGameTextEventsText(
-            $"{monopolyPlayer} doit payer 50M à chaque joueur.");
+            $"{monopolyPlayer.name} doit payer 50M à chaque joueur.");
         yield return monopolyGameManager.PlayerMustPayToEachPlayer(monopolyPlayer, 50);
         yield return new WaitForSeconds(1f);
     }
@@ -107,7 +107,7 @@ public class AdvanceToBoulevardDeLaVilletteCard : ChanceCard
     {
         
         
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer au boulevard de la villette.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer au boulevard de la villette.");
         yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 11);
         yield return new WaitForSeconds(.5f);
     }
@@ -123,7 +123,7 @@ public class GetOutOfJailCard : ChanceCard
     {
         
         
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a la possibilité de sortir en prison si il y va.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} a la possibilité de sortir en prison si il y va.");
         yield return monopolyGameManager.GiveChanceCardToPlayerGetOutOfJailCard(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
     }
@@ -140,7 +140,7 @@ public class MoveBackThreeSpacesCard : ChanceCard
     {
         
         
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit reculer de 3 cases.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit reculer de 3 cases.");
         yield return monopolyGameManager.MoveBackTo(monopolyPlayer, 3);
         yield return new WaitForSeconds(.5f);
     }
@@ -158,7 +158,7 @@ public class RealEstateLoanCard : ChanceCard
         
         monopolyPlayer.HaveWon(150);
         monopolyGameManager.SetGameTextEventsText(
-            $"Votre prêt vous rapporte 150M à {monopolyPlayer}.");
+            $"Votre prêt vous rapporte 150M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -173,7 +173,7 @@ public class AdvanceToGareMontparnasseCard : ChanceCard
     {
         
         
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la GARE MONTPARNASSE.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à la GARE MONTPARNASSE.");
         yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 11);
         yield return new WaitForSeconds(.5f);
     }
@@ -189,7 +189,7 @@ public class AdvanceToAvenueHenriMartinCard : ChanceCard
     {
         
         
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à l'avenue Henri Martin.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à l'avenue Henri Martin.");
         yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 24);
         yield return new WaitForSeconds(.5f);
     }
@@ -203,7 +203,7 @@ public class GoToJailCard : ChanceCard
 
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit allez en prison.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit allez en prison.");
         yield return monopolyGameManager.PutPlayerIntoPrison(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
     }
@@ -218,7 +218,7 @@ public class AdvanceToRueDeLaPaixCard : ChanceCard
 
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à LA RUE DE LA PAIX.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à LA RUE DE LA PAIX.");
         yield return monopolyGameManager.MoveAPlayerToLastTile(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
     }
@@ -232,7 +232,7 @@ public class AdvanceToStartCard : ChanceCard
 
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la case départ.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à la case départ.");
         yield return monopolyGameManager.MoveAPlayerToStartTile(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
 
@@ -256,19 +256,19 @@ public class RepairCostCard : ChanceCard
         int hotelsNumber = monopolyPlayer.GetAllHotelsNumber();
         if (housesNumber > 0 && hotelsNumber > 0)
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} detient {housesNumber} maisons et {hotelsNumber} hôtels.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} detient {housesNumber} maisons et {hotelsNumber} hôtels.");
         }
         else if (housesNumber > 0)
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} detient {housesNumber} maisons.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} detient {housesNumber} maisons.");
         }
         else if (hotelsNumber > 0)
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} detient {hotelsNumber} hôtels.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} detient {hotelsNumber} hôtels.");
         }
         else
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} ne detient aucune maison ni hôtel.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} ne detient aucune maison ni hôtel.");
         }
         
         yield return new WaitForSeconds(1.5f);
@@ -276,7 +276,7 @@ public class RepairCostCard : ChanceCard
         if (housesNumber > 0 || hotelsNumber > 0)
         {
             totalRepairCost = houseRepairCost * housesNumber + hotelRepairCost * hotelsNumber;
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit payer {totalRepairCost}M à la banque.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit payer {totalRepairCost}M à la banque.");
             yield return new WaitForSeconds(.5f);
             yield return monopolyGameManager.PlayerMustPayToBank(monopolyPlayer, totalRepairCost);
             yield return new WaitForSeconds(1.5f);
@@ -297,7 +297,7 @@ public class SpeedingFineCard : ChanceCard
     {
         
         monopolyGameManager.SetGameTextEventsText(
-            $"Excès de vitesse {monopolyPlayer} doit payer 15M à la banque.");
+            $"Excès de vitesse {monopolyPlayer.name} doit payer 15M à la banque.");
         yield return monopolyGameManager.PlayerMustPayToBank(monopolyPlayer, 15);
         yield return new WaitForSeconds(1f);
     }
@@ -319,14 +319,14 @@ public class AdvanceToStationCardChance : ChanceCard
             if(!nextRailRoadTile.IsOwnedBy(monopolyPlayer))
             {
                 MonopolyPlayer tileOwner = nextRailRoadTile.GetOwner();
-                monopolyGameManager.SetGameTextEventsText($"{nextRailRoadTile} est détenu par {tileOwner}");
+                monopolyGameManager.SetGameTextEventsText($"{nextRailRoadTile} est détenu par {tileOwner.name}");
                 yield return new WaitForSeconds(1.5f);
                 
                 int dueAmount = nextRailRoadTile.GetCost() * 2;
 
                 
                 monopolyGameManager.SetGameTextEventsText(
-                    $"{monopolyPlayer} doit payer {dueAmount} à {tileOwner}");
+                    $"{monopolyPlayer.name} doit payer {dueAmount} à {tileOwner.name}");
                 yield return monopolyGameManager.PlayerAPayPlayerB(monopolyPlayer, tileOwner, dueAmount);
                 yield return new WaitForSeconds(1f);
             }
@@ -334,7 +334,7 @@ public class AdvanceToStationCardChance : ChanceCard
             {
                 
                 monopolyGameManager.SetGameTextEventsText(
-                    $"{monopolyPlayer} possède {nextRailRoadTile}.");
+                    $"{monopolyPlayer.name} possède {nextRailRoadTile}.");
                 yield return new WaitForSeconds(1f);
             }
             
@@ -362,7 +362,7 @@ public class BankDividendCard : ChanceCard
     {
         monopolyPlayer.HaveWon(50);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 50M à {monopolyPlayer}.");
+            $"La banque verse 50M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -383,7 +383,7 @@ public class AdvanceToUtilityCard : ChanceCard
             if(!nextServiceTile.IsOwnedBy(monopolyPlayer))
             {
                 MonopolyPlayer tileOwner = nextServiceTile.GetOwner();
-                monopolyGameManager.SetGameTextEventsText($"{nextServiceTile} est détenu par {tileOwner}");
+                monopolyGameManager.SetGameTextEventsText($"{nextServiceTile} est détenu par {tileOwner.name}");
                 yield return new WaitForSeconds(1.5f);
 
 
@@ -399,13 +399,13 @@ public class AdvanceToUtilityCard : ChanceCard
                     }
                 }
 
-                monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a joué {rolledResult}");
+                monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} a joué {rolledResult}");
                 yield return new WaitForSeconds(1f);
                 int dueAmount = rolledResult * 10;
 
                 
                 monopolyGameManager.SetGameTextEventsText(
-                    $"{monopolyPlayer} a joué {rolledResult}, donc doit payer {dueAmount}");
+                    $"{monopolyPlayer.name} a joué {rolledResult}, donc doit payer {dueAmount}");
                 yield return monopolyGameManager.PlayerAPayPlayerB(monopolyPlayer, tileOwner, dueAmount);
                 yield return new WaitForSeconds(1f);
             }
@@ -413,7 +413,7 @@ public class AdvanceToUtilityCard : ChanceCard
             {
                 
                 monopolyGameManager.SetGameTextEventsText(
-                    $"{monopolyPlayer} possède {nextServiceTile}.");
+                    $"{monopolyPlayer.name} possède {nextServiceTile}.");
                 yield return new WaitForSeconds(1f);
             }
             

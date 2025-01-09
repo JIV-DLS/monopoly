@@ -97,12 +97,11 @@ public class MonopolyPlayerDeck
     {
         var targetType = typeof(T);
 
-        if (_purchasableTiles.ContainsKey(targetType))
-        {
-            return _purchasableTiles[targetType].Values.OfType<T>();
-        }
-
-        return Enumerable.Empty<T>();
+        // Collect all tiles where the type matches or is assignable to T
+        return _purchasableTiles
+            .Where(pair => targetType.IsAssignableFrom(pair.Key)) // Check if the type (or child type) matches
+            .SelectMany(pair => pair.Value.Values) // Flatten the nested dictionary
+            .OfType<T>(); // Ensure the result is cast to T
     }
 
     // Get the count of objects of a specific type
@@ -170,6 +169,11 @@ public class MonopolyPlayerDeck
 }
 public class MonopolyPlayer
 {
+    public override string ToString()
+    {
+        return name;
+    }
+
     public MonopolyPlayer(string playerName, PlayerSummaryButton playerSummaryButton,
         PlayerElementOnMap playerElementOnMap, 
         ThrowDices throwDices,

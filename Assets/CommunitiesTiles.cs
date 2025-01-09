@@ -15,7 +15,7 @@ public class AdoptPuppyCard : CommunityCard
     {
         Debug.Log($"Effet de carte : {description}");
         
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} a la possibilité de sortir en prison si il y va.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} a la possibilité de sortir en prison si il y va.");
         yield return monopolyGameManager.GiveCommunityCardToPlayerToAdoptAPuppyCard(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
     }
@@ -31,7 +31,7 @@ public class HelpNeighborCard : CommunityCard
     {
         monopolyPlayer.HaveWon(20);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 20M à {monopolyPlayer}.");
+            $"La banque verse 20M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -44,7 +44,7 @@ public class LoudMusicCard : CommunityCard
 
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit allez en prison.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit allez en prison.");
         yield return monopolyGameManager.PutPlayerIntoPrison(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
     }
@@ -59,7 +59,7 @@ public class MarathonForHospitalCard : CommunityCard
 
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit se déplacer à la case départ.");
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à la case départ.");
         yield return monopolyGameManager.MoveAPlayerToStartTile(monopolyPlayer);
         yield return new WaitForSeconds(.5f);
     }
@@ -75,7 +75,7 @@ public class BloodDonationCard : CommunityCard
     {
         monopolyPlayer.HaveWon(10);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 10M à {monopolyPlayer}.");
+            $"La banque verse 10M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -89,7 +89,7 @@ public class AnimalShelterDonationCard : CommunityCard
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         monopolyGameManager.SetGameTextEventsText(
-            $"{monopolyPlayer} doit payer 50M à la banque.");
+            $"{monopolyPlayer.name} doit payer 50M à la banque.");
         yield return monopolyGameManager.PlayerMustPayToBank(monopolyPlayer, 50);
         yield return new WaitForSeconds(1f);
     }
@@ -105,7 +105,7 @@ public class ChattingWithElderNeighborCard : CommunityCard
     {
         monopolyPlayer.HaveWon(100);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 100M à {monopolyPlayer}.");
+            $"La banque verse 100M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -120,7 +120,7 @@ public class PedestrianPathCleanupCard : CommunityCard
     {
         monopolyPlayer.HaveWon(50);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 50M à {monopolyPlayer}.");
+            $"La banque verse 50M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -136,7 +136,7 @@ public class HospitalPlayCard : CommunityCard
     {
         monopolyPlayer.HaveWon(100);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 100M à {monopolyPlayer}.");
+            $"La banque verse 100M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -151,7 +151,7 @@ public class GardenCleanupCard : CommunityCard
     {
         monopolyPlayer.HaveWon(200);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 200M à {monopolyPlayer}.");
+            $"La banque verse 200M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -165,7 +165,7 @@ public class BakeSalePurchaseCard : CommunityCard
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         monopolyGameManager.SetGameTextEventsText(
-            $"{monopolyPlayer} doit payer 50M à la banque.");
+            $"{monopolyPlayer.name} doit payer 50M à la banque.");
         yield return monopolyGameManager.PlayerMustPayToBank(monopolyPlayer, 50);
         yield return new WaitForSeconds(1f);
     }
@@ -181,7 +181,7 @@ public class CharityCarWashCard : CommunityCard
     {
         
         monopolyGameManager.SetGameTextEventsText(
-            $"{monopolyPlayer} doit payer 100M à la banque.");
+            $"{monopolyPlayer.name} doit payer 100M à la banque.");
         yield return monopolyGameManager.PlayerMustPayToBank(monopolyPlayer, 100);
         yield return new WaitForSeconds(1f);
     }
@@ -202,19 +202,19 @@ public class HousingImprovementCard : CommunityCard
         int hotelsNumber = monopolyPlayer.GetAllHotelsNumber();
         if (housesNumber > 0 && hotelsNumber > 0)
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} detient {housesNumber} maisons et {hotelsNumber} hôtels.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} detient {housesNumber} maisons et {hotelsNumber} hôtels.");
         }
         else if (housesNumber > 0)
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} detient {housesNumber} maisons.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} detient {housesNumber} maisons.");
         }
         else if (hotelsNumber > 0)
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} detient {hotelsNumber} hôtels.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} detient {hotelsNumber} hôtels.");
         }
         else
         {
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} ne detient aucune maison ni hôtel.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} ne detient aucune maison ni hôtel.");
         }
         
         yield return new WaitForSeconds(1.5f);
@@ -222,7 +222,7 @@ public class HousingImprovementCard : CommunityCard
         if (housesNumber > 0 || hotelsNumber > 0)
         {
             totalRepairCost = houseRepairCost * housesNumber + hotelRepairCost * hotelsNumber;
-            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} doit payer {totalRepairCost}M à la banque.");
+            monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit payer {totalRepairCost}M à la banque.");
             yield return new WaitForSeconds(.5f);
             yield return monopolyGameManager.PlayerMustPayToBank(monopolyPlayer, totalRepairCost);
             yield return new WaitForSeconds(1.5f);
@@ -240,7 +240,7 @@ public class BakeSaleCard : CommunityCard
     {
         monopolyPlayer.HaveWon(25);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 25M à {monopolyPlayer}.");
+            $"La banque verse 25M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }
@@ -254,7 +254,7 @@ public class NeighborhoodPartyCard : CommunityCard
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         monopolyGameManager.SetGameTextEventsText(
-            $"Chaque joueur doit payer 10M à {monopolyPlayer}.");
+            $"Chaque joueur doit payer 10M à {monopolyPlayer.name}.");
         yield return monopolyGameManager.AllPlayersPayToPlayer(monopolyPlayer, 10);
         yield return new WaitForSeconds(1f);
     }
@@ -270,7 +270,7 @@ public class PlaygroundDonationCard : CommunityCard
     {
         monopolyPlayer.HaveWon(100);
         monopolyGameManager.SetGameTextEventsText(
-            $"La banque verse 100M à {monopolyPlayer}.");
+            $"La banque verse 100M à {monopolyPlayer.name}.");
         yield return new WaitForSeconds(1f);
     }
 }

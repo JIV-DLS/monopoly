@@ -2385,7 +2385,6 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             /*new PlaygroundDonationCard(monopolyGameManager),
             new NeighborhoodPartyCard(monopolyGameManager),
             new BakeSaleCard(monopolyGameManager),
-            new HousingImprovementCard(monopolyGameManager),
             new CharityCarWashCard(monopolyGameManager),
             new BakeSalePurchaseCard(monopolyGameManager),
             new GardenCleanupCard(monopolyGameManager),
@@ -2399,7 +2398,8 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             new MarathonForHospitalCard(monopolyGameManager),
             new AdoptPuppyCard(monopolyGameManager),
             new LoudMusicCard(monopolyGameManager),*/
-            new HelpNeighborCard(monopolyGameManager),
+            //new HelpNeighborCard(monopolyGameManager),
+            new HousingImprovementCard(monopolyGameManager),
             // Ajoutez ici d'autres cartes Community...
         });
         Shuffle();
