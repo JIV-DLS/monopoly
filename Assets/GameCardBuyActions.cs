@@ -131,7 +131,7 @@ public abstract class GameCardActionsBase : MonoBehaviour
 
     public void ShowPurchasableTile(PurchasableTile purchasableTile, MonopolyPlayer monopolyPlayer)
     {
-        throw new NotImplementedException();
+        gameObject.SetActive(true);
     }
     protected abstract IAction CreatePrimaryAction(MonopolyPlayer monopolyPlayer, PurchasableTile purchasableTile);
     protected abstract IAction CreateCancelAction();

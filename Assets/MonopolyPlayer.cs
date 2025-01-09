@@ -243,9 +243,9 @@ public class MonopolyPlayer
             
             if (tile.CanBeBought() && tile.getPrice()<=money)
             {
-                _monopolyGameManager.gameCard.ShowPurchasableCard(purchasableTile, this);
+                _monopolyGameManager.gameCardBuy.ShowPurchasableCard(purchasableTile, this);
                 // Wait for the player to perform an action or timeout
-                while (_timer < actionTimeout && _monopolyGameManager.gameCard.gameObject.activeSelf)
+                while (_timer < actionTimeout && _monopolyGameManager.gameCardBuy.gameObject.activeSelf)
                 {
 
                     _timer += Time.deltaTime;
@@ -265,8 +265,8 @@ public class MonopolyPlayer
                 //PlayerContent.EnableBuyAction(tile.getPrice());
             }else if (purchasableTile.IsOwnedBy(this))
             {
-                _monopolyGameManager.gameCard.ShowPurchasableCard(purchasableTile, this);
-                while (_timer < actionTimeout && _monopolyGameManager.gameCard.gameObject.activeSelf)
+                _monopolyGameManager.gameCardBuild.ShowPurchasableCard(purchasableTile, this);
+                while (_timer < actionTimeout && _monopolyGameManager.gameCardBuild.gameObject.activeSelf)
                 {
 
                     _timer += Time.deltaTime;
@@ -281,7 +281,7 @@ public class MonopolyPlayer
             yield return new WaitForSeconds(1.5f);
         }
 
-        _monopolyGameManager.gameCard.Hide();
+        _monopolyGameManager.gameCardBuy.Hide();
     }
 
     private IEnumerator HandlePlayerRollDice(float actionTimeout)

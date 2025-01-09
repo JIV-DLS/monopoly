@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class GameCardBuy : GameCardLayout
 {
+    public GameCardBuyActions actions; 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -18,5 +19,6 @@ public class GameCardBuy : GameCardLayout
         MonopolyPlayer monopolyPlayer)
     {
         Show(purchasableTile, monopolyPlayer);
+        actions.ShowPurchasableTile(purchasableTile, monopolyPlayer);
     }
 }

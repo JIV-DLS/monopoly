@@ -10,7 +10,8 @@ public class MonopolyGameManager : MonoBehaviour
 {
     public CommunitiesCards communitiesCards{get;private set;}
     public ChancesCards chancesCards{get;private set;}
-    public GameCardBuy gameCard;
+    public GameCardBuy gameCardBuy;
+    public GameCardBuild gameCardBuild;
     private PlayersHorizontalView _playersHorizontalView;
     private PlayerPieceOnBoardBuilder _playerPieceOnBoardBuilder;
     public List<MonopolyPlayer> monopolyPlayers;
