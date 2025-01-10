@@ -108,7 +108,7 @@ public class AdvanceToBoulevardDeLaVilletteCard : ChanceCard
         
         
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer au boulevard de la villette.");
-        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 11);
+        yield return monopolyGameManager.APlayerMoveToAnIndex(monopolyPlayer, 11);
         yield return new WaitForSeconds(.5f);
     }
 }
@@ -174,7 +174,7 @@ public class AdvanceToGareMontparnasseCard : ChanceCard
         
         
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à la GARE MONTPARNASSE.");
-        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 5);
+        yield return monopolyGameManager.APlayerMoveToAnIndex(monopolyPlayer, 5);
         yield return new WaitForSeconds(.5f);
     }
 }

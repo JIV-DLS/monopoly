@@ -19,7 +19,6 @@ public class MonopolyGameManager : MonoBehaviour
     private MonopolyPlayer currentPlayer; // The player whose turn it is
     public BaseTextHandler GameTextEvents;
     private Board board;
-    public Dice dice;
     public DicesManager dicesManager;
     private int currentPlayerIndex;
     private GameState gameState;
@@ -118,7 +117,7 @@ public class MonopolyGameManager : MonoBehaviour
                 yield return PutPlayerIntoPrison(player);
             } else if (tile is SpecialBoardTile specialBoardTile)
             {
-                GameTextEvents.SetText($"{this} est sur la case speciale {specialBoardTile}");
+                GameTextEvents.SetText($"{currentPlayer.name} est sur la case speciale {specialBoardTile}");
             
                 yield return new WaitForSeconds(.5f);
                 if (specialBoardTile is CommunitySpecialTile)
@@ -487,7 +486,6 @@ public class MonopolyGameManager : MonoBehaviour
             // Simulate a delay for each step
             yield return new WaitForSeconds(0.09f);
         }
-        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
     }
     public IEnumerator MoveAPlayerFromTileByJumping(MonopolyPlayer monopolyPlayer, int tileIndex)
     {
@@ -781,13 +779,6 @@ public IEnumerator AllPlayersPayToPlayer(MonopolyPlayer receiver, int dueAmount)
     }
 }
 
-public class Dice
-{
-    public int Roll()
-    {
-        return UnityEngine.Random.Range(1, 7) + UnityEngine.Random.Range(1, 7);
-    }
-}
 
 public class Board
 {
@@ -870,171 +861,171 @@ public class Board
             switch (index)
             {
                 case 0:
-                    boardTile = new StartTile(side[i], i);
+                    boardTile = new StartTile(side[i], index);
                     break;
                 case 1:
                     boardTile = new BrownPropertyGroupTile(side[i], "Boulevard de Belleville",
                         new int[] { 2, 4, 10, 30, 90, 160, 250 },
-                        50, 50, 60, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        50, 50, 60, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 2:
-                    boardTile = new CommunitySpecialTile(side[i], i, 0);
+                    boardTile = new CommunitySpecialTile(side[i], index, 0);
                     break;
                 case 3:
                     boardTile = new BrownPropertyGroupTile(side[i], "Rue Lecourbe",
                         new int[] { 4, 8, 20, 60, 180, 320, 450 },
-                        50, 50, 60, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        50, 50, 60, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 4:
-                    boardTile = new TaxTile(side[i], "Impôts sur le revenu", 200, i, 0);
+                    boardTile = new TaxTile(side[i], "Impôts sur le revenu", 200, index, 0);
                     break;
                 case 5:
-                    boardTile = new RailroadTile(side[i], "Gare Mont-Parnasse", railRoadCardPrefab, cardBehindPrefab, i, 0);
+                    boardTile = new RailroadTile(side[i], "Gare Mont-Parnasse", railRoadCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 6:
                     boardTile = new LightBluePropertyGroupTile(side[i], "Rue De Vaugirard",
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
-                        50, 50, 100, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        50, 50, 100, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 7:
-                    boardTile = new ChanceSpecialTile(side[i], i, 0);
+                    boardTile = new ChanceSpecialTile(side[i], index, 0);
                     break;
                 case 8:
                     boardTile = new LightBluePropertyGroupTile(side[i], "Rue De Courcelles",
                         new int[] { 6, 12, 30, 90, 270, 400, 550 },
-                        50, 50, 100, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        50, 50, 100, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 9:
                     boardTile = new LightBluePropertyGroupTile(side[i], "Avenue de la Republique",
                         new int[] { 8, 16, 40, 100, 300, 450, 600 },
-                        50, 50, 120, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        50, 50, 120, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 10:
-                    boardTile = new PrisonOrVisitTile(side[i], i);
+                    boardTile = new PrisonOrVisitTile(side[i], index);
                     break;
                 case 11:
                     boardTile = new PinkPropertyGroupTile(side[i], "Boulevard de Villette",
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
-                        100, 100, 140, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        100, 100, 140, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 12:
-                    boardTile = new ElectricityTile(side[i], publicServiceCardPrefab, cardBehindPrefab, i, 0);
+                    boardTile = new ElectricityTile(side[i], publicServiceCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 13:
                     boardTile = new PinkPropertyGroupTile(side[i], "Avenue de Neuilly",
                         new int[] { 10, 20, 50, 150, 450, 625, 750 },
-                        100, 100, 140, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        100, 100, 140, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 14:
                     boardTile = new PinkPropertyGroupTile(side[i], "Rue de Paradis",
                         new int[] { 12, 24, 60, 180, 500, 700, 900 },
-                        100, 100, 160, titleDeedCardPrefab, cardBehindPrefab, i, 2);
+                        100, 100, 160, titleDeedCardPrefab, cardBehindPrefab, index, 2);
                     break;
                 case 15:
-                    boardTile = new RailroadTile(side[i], "Gare de Lyon", railRoadCardPrefab, cardBehindPrefab, i, 1);
+                    boardTile = new RailroadTile(side[i], "Gare de Lyon", railRoadCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 16:
                     boardTile = new OrangePropertyGroupTile(side[i], "Avenue Mozart",
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
-                        100, 100, 180, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        100, 100, 180, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 17:
-                    boardTile = new CommunitySpecialTile(side[i], i, 1);
+                    boardTile = new CommunitySpecialTile(side[i], index, 1);
                     break;
                 case 18:
                     boardTile = new OrangePropertyGroupTile(side[i], "Boulevard Saint-Michel",
                         new int[] { 14, 28, 70, 200, 550, 750, 950 },
-                        100, 100, 180, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        100, 100, 180, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 19:
                     boardTile = new OrangePropertyGroupTile(side[i], "Place Pigalle",
                         new int[] { 16, 32, 80, 220, 600, 800, 1000 },
-                        100, 100, 200, titleDeedCardPrefab, cardBehindPrefab, i, 2);
+                        100, 100, 200, titleDeedCardPrefab, cardBehindPrefab, index, 2);
                     break;
                 case 20:
-                    boardTile = new FreeParcTile(side[i], i);
+                    boardTile = new FreeParcTile(side[i], index);
                     break;
                 case 21:
                     boardTile = new RedPropertyGroupTile(side[i], "Avenue Matignon",
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
-                        150, 150, 220, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        150, 150, 220, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 22:
-                    boardTile = new ChanceSpecialTile(side[i], i, 1);
+                    boardTile = new ChanceSpecialTile(side[i], index, 1);
                     break;
                 case 23:
                     boardTile = new RedPropertyGroupTile(side[i], "Boulevard Malesherbes",
                         new int[] { 18, 36, 90, 250, 700, 875, 1050 },
-                        150, 150, 220, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        150, 150, 220, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 24:
                     boardTile = new RedPropertyGroupTile(side[i], "Avenue Henri-Martin",
                         new int[] { 20, 40, 100, 300, 750, 925, 1100 },
-                        150, 150, 240, titleDeedCardPrefab, cardBehindPrefab, i, 2);
+                        150, 150, 240, titleDeedCardPrefab, cardBehindPrefab, index, 2);
                     break;
                 case 25:
-                    boardTile = new RailroadTile(side[i], "Gare du Nord", railRoadCardPrefab, cardBehindPrefab, i, 2);
+                    boardTile = new RailroadTile(side[i], "Gare du Nord", railRoadCardPrefab, cardBehindPrefab, index, 2);
                     break;
                 case 26:
                     boardTile = new YellowPropertyGroupTile(side[i], "Faubourg Saint-Honoré",
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
-                        150, 150, 260, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        150, 150, 260, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 27:
                     boardTile = new YellowPropertyGroupTile(side[i], "Place de la Bourse",
                         new int[] { 22, 44, 110, 330, 800, 975, 1150 },
-                        150, 150, 260, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        150, 150, 260, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 28:
-                    boardTile = new WaterPumpTile(side[i], publicServiceCardPrefab, cardBehindPrefab, i, 1);
+                    boardTile = new WaterPumpTile(side[i], publicServiceCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 29:
                     boardTile = new YellowPropertyGroupTile(side[i], "Rue de la Fayette",
                         new int[] { 24, 48, 120, 360, 850, 1025, 1200 },
-                        150, 150, 280, titleDeedCardPrefab, cardBehindPrefab, i, 2);
+                        150, 150, 280, titleDeedCardPrefab, cardBehindPrefab, index, 2);
                     break;
                 case 30:
-                    boardTile = new GoInPrisonTile(side[i], i);
+                    boardTile = new GoInPrisonTile(side[i], index);
                     break;
                 case 31:
                     boardTile = new GreenPropertyGroupTile(side[i], "Avenue de Breteuil",
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
-                        200, 200, 300, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        200, 200, 300, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 32:
                     boardTile = new GreenPropertyGroupTile(side[i], "Avenue Foch",
                         new int[] { 26, 52, 130, 390, 900, 1100, 1275 },
-                        200, 200, 300, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        200, 200, 300, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 case 33:
-                    boardTile = new CommunitySpecialTile(side[i], i, 2);
+                    boardTile = new CommunitySpecialTile(side[i], index, 2);
                     break;
                 case 34:
                     boardTile = new GreenPropertyGroupTile(side[i], "Boulvard des Capucines",
                         new int[] { 28, 56, 150, 450, 1000, 1200, 1400 },
-                        200, 200, 320, titleDeedCardPrefab, cardBehindPrefab, i, 2);
+                        200, 200, 320, titleDeedCardPrefab, cardBehindPrefab, index, 2);
                     break;
                 case 35:
-                    boardTile = new RailroadTile(side[i], "Gare Saint Lazare", railRoadCardPrefab, cardBehindPrefab, i, 3);
+                    boardTile = new RailroadTile(side[i], "Gare Saint Lazare", railRoadCardPrefab, cardBehindPrefab, index, 3);
                     break;
                 case 36:
-                    boardTile = new ChanceSpecialTile(side[i], i, 2);
+                    boardTile = new ChanceSpecialTile(side[i], index, 2);
                     break;
                 case 37:
                     
                     boardTile = new DarkBluePropertyGroupTile(side[i], "Avenue des Champs-Elysées",
                         new int[] { 35, 70, 175, 500, 1100, 1300, 1500 },
-                        200, 200, 350, titleDeedCardPrefab, cardBehindPrefab, i, 0);
+                        200, 200, 350, titleDeedCardPrefab, cardBehindPrefab, index, 0);
                     break;
                 case 38:
 
-                    boardTile = new TaxTile(side[i], "Taxe de Luxe", 100, i, 1);
+                    boardTile = new TaxTile(side[i], "Taxe de Luxe", 100, index, 1);
                     break;
                 case 39:
                     
                     boardTile = new DarkBluePropertyGroupTile(side[i], "Rue de la Paix",
                         new int[] { 50, 100, 200, 600, 1400, 1700, 2000 },
-                        200, 200, 400, titleDeedCardPrefab, cardBehindPrefab, i, 1);
+                        200, 200, 400, titleDeedCardPrefab, cardBehindPrefab, index, 1);
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown case: {i}"); 
@@ -1048,7 +1039,7 @@ public class Board
 
     public BoardTile GetTileAtIndex(int index)
     {
-        return tileLookup.TryGetValue(index, out var tile) ? tile : null;
+        return tileLookup.TryGetValue(index % tiles.Length, out var tile) ? tile : null;
     }
 
     public int GetTileIndex(BoardTile tile)
@@ -1382,7 +1373,7 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
 
     public virtual IGood GetMinimumGoodToSell()
     {
-        return this;
+        return IsFullyOwned()? this:null;
     }
 
     public int GetSellPrice()
@@ -2246,9 +2237,8 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
     {
         
         AddRange(new List<ChanceCard>{
-            /*new AdvanceToUtilityCard(monopolyGameManager),
+            new AdvanceToUtilityCard(monopolyGameManager),
             new BankDividendCard(monopolyGameManager),
-            new AdvanceToStationCardChance(monopolyGameManager),
             new SpeedingFineCard(monopolyGameManager),
             new RepairCostCard(monopolyGameManager),
             new AdvanceToStartCard(monopolyGameManager),
@@ -2259,9 +2249,10 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
             new RealEstateLoanCard(monopolyGameManager),
             new MoveBackThreeSpacesCard(monopolyGameManager),
             new AdvanceToBoulevardDeLaVilletteCard(monopolyGameManager),
-            new ElectedChairmanCard(monopolyGameManager),*/
-            //new AdvanceToRueDeLaPaixCard(monopolyGameManager),
+            new ElectedChairmanCard(monopolyGameManager),
+            new AdvanceToRueDeLaPaixCard(monopolyGameManager),
             new AdvanceToGareMontparnasseCard(monopolyGameManager),
+            new AdvanceToStationCardChance(monopolyGameManager),
         });
         Shuffle();
     }
@@ -2277,7 +2268,7 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
     {
         
         AddRange(new List<CommunityCard>{
-            /*new PlaygroundDonationCard(monopolyGameManager),
+            new PlaygroundDonationCard(monopolyGameManager),
             new NeighborhoodPartyCard(monopolyGameManager),
             new BakeSaleCard(monopolyGameManager),
             new BakeSalePurchaseCard(monopolyGameManager),
@@ -2291,10 +2282,10 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             new HospitalPlayCard(monopolyGameManager),
             new MarathonForHospitalCard(monopolyGameManager),
             new AdoptPuppyCard(monopolyGameManager),
-            new LoudMusicCard(monopolyGameManager),*/
+            new LoudMusicCard(monopolyGameManager),
             new HelpNeighborCard(monopolyGameManager),
-            // new CharityCarWashCard(monopolyGameManager),
-            // new HousingImprovementCard(monopolyGameManager),
+            new CharityCarWashCard(monopolyGameManager),
+            new HousingImprovementCard(monopolyGameManager),
             // Ajoutez ici d'autres cartes Community...
         });
         Shuffle();

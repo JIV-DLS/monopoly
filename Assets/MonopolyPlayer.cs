@@ -499,10 +499,10 @@ public class MonopolyPlayer
                 int sellAmount = good.Sell();;
                 HaveWon(sellAmount);
                 
-                _monopolyGameManager.SetGameTextEventsText($"{name} a {good.GetSellText()}. Nouveau solde {sellAmount}.");
+                _monopolyGameManager.SetGameTextEventsText($"{name} a {good.GetSellText()}. Il a gagné {sellAmount}M.");
                 yield return new WaitForSeconds(1f);
                 string newCost = goodPurchasableTile.IsFullyOwned()? goodPurchasableTile.GetCostText():"0M";
-                _monopolyGameManager.SetGameTextEventsText($"{name} a vendu {good}. Nouveau solde {sellAmount}. Son prix de passage passe de {oldCost}M à {newCost}");
+                _monopolyGameManager.SetGameTextEventsText($"{name}, votre nouveau solde est de {money}M. Son prix de passage passe de {oldCost}M à {newCost}");
                 yield return new WaitForSeconds(1f);
             }
         }
