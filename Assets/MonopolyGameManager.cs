@@ -430,15 +430,22 @@ public class MonopolyGameManager : MonoBehaviour
         /*yield return MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
             passHome, true);*/
         yield return MoveAPlayerFromTileByJumping(player, rollResult);
-        int destinationTileIndex = board.MoveFromTile(player.tile, rollResult, out bool passedHome);
-        if (destinationTileIndex!=0)
-            yield return MoveAPlayerToATile(player, player.tile, destinationTileIndex!=0);
+        if (player.currentTile.GetTileIndex()!=0)
+            yield return MoveAPlayerToATile(player, player.currentTile);
+        yield return null;
+    }
+
+    public IEnumerator APlayerMoveToAnIndex(MonopolyPlayer player, int targetIndex)
+    {
+        yield return MoveAPlayerFromTileByJumpingToAnIndex(player, targetIndex);
+        if (player.currentTile.GetTileIndex()!=0)
+            yield return MoveAPlayerToATile(player, player.currentTile);
         yield return null;
     }
     public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
     {
         player.DicesRoll(rollResult, allEqual);
-        BoardTile playerTile = player.tile;
+        BoardTile playerTile = player.currentTile;
         if (playerTile == null)
         {
             playerTile = board.GetTileAtIndex(0);
@@ -446,7 +453,7 @@ public class MonopolyGameManager : MonoBehaviour
 
         bool passHome = false;
         //MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(playerTile, rollResult, out passHome)), passHome);
-        player.tile.OnPlayerLanded(player);
+        player.currentTile.OnPlayerLanded(player);
         
         GameTextEvents.SetText($"{player} played {rollResult}");
         
@@ -628,7 +635,7 @@ public class MonopolyGameManager : MonoBehaviour
 
     public IEnumerator MoveAPlayerToNextType<T>(MonopolyPlayer monopolyPlayer)
     {
-        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveFromTileToNextType<T>(monopolyPlayer.tile);
+        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveFromTileToNextType<T>(monopolyPlayer.currentTile);
 
         // Variable to keep track of the last result
         (int lastTileIndex, bool lastPassHome) = (-1, false);
@@ -653,7 +660,7 @@ public class MonopolyGameManager : MonoBehaviour
     }
     public IEnumerator MoveAPlayerFromTileByJumping(MonopolyPlayer monopolyPlayer, int tileIndex)
     {
-        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveAPlayerFromTileByJumping(monopolyPlayer.tile, tileIndex);
+        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveAPlayerFromTileByJumping(monopolyPlayer.currentTile, tileIndex);
 
         // Variable to keep track of the last result
         (int lastTileIndex, bool lastPassHome) = (-1, false);
@@ -679,9 +686,23 @@ public class MonopolyGameManager : MonoBehaviour
             yield return new WaitForSeconds(0.09f);
         }
     }
+    public IEnumerator MoveAPlayerFromTileByJumpingToAnIndex(MonopolyPlayer monopolyPlayer, int tileIndex)
+    {
+        do
+        {
+            // Perform actions with the current tile index and passHome flag
+            //Debug.Log($"Moved to Tile: {lastTileIndex}, Passed Home: {lastPassHome}");
+
+            // Add logic to update your player position or animations here
+
+            yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(monopolyPlayer.currentTile.GetTileIndex()+1), false, false);
+            // Simulate a delay for each step
+            yield return new WaitForSeconds(0.09f);
+        } while (monopolyPlayer.currentTile.GetTileIndex() != tileIndex);
+    }
     public IEnumerator MoveAPlayerToTileIndex(MonopolyPlayer monopolyPlayer, int tileIndex)
     {
-        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveAPlayerToTileIndex(monopolyPlayer.tile, tileIndex);
+        IEnumerator<(int tileIndex, bool passHome)> moveEnumerator = board.MoveAPlayerToTileIndex(monopolyPlayer.currentTile, tileIndex);
 
         // Variable to keep track of the last result
         (int lastTileIndex, bool lastPassHome) = (-1, false);
@@ -1265,7 +1286,7 @@ public class Board
 
     public int GetTileBackFromATileTo(MonopolyPlayer monopolyPlayer, int i)
     {
-        int index = GetTileIndex(monopolyPlayer.tile)-i;
+        int index = GetTileIndex(monopolyPlayer.currentTile)-i;
         if (index < 0)
         {
             index = (index + tiles.Length) % tiles.Length;

@@ -217,7 +217,7 @@ public class MonopolyPlayer
     private float _timer = 0f;
     private int _lastRolledResult;
 
-    public BoardTile tile { get; private set; }
+    public BoardTile currentTile { get; private set; }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -237,10 +237,10 @@ public class MonopolyPlayer
     }
     public void MoveTo(BoardTile tileToLandOn)
     {
-        tile = tileToLandOn;
+        currentTile = tileToLandOn;
         // Debug.Log($"assigning tile {tile.tileGameObject}");
-        playerElementOnMap.transform.position = new Vector3(tile.getTransform().position.x,
-            playerElementOnMap.transform.position.y, tile.getTransform().position.z);
+        playerElementOnMap.transform.position = new Vector3(currentTile.getTransform().position.x,
+            playerElementOnMap.transform.position.y, currentTile.getTransform().position.z);
         // PlayerContent.UpdateTile(tile);
 
     }
@@ -286,7 +286,7 @@ public class MonopolyPlayer
     private IEnumerator HandlePlayerBuyAction(float actionTimeout)
     {
         _timer = 0f;
-        if (tile is PurchasableTile purchasableTile)
+        if (currentTile is PurchasableTile purchasableTile)
         {
             /*foreach (PurchasableTile p in _monopolyGameManager.GetAllGroupOfThisPropertyTile(purchasableTile.GetTargetType()))
             {
@@ -296,7 +296,7 @@ public class MonopolyPlayer
                 }
             }*/
 
-            if (tile.CanBeBought() && tile.getPrice()<=money)
+            if (currentTile.CanBeBought() && currentTile.getPrice()<=money)
             {
                 _monopolyGameManager.gameCardBuy.ShowPurchasableCard(purchasableTile, this);
                 // Wait for the player to perform an action or timeout
@@ -310,11 +310,11 @@ public class MonopolyPlayer
 
                 if (purchasableTile.IsOwnedBy(this))
                 {
-                    _monopolyGameManager.SetGameTextEventsText($"{name} a acquéris {tile.TileName}");
+                    _monopolyGameManager.SetGameTextEventsText($"{name} a acquéris {currentTile.TileName}");
                 }
                 else
                 {
-                    _monopolyGameManager.SetGameTextEventsText($"{name} a décliné l'offre {tile.TileName}");
+                    _monopolyGameManager.SetGameTextEventsText($"{name} a décliné l'offre {currentTile.TileName}");
                 }
                 _monopolyGameManager.gameCardBuy.Hide();
                 yield return new WaitForSeconds(1.5f);
@@ -344,12 +344,12 @@ public class MonopolyPlayer
                         if (oldPropertyState.CompareTo(propertyTile.propertyTileState) < 0)
                         {
                             _monopolyGameManager.SetGameTextEventsText(
-                                $"{name} a construit un {propertyTile.propertyTileState.GetName()} sur {tile.TileName}. Le prix de passage passe de {oldCost}M à {propertyTile.GetLevelCost()}M");
+                                $"{name} a construit un {propertyTile.propertyTileState.GetName()} sur {currentTile.TileName}. Le prix de passage passe de {oldCost}M à {propertyTile.GetLevelCost()}M");
                         }
                         else
                         {
                             _monopolyGameManager.SetGameTextEventsText(
-                                $"{name} n'a pas fait des travaux sur {tile.TileName}");
+                                $"{name} n'a pas fait des travaux sur {currentTile.TileName}");
                         }
 
                         _monopolyGameManager.gameCardBuild.Hide();
@@ -360,27 +360,27 @@ public class MonopolyPlayer
                         if (!propertyTile.CheckIfOwnerDeckHasThisGroup())
                         {
                             _monopolyGameManager.SetGameTextEventsText(
-                                $"{name} ne peut pas faire de travaux sur {tile.TileName}. {propertyTile.GetLevelText()}");
+                                $"{name} ne peut pas faire de travaux sur {currentTile.TileName}. {propertyTile.GetLevelText()}");
                         }
                         else
                         {
                             _monopolyGameManager.SetGameTextEventsText(
-                                $"{name} ne peut plus faire de travaux sur {tile.TileName}.");
+                                $"{name} ne peut plus faire de travaux sur {currentTile.TileName}.");
                         }
                         yield return new WaitForSeconds(3f);
                     }
                 }
 
-                string tileText = tile is PublicServiceTile ? $"{purchasableTile.GetLevelCost()}x le résultat de son lancé" : purchasableTile.GetLevelCost().ToString()+'M';
+                string tileText = currentTile is PublicServiceTile ? $"{purchasableTile.GetLevelCost()}x le résultat de son lancé" : purchasableTile.GetLevelCost().ToString()+'M';
                 _monopolyGameManager.SetGameTextEventsText(
-                    $"{name}, chaque joueur passant sur {tile.TileName} devra vous payer {tileText}, {purchasableTile.GetLevelText()}.");
+                    $"{name}, chaque joueur passant sur {currentTile.TileName} devra vous payer {tileText}, {purchasableTile.GetLevelText()}.");
                 yield return new WaitForSeconds(4f);
             }
             else
             {
                 if (purchasableTile.IsOwned())
                 {
-                    string priceText = tile is PublicServiceTile ? (purchasableTile.GetLevelCost() * _lastRolledResult).ToString(): purchasableTile.GetLevelCost().ToString();
+                    string priceText = currentTile is PublicServiceTile ? (purchasableTile.GetLevelCost() * _lastRolledResult).ToString(): purchasableTile.GetLevelCost().ToString();
                     _monopolyGameManager.SetGameTextEventsText(
                         $"{name} doit payer {priceText}M à {purchasableTile.GetOwner().name}, ({purchasableTile.GetOwner().name} {purchasableTile.GetLevelText()}).");
                 }
@@ -546,7 +546,7 @@ public class MonopolyPlayer
 
     public void GoInPrison()
     {
-        Debug.Assert(tile is PrisonOrVisitTile, "Sorry make sure prison move to prison first.");
+        Debug.Assert(currentTile is PrisonOrVisitTile, "Sorry make sure prison move to prison first.");
         prison = 3;
         if (adoptPuppyCards.Count > 0)
         {

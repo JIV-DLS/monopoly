@@ -190,7 +190,7 @@ public class AdvanceToAvenueHenriMartinCard : ChanceCard
         
         
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à l'avenue Henri Martin.");
-        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 24);
+        yield return monopolyGameManager.APlayerMoveToAnIndex(monopolyPlayer, 24);
         yield return new WaitForSeconds(.5f);
     }
 }
@@ -219,7 +219,7 @@ public class AdvanceToRueDeLaPaixCard : ChanceCard
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à LA RUE DE LA PAIX.");
-        yield return monopolyGameManager.MoveAPlayerToLastTile(monopolyPlayer);
+        yield return monopolyGameManager.APlayerMoveToAnIndex(monopolyPlayer, 39);
         yield return new WaitForSeconds(.5f);
     }
 }
@@ -312,7 +312,7 @@ public class AdvanceToStationCardChance : ChanceCard
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         yield return monopolyGameManager.MoveAPlayerToNextType<RailroadTile>(monopolyPlayer);
-        RailroadTile nextRailRoadTile = (RailroadTile)monopolyPlayer.tile;
+        RailroadTile nextRailRoadTile = (RailroadTile)monopolyPlayer.currentTile;
         Debug.Assert(nextRailRoadTile!=null, "Next rail road not found");
         if ( nextRailRoadTile.IsOwned())
         {
@@ -376,7 +376,7 @@ public class AdvanceToUtilityCard : ChanceCard
     protected override IEnumerator TriggerEffect(MonopolyPlayer monopolyPlayer)
     {
         yield return monopolyGameManager.MoveAPlayerToNextType<PublicServiceTile>(monopolyPlayer);
-        PublicServiceTile nextServiceTile = (PublicServiceTile)monopolyPlayer.tile;
+        PublicServiceTile nextServiceTile = (PublicServiceTile)monopolyPlayer.currentTile;
         Debug.Assert(nextServiceTile!=null, "Next service not found");
         if ( nextServiceTile.IsOwned())
         {
