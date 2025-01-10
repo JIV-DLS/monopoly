@@ -215,6 +215,7 @@ public class MonopolyPlayer
     public bool hasPerformedAction { get; private set; } = false;
 
     private float _timer = 0f;
+    private int _lastRolledResult;
 
     public BoardTile tile { get; private set; }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -369,17 +370,19 @@ public class MonopolyPlayer
                         yield return new WaitForSeconds(3f);
                     }
                 }
-                
+
+                string tileText = tile is PublicServiceTile ? $"{purchasableTile.GetLevelCost()}x le résultat de son lancé" : purchasableTile.GetLevelCost().ToString()+'M';
                 _monopolyGameManager.SetGameTextEventsText(
-                    $"{name}, chaque joueur passant sur {tile.TileName} devra vous payer {purchasableTile.GetLevelCost()}, {purchasableTile.GetLevelText()}.");
+                    $"{name}, chaque joueur passant sur {tile.TileName} devra vous payer {tileText}, {purchasableTile.GetLevelText()}.");
                 yield return new WaitForSeconds(4f);
             }
             else
             {
                 if (purchasableTile.IsOwned())
                 {
+                    string priceText = tile is PublicServiceTile ? (purchasableTile.GetLevelCost() * _lastRolledResult).ToString(): purchasableTile.GetLevelCost().ToString();
                     _monopolyGameManager.SetGameTextEventsText(
-                        $"{name} doit payer {purchasableTile.GetLevelCost()} à {purchasableTile.GetOwner().name}, ({purchasableTile.GetOwner().name} {purchasableTile.GetLevelText()}).");
+                        $"{name} doit payer {priceText}M à {purchasableTile.GetOwner().name}, ({purchasableTile.GetOwner().name} {purchasableTile.GetLevelText()}).");
                 }
                 else if(purchasableTile.IsMortgaged)
                 {
@@ -396,7 +399,7 @@ public class MonopolyPlayer
         }
         else
         {
-            _monopolyGameManager.GameTextEvents.SetText($"{name} ne peut effectuer aucune action");
+            _monopolyGameManager.GameTextEvents.SetText($"{name} ne peut effectuer aucune action.");
             yield return new WaitForSeconds(4f);
         }
 
@@ -456,7 +459,7 @@ public class MonopolyPlayer
                 break;
             }
         }
-
+        _lastRolledResult = rolledResult;
         if (_askedPlayFromButton)
         {
             _monopolyGameManager.SetGameTextEventsText($"{name} a joué {rolledResult}.");

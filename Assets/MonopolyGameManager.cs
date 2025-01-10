@@ -430,7 +430,9 @@ public class MonopolyGameManager : MonoBehaviour
         /*yield return MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(player.tile, rollResult, out var passHome)),
             passHome, true);*/
         yield return MoveAPlayerFromTileByJumping(player, rollResult);
-        yield return MoveAPlayerToATile(player, player.tile);
+        int destinationTileIndex = board.MoveFromTile(player.tile, rollResult, out bool passedHome);
+        if (destinationTileIndex!=0)
+            yield return MoveAPlayerToATile(player, player.tile, destinationTileIndex!=0);
         yield return null;
     }
     public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
@@ -660,6 +662,10 @@ public class MonopolyGameManager : MonoBehaviour
         {
             // Deconstruct the current value
             // Update the last result with the current one
+            if (lastTileIndex == moveEnumerator.Current.tileIndex)
+            {
+                yield break;
+            }
             lastTileIndex = moveEnumerator.Current.tileIndex;
             lastPassHome = moveEnumerator.Current.passHome;
 
@@ -672,7 +678,6 @@ public class MonopolyGameManager : MonoBehaviour
             // Simulate a delay for each step
             yield return new WaitForSeconds(0.09f);
         }
-        yield return MoveAPlayerToATile(monopolyPlayer, board.GetTileAtIndex(lastTileIndex), false, false);
     }
     public IEnumerator MoveAPlayerToTileIndex(MonopolyPlayer monopolyPlayer, int tileIndex)
     {
@@ -1268,7 +1273,7 @@ public class Board
 
         return index;
     }
-    public IEnumerator<(int tileIndex, bool passHome)> MoveAPlayerFromTileByJumping(BoardTile monopolyPlayerTile, int jumpings)
+    public IEnumerator<(int tileIndex, bool passHome)> MoveAPlayerFromTileByJumping(BoardTile monopolyPlayerTile, int jumps)
     {
         int currentIndex = GetTileIndex(monopolyPlayerTile);
         if (currentIndex == -1)
@@ -1278,7 +1283,7 @@ public class Board
 
         bool passHome = false;
 
-        for (int i = 0; i < jumpings; i++)
+        for (int i = 0; i < jumps; i++)
         {
             currentIndex = MoveFromTile(GetTileAtIndex(currentIndex), 1, out bool passedHomeOnce);
             passHome = passHome || passedHomeOnce; // Accumulate the passHome state.
