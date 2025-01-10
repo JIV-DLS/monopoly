@@ -110,6 +110,9 @@ public class MonopolyGameManager : MonoBehaviour
 
             if (tile is TaxTile taxTile)
             {
+                
+                GameTextEvents.SetText($"{currentPlayer.name} doit payer une taxe de {taxTile.taxAmount}M.");
+                yield return new WaitForSeconds(.8f);
                 yield return PlayerMustPayToBank(player, taxTile.taxAmount);
             }
             else if (tile is GoInPrisonTile)
@@ -117,7 +120,7 @@ public class MonopolyGameManager : MonoBehaviour
                 yield return PutPlayerIntoPrison(player);
             } else if (tile is SpecialBoardTile specialBoardTile)
             {
-                GameTextEvents.SetText($"{currentPlayer.name} est sur la case speciale {specialBoardTile}");
+                GameTextEvents.SetText($"{currentPlayer.name} est sur la case speciale {specialBoardTile.TileName}");
             
                 yield return new WaitForSeconds(.5f);
                 if (specialBoardTile is CommunitySpecialTile)
