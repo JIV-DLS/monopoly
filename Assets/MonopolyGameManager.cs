@@ -109,9 +109,9 @@ public class MonopolyGameManager : MonoBehaviour
                 yield return PassedHome(player);
             }
 
-            if (tile is TaxTile)
+            if (tile is TaxTile taxTile)
             {
-                player.ChargedOf(((TaxTile)tile).taxAmount);
+                yield return PlayerMustPayToBank(player, taxTile.taxAmount);
             }
             else if (tile is GoInPrisonTile)
             {
@@ -179,7 +179,10 @@ public class MonopolyGameManager : MonoBehaviour
 
                     if (!currentPlayer.CanContinuePlaying())
                     {
-                        TakeAllFrom(currentPlayer);
+                        
+                        SetGameTextEventsText($"{currentPlayer.name} ne peut plus continuer de jouer.");
+                        yield return new WaitForSeconds(.5f);
+                        yield return TakeAllFrom(currentPlayer);
                     }
                     // Switch to the next player
                     // currentPlayer = (currentPlayer == player1) ? player2 : player1;
@@ -209,48 +212,44 @@ public class MonopolyGameManager : MonoBehaviour
                     break;
             }
 
-            /*var remainingPlayers = monopolyPlayers.Where(player => player.CanContinuePlaying()).ToList();
+            var remainingPlayers = monopolyPlayers.Where(player => player.CanContinuePlaying()).ToList();
 
-            if (remainingPlayers.Count == 1)
+            if (remainingPlayers.Count < 2)
             {
-                var winner = remainingPlayers.First();
-                GameTextEvents.SetText($"Le joueur {winner.name} a remporté la partie.");
-                break;
-            }*/
+                if (remainingPlayers.Count > 0)
+                {
+                    var winner = remainingPlayers.First();
+                    GameTextEvents.SetText($"Le joueur {winner.name} a remporté la partie.");
+                }
+                else
+                {
+                    GameTextEvents.SetText($"Aucun joueur n'a gagné. Ils ont tous perdus.");
+                } 
+                yield return new WaitForSeconds(1.5f);
+                // break;
+
+            }
 
             // Optionally add a delay between turns
             yield return null; // 1 second delay before next turn
         }
     }
 
-    private void TakeAllFrom(MonopolyPlayer monopolyPlayer)
+    private IEnumerator TakeAllFrom(MonopolyPlayer monopolyPlayer)
     {
-        foreach (PurchasableTile tile in monopolyPlayer.deck.GetAllTiles())
+        // Create a copy of the tiles to avoid modifying the collection while iterating
+        List<PurchasableTile> tilesToRemove = monopolyPlayer.deck.GetAllTiles().ToList();
+
+        foreach (PurchasableTile tile in tilesToRemove)
         {
             tile.RemoveOwner();
             monopolyPlayer.deck.RemoveByGroupAtIndex(tile.GetTargetType(), tile.groupIndex);
+            
+            GameTextEvents.SetText($"{tile.TileName} est de nouveau disponible sur le marché.");
+            yield return new WaitForSeconds(.5f);
         }
 
-    }
-
-    private void Update()
-    {
-        /*switch (gameState)
-        {
-            case GameState.WaitingForRoll:
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    RollDice();
-                }
-                break;
-
-            case GameState.MovingPiece:
-                break;
-
-            case GameState.TurnEnd:
-                AdvanceToNextPlayer();
-                break;
-        }*/
+        yield return null;
     }
 
     void CreateBoard()
@@ -408,22 +407,6 @@ public class MonopolyGameManager : MonoBehaviour
         tile.transform.parent = transform;
         return tile;
     }
-    private void InitializeGame()
-    {
-        currentPlayerIndex = 0;
-        gameState = GameState.WaitingForRoll;
-        /*foreach (var player in players)
-        {
-            player.ResetPosition();
-        }*/
-    }
-
-    public void PlayerRollDice(MonopolyPlayer player)
-    {
-        GameTextEvents.SetText($"{player} a jete les des...");
-        dicesManager.ThrowDice(player);
-        
-    }
 
     public IEnumerator APlayerRolledDice(MonopolyPlayer player, int rollResult)
     {
@@ -442,76 +425,7 @@ public class MonopolyGameManager : MonoBehaviour
             yield return MoveAPlayerToATile(player, player.currentTile);
         yield return null;
     }
-    public void DicesRoll(MonopolyPlayer player, int rollResult, bool allEqual)
-    {
-        player.DicesRoll(rollResult, allEqual);
-        BoardTile playerTile = player.currentTile;
-        if (playerTile == null)
-        {
-            playerTile = board.GetTileAtIndex(0);
-        }
 
-        bool passHome = false;
-        //MoveAPlayerToATile(player, board.GetTileAtIndex(board.MoveFromTile(playerTile, rollResult, out passHome)), passHome);
-        player.currentTile.OnPlayerLanded(player);
-        
-        GameTextEvents.SetText($"{player} played {rollResult}");
-        
-        //showPlayerDiceResultToPanel(rollResult);
-        //showPlayerEqualDicesToPanel(allEqual);
-    }
-
-    private void showPlayerEqualDicesToPanel(bool allEqual)
-    {
-        GameObject playerDicesThrownEqualValues = GameObject.Find("ThrownEqualDicesValue");
-
-        if (allEqual && playerDicesThrownEqualValues != null)
-        {
-            // Get the TextMeshProUGUI component
-            TextMeshProUGUI textComponent = playerDicesThrownEqualValues.GetComponent<TextMeshProUGUI>();
-
-            if (textComponent != null)
-            {
-                // Set the text of the TextMeshProUGUI component
-                int oldValue = -1;
-                if (int.TryParse(textComponent.text, out oldValue))
-                {
-                    if (oldValue < 3)
-                    {
-                        oldValue++;
-                        textComponent.text = oldValue.ToString();
-                    }
-                    else
-                    {
-                        CurrentPlayerThrownEqualDicesThreeTimes();
-                        textComponent.text = "0";
-                    }
-                }else
-                {
-                    Debug.LogError("Fail to parse text component.");
-                }
-                
-            }
-            else
-            {
-                Debug.LogError("TextMeshProUGUI component not found on the GameObject.");
-            }
-        }
-        else
-        {
-            Debug.LogError("GameObject not found with the specified name.");
-        }
-    }
-
-    private void CurrentPlayerThrownEqualDicesThreeTimes()
-    {
-        GoToPrison();
-    }
-
-    private void IsYourTour()
-    {
-        CountPrison();
-    }
     private void GoToPrison()
     {
         GameObject prisonValues = GameObject.Find("PrisonValue");
@@ -537,93 +451,10 @@ public class MonopolyGameManager : MonoBehaviour
             Debug.LogError("GameObject not found with the specified name.");
         }
     }
-    private void CountPrison()
-    {
-        GameObject prisonValues = GameObject.Find("PrisonValue");
-
-        if (prisonValues != null)
-        {
-            // Get the TextMeshProUGUI component
-            TextMeshProUGUI textComponent = prisonValues.GetComponent<TextMeshProUGUI>();
-
-            if (textComponent != null)
-            {
-                // Set the text of the TextMeshProUGUI component
-                int oldValue = -1;
-                if (int.TryParse(textComponent.text, out oldValue))
-                {
-                    if (oldValue > 0)
-                    {
-                        oldValue--;
-                        textComponent.text = oldValue.ToString();
-                    }
-                }else
-                {
-                    Debug.LogError("Fail to parse text component.");
-                }
-                
-            }
-            else
-            {
-                Debug.LogError("TextMeshProUGUI component not found on the GameObject.");
-            }
-        }
-        else
-        {
-            Debug.LogError("GameObject not found with the specified name.");
-        }
-    }
-    private static void showPlayerDiceResultToPanel(int rollResult)
-    {
-        // Get the GameObject by its name
-        GameObject playerDicesThrownResultValue = GameObject.Find("ThrownResultValue");
-
-        if (playerDicesThrownResultValue != null)
-        {
-            // Get the TextMeshProUGUI component
-            TextMeshProUGUI textComponent = playerDicesThrownResultValue.GetComponent<TextMeshProUGUI>();
-
-            if (textComponent != null)
-            {
-                // Set the text of the TextMeshProUGUI component
-                textComponent.text = $"{rollResult}";
-            }
-            else
-            {
-                Debug.LogError("TextMeshProUGUI component not found on the GameObject.");
-            }
-        }
-        else
-        {
-            Debug.LogError("GameObject not found with the specified name.");
-        }
-    }
-
-    private void RollDice()
-    {
-        int roll = dice.Roll();
-        DiceThrownResult(roll);
-    }
 
     public void DiceThrownResult(int roll)
     {
         //MovePlayer(players[currentPlayerIndex], roll);
-    }
-
-    private void MovePlayer(Player player, int roll)
-    {
-        /*gameState = GameState.MovingPiece;
-        int newPosition = (player.Position + roll) % board.tiles.Count;
-        player.MoveToPosition(newPosition, () =>
-        {
-            HandleLanding(player, board.tiles[newPosition]);
-            gameState = GameState.TurnEnd;
-        });*/
-    }
-
-    private void HandleLanding(Player player, BoardTile tile)
-    {
-        // Implement property buying, paying rent, etc.
     }
 
     private void AdvanceToNextPlayer()
@@ -1458,6 +1289,16 @@ public abstract class TileGood : IGood
         return purchasableTile.CanCurrentTileGoodBeSelled();
     }
 
+    public PurchasableTile GetPurchasableTile()
+    {
+        return purchasableTile;
+    }
+
+    public string GetSellText()
+    {
+        return $"a vendu 1 {goodName} de {purchasableTile.TileName}";
+    }
+
     public string GetGoodName()
     {
         return goodName;
@@ -1472,6 +1313,10 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
     public bool IsMortgaged { get; private set;  }
     public List<TileGood> TileGoods { get; private set; }
 
+    public string GetSellText()
+    {
+        return $"a hypothéqué {TileName}";
+    }
     public MonopolyPlayer monopolyPlayer { get; private set; }
     public override bool CanBeBought()
     {
@@ -1504,6 +1349,11 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
     public bool IsOwned()
     {
         return monopolyPlayer != null;
+    }
+    
+    public bool IsFullyOwned()
+    {
+        return IsOwned() && !IsMortgaged;
     }
 
     public abstract Type GetTargetType();
@@ -1551,6 +1401,11 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
         return !IsMortgaged;
     }
 
+    public PurchasableTile GetPurchasableTile()
+    {
+        return this;
+    }
+
     public string GetGoodName()
     {
         return $"Hypothèque sur {this}";
@@ -1563,7 +1418,7 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
         monopolyPlayer.deck.Add(this);
     }
 
-    public void RemoveOwner()
+    public virtual void RemoveOwner()
     {
         IsMortgaged = false;
         monopolyPlayer = null;
@@ -1596,7 +1451,12 @@ public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
 
     public virtual string GetLevelText()
     {
-        return IsOwned()? $"vous possédez {GetLevel() + 1} au total":"Unknwon";
+        return IsOwned()? $"vous en possédez {GetLevel() + 1} au total":"Inconnu";
+    }
+
+    public virtual string GetCostText()
+    {
+        return GetLevelCost().ToString()+'M';
     }
 
 }
@@ -1627,6 +1487,11 @@ public abstract class PublicServiceTile : PurchasableTile
     }
 
     public abstract Sprite GetImageSprite();
+    
+    public override string GetCostText()
+    {
+        return $"{GetLevelCost()}x M le résultat le lancé";
+    }
 
 }
 
@@ -2079,6 +1944,11 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
     public TitleDeedCard titleDeedFaceCard { get; private set; }
     public CardBehind titleDeedBehindCard { get; private set; }
 
+    public override void RemoveOwner()
+    {
+        base.RemoveOwner();
+        propertyTileState = new PropertyTileStateWithNoHouse(this);
+    }
     public override bool HaveTilesGood()
     {
         return CanBuildBeDowngraded();
@@ -2343,8 +2213,8 @@ public abstract class SpecialCard
     {
         Debug.Log($"Effet de carte : {description}");
         
-        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer} est arriver sur une tuile {name}.");
-        yield return new WaitForSeconds(.5f);
+        monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} est arriver sur une tuile {name}.");
+        yield return new WaitForSeconds(.9f);
         monopolyGameManager.SetGameTextEventsText($"Effet de carte : {description}");
         yield return new WaitForSeconds(1.5f);
         yield return TriggerEffect(monopolyPlayer);
@@ -2376,7 +2246,7 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
     {
         
         AddRange(new List<ChanceCard>{
-            new AdvanceToUtilityCard(monopolyGameManager),
+            /*new AdvanceToUtilityCard(monopolyGameManager),
             new BankDividendCard(monopolyGameManager),
             new AdvanceToStationCardChance(monopolyGameManager),
             new SpeedingFineCard(monopolyGameManager),
@@ -2384,14 +2254,14 @@ public class ChancesCards : ShuffableCollection<ChanceCard>
             new AdvanceToStartCard(monopolyGameManager),
             new AdvanceToStartCard(monopolyGameManager),
             new GetOutOfJailCard(monopolyGameManager),
-            new AdvanceToRueDeLaPaixCard(monopolyGameManager),
             new GoToJailCard(monopolyGameManager),
             new AdvanceToAvenueHenriMartinCard(monopolyGameManager),
-            new AdvanceToGareMontparnasseCard(monopolyGameManager),
             new RealEstateLoanCard(monopolyGameManager),
             new MoveBackThreeSpacesCard(monopolyGameManager),
             new AdvanceToBoulevardDeLaVilletteCard(monopolyGameManager),
-            new ElectedChairmanCard(monopolyGameManager)
+            new ElectedChairmanCard(monopolyGameManager),*/
+            //new AdvanceToRueDeLaPaixCard(monopolyGameManager),
+            new AdvanceToGareMontparnasseCard(monopolyGameManager),
         });
         Shuffle();
     }
@@ -2407,10 +2277,9 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
     {
         
         AddRange(new List<CommunityCard>{
-            new PlaygroundDonationCard(monopolyGameManager),
+            /*new PlaygroundDonationCard(monopolyGameManager),
             new NeighborhoodPartyCard(monopolyGameManager),
             new BakeSaleCard(monopolyGameManager),
-            new CharityCarWashCard(monopolyGameManager),
             new BakeSalePurchaseCard(monopolyGameManager),
             new GardenCleanupCard(monopolyGameManager),
             new HospitalPlayCard(monopolyGameManager),
@@ -2422,9 +2291,10 @@ public class CommunitiesCards : ShuffableCollection<CommunityCard>
             new HospitalPlayCard(monopolyGameManager),
             new MarathonForHospitalCard(monopolyGameManager),
             new AdoptPuppyCard(monopolyGameManager),
-            new LoudMusicCard(monopolyGameManager),
+            new LoudMusicCard(monopolyGameManager),*/
             new HelpNeighborCard(monopolyGameManager),
-            new HousingImprovementCard(monopolyGameManager),
+            // new CharityCarWashCard(monopolyGameManager),
+            // new HousingImprovementCard(monopolyGameManager),
             // Ajoutez ici d'autres cartes Community...
         });
         Shuffle();

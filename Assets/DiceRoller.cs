@@ -55,12 +55,6 @@ public class DiceRoller : MonoBehaviour
         }
     }
 
-    void OnCollisionStay(Collision collision)
-    {
-        // (Optional) Log ongoing collisions if needed
-        //Debug.Log($"Continuing collision with: {collision.gameObject.name}");
-    }
-
     void OnCollisionExit(Collision collision)
     {
         GameObject collidedObject = collision.gameObject;
@@ -119,26 +113,6 @@ public class DiceRoller : MonoBehaviour
 
     }
 
-    void Update()
-    {
-        
-    
-    }
-    void DoDieMovementEndedAction(int gottenFace)
-    {
-
-        lastRoll = gottenFace;
-        // Debug.Log($"Dice stopped! Top face: {lastRoll}") ;
-        _lastActionTime = DateTime.Now - _cooldownPeriod - TimeSpan.FromMilliseconds(100);  // Forces cooldown to pass
-        DicesManager.NotifyResponse(this);
-    }
-
-    public int LastRoll()
-    {
-        
-        Debug.Assert(lastRoll > 0, "The value must be greater than 0");
-        return lastRoll;
-    }
     private int GetFaceAccordingToXYZ()
     {
         if (transform.hasChanged)
@@ -194,33 +168,6 @@ public class DiceRoller : MonoBehaviour
         diceRigidbody.transform.rotation = Quaternion.identity;
     }
 
-    private int GetTopFace()
-    {
-        // Raycast from each face of the dice to determine the top face
-        Vector3[] faceDirections = {
-            Vector3.up,    // Top face
-            Vector3.down,  // Bottom face
-            Vector3.left,  // Left face
-            Vector3.right, // Right face
-            Vector3.forward, // Front face
-            Vector3.back    // Back face
-        };
-
-        int faceIndex = -1;
-        float maxDot = float.MinValue;
-
-        for (int i = 0; i < faceDirections.Length; i++)
-        {
-            float dot = Vector3.Dot(diceRigidbody.transform.up, faceDirections[i]);
-            if (dot > maxDot)
-            {
-                maxDot = dot;
-                faceIndex = i + 1; // Assuming face values 1 to 6
-            }
-        }
-
-        return faceIndex;
-    }
     public DiceRoller GetNewer(int index = 1)
     {
         // Clone the GameObject associated with the element

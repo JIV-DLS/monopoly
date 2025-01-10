@@ -244,22 +244,7 @@ public class MonopolyPlayer
         // PlayerContent.UpdateTile(tile);
 
     }
-    public void DicesRoll(int rollResult, bool allEqual)
-    {
-        hasPerformedAction = true;
-        // PlayerContent.SetDicesRolled(rollResult, allEqual);
-    }
-    // Update is called once per frame
-    void Update()
-    {
-         
-    }
 
-    // The method that each player will call during their turn
-    public IEnumerator TriggerPlay(float actionTimeout)
-    {
-        yield return TriggerPlay(actionTimeout,actionTimeout);
-    }
     public IEnumerator TriggerPlay(float rollDiceTimeout, float userBuyTileTimeout)
     {
         if (CanPlay())
@@ -371,9 +356,8 @@ public class MonopolyPlayer
                     }
                 }
 
-                string tileText = currentTile is PublicServiceTile ? $"{purchasableTile.GetLevelCost()}x le résultat de son lancé" : purchasableTile.GetLevelCost().ToString()+'M';
                 _monopolyGameManager.SetGameTextEventsText(
-                    $"{name}, chaque joueur passant sur {currentTile.TileName} devra vous payer {tileText}, {purchasableTile.GetLevelText()}.");
+                    $"{name}, chaque joueur passant sur {currentTile.TileName} devra vous payer {purchasableTile.GetCostText()}, {purchasableTile.GetLevelText()}.");
                 yield return new WaitForSeconds(4f);
             }
             else
@@ -509,9 +493,16 @@ public class MonopolyPlayer
             IGood good = deck.GetSmallestGoodToSell();
             if (good != null)
             {
+                PurchasableTile goodPurchasableTile = good.GetPurchasableTile();
+                int oldCost = goodPurchasableTile.GetLevelCost();
+                good.Sell();
                 int sellAmount = good.Sell();;
                 HaveWon(sellAmount);
-                _monopolyGameManager.SetGameTextEventsText($"{name} a vendu {good}. Nouveau solde {sellAmount}.");
+                
+                _monopolyGameManager.SetGameTextEventsText($"{name} a {good.GetSellText()}. Nouveau solde {sellAmount}.");
+                yield return new WaitForSeconds(1f);
+                string newCost = goodPurchasableTile.IsFullyOwned()? goodPurchasableTile.GetCostText():"0M";
+                _monopolyGameManager.SetGameTextEventsText($"{name} a vendu {good}. Nouveau solde {sellAmount}. Son prix de passage passe de {oldCost}M à {newCost}");
                 yield return new WaitForSeconds(1f);
             }
         }
@@ -652,6 +643,8 @@ public interface IGood
     public int GetSellPrice();
     public int Sell();
     public bool CanBeSelled();
+    public PurchasableTile GetPurchasableTile();
+    string GetSellText();
 }
 public abstract class Good: IGood
 {
@@ -659,6 +652,8 @@ public abstract class Good: IGood
     public abstract int GetSellPrice();
     public abstract int Sell();
     public abstract bool CanBeSelled();
+    public abstract PurchasableTile GetPurchasableTile();
+    public abstract string GetSellText();
 
     public abstract string GetGoodName();
 }

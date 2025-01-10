@@ -174,7 +174,7 @@ public class AdvanceToGareMontparnasseCard : ChanceCard
         
         
         monopolyGameManager.SetGameTextEventsText($"{monopolyPlayer.name} doit se déplacer à la GARE MONTPARNASSE.");
-        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 11);
+        yield return monopolyGameManager.MoveAPlayerToATile(monopolyPlayer, 5);
         yield return new WaitForSeconds(.5f);
     }
 }
