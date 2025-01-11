@@ -1,4 +1,5 @@
 using System.Collections;
+using Monopoly;
 using UnityEngine;
 
 public abstract class SpecialCard

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Monopoly;
 using UnityEngine;
 
 public class Board
@@ -8,10 +9,10 @@ public class Board
     private BoardTile[] tiles;
     private Dictionary<int, BoardTile> tileLookup;
     private Dictionary<BoardTile, int> indexLookup;
-    public TitleDeedCard titleDeedCardPrefab { get; private set; }
-    public RailRoadCard railRoadCardPrefab { get; private set; }
-    public PublicServiceCard publicServiceCardPrefab { get; private set; }
-    public CardBehind cardBehindPrefab { get; private set; }
+    public TitleDeedCard titleDeedCardPrefab { get; }
+    public RailRoadCard railRoadCardPrefab { get; }
+    public PublicServiceCard publicServiceCardPrefab { get; }
+    public CardBehind cardBehindPrefab { get; }
     
     public PurchasableTile[] GetAllGroupOfThisPropertyTile(Type targetType)
     {

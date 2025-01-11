@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Monopoly;
 
 public class CommunitiesCards : ShuffableCollection<CommunityCard>
 {

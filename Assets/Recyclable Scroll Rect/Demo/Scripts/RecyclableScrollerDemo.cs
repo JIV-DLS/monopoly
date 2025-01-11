@@ -25,7 +25,7 @@ public class RecyclableScrollerDemo : MonoBehaviour, IRecyclableScrollRectDataSo
     private int _dataLength;
 
     //Dummy data List
-    private List<ContactInfo> _contactList = new List<ContactInfo>();
+    private readonly List<ContactInfo> _contactList = new List<ContactInfo>();
 
     //Recyclable scroll rect's data source must be assigned in Awake.
     private void Awake()

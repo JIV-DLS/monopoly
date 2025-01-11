@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Monopoly;
 using UnityEngine;
 
 public abstract class PurchasableTile : BoardTile, IGood, IPurchasableTileLevel
 {
-    public int[] costs { get; private set; }
-    private int price { get; set; }
-    public int mortgageCost { get; private set; }
+    public int[] costs { get; }
+    private int price { get; }
+    public int mortgageCost { get; }
     public int mortgageFinishedCost { get; private set;  }
     public bool IsMortgaged { get; private set;  }
     public List<TileGood> TileGoods { get; private set; }

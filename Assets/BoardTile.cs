@@ -1,12 +1,13 @@
+using Monopoly;
 using UnityEngine;
 
 public class BoardTile
 {
     
     public int groupIndex{ get; private set; }
-    public int index { get; private set; }
+    public int index { get; }
     public string TileName { get; private set; }
-    public GameObject tileGameObject { get; private set; }
+    public GameObject tileGameObject { get; }
     public MonopolyGameManager monopolyGameManager { get; private set; }
     public BoardTile(GameObject tileGameObject, string name, int index, int groupIndex)
     {

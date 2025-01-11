@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Monopoly;
 
 public class SelfMadePlayer:MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class SelfMadePlayer:MonoBehaviour
     }
     public string name{get; private set;}
     private PlayerSummaryButton _playerSummaryButton;
-    private PlayerElementOnMap _playerElementOnMap;
+    private readonly PlayerElementOnMap _playerElementOnMap;
     public int money { get; private set; } = 0;
     public PlayerContent PlayerContent;
     public MonopolyGameManager MonopolyGameManager;

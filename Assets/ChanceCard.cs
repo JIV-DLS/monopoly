@@ -1,3 +1,5 @@
+using Monopoly;
+
 public abstract class ChanceCard : SpecialCard
 {
     public ChanceCard(MonopolyGameManager monopolyGameManager, string description)

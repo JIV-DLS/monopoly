@@ -3,8 +3,8 @@ using UnityEngine;
 
 public abstract class PublicServiceTile : PurchasableTile
 {
-    public PublicServiceCard publicService { get; private set; }
-    public CardBehind titleDeedBehindCard { get; private set; }
+    public PublicServiceCard publicService { get; }
+    public CardBehind titleDeedBehindCard { get; }
 
     public override Type GetTargetType()
     {

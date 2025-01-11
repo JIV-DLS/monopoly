@@ -1,7 +1,7 @@
 public abstract class TileGood : IGood
 {
-    protected PurchasableTile purchasableTile{ get; private set; }
-    public string goodName{ get; private set; }
+    protected PurchasableTile purchasableTile{ get; }
+    public string goodName{ get; }
 
     protected TileGood(PurchasableTile purchasableTile, string goodName)
     {

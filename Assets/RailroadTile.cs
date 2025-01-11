@@ -8,8 +8,8 @@ public class RailroadTile : PurchasableTile
     {
         return typeof(RailroadTile);
     }
-    public RailRoadCard railRoadCard { get; private set; }
-    public CardBehind titleDeedBehindCard { get; private set; }
+    public RailRoadCard railRoadCard { get; }
+    public CardBehind titleDeedBehindCard { get; }
 
     public override PurchasableFaceCard GetFaceCard()
     {

@@ -4,7 +4,7 @@ using System.Linq;
 
 public class MonopolyPlayerDeck
 {
-    private Dictionary<Type, Dictionary<int, PurchasableTile>> _purchasableTiles = new Dictionary<Type, Dictionary<int, PurchasableTile>>();
+    private readonly Dictionary<Type, Dictionary<int, PurchasableTile>> _purchasableTiles = new Dictionary<Type, Dictionary<int, PurchasableTile>>();
 
     // Add any object of type T where T inherits from PurchasableTile
     public void Add<T>(T value) where T : PurchasableTile

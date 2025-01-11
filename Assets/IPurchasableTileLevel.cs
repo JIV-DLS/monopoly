@@ -1,3 +1,5 @@
+using Monopoly;
+
 public interface IPurchasableTileLevel
 {
     public int GetLevel();

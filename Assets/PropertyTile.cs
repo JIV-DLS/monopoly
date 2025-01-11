@@ -6,12 +6,12 @@ public abstract class PropertyTile : PurchasableTile, IPropertyTileStateHolder, 
 {
     public abstract PropertyTile[] GetAllGroupOfThisPropertyTile();
     public PropertyTileState propertyTileState { get; private set; }
-    public int houseCost { get; private set; }
-    public int hotelCost { get; private set; }
+    public int houseCost { get; }
+    public int hotelCost { get; }
     public string owner { get; private set; }
     public Color color { get; set; }
-    public TitleDeedCard titleDeedFaceCard { get; private set; }
-    public CardBehind titleDeedBehindCard { get; private set; }
+    public TitleDeedCard titleDeedFaceCard { get; }
+    public CardBehind titleDeedBehindCard { get; }
 
     public override void RemoveOwner()
     {

@@ -1,3 +1,4 @@
+using Monopoly;
 using UnityEngine;
 
 public class PlayerContent : MonoBehaviour

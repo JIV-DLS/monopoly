@@ -1,3 +1,5 @@
+using Monopoly;
+
 public abstract class PropertyTileState:IPropertyTileActionsPossibilityState, IPurchasableTileLevel
 {
     protected readonly PropertyTile PropertyTile;
