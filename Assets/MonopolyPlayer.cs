@@ -24,6 +24,7 @@ namespace Monopoly
             _playerSummaryButton = playerSummaryButton;
             _playerSummaryButton.setPlayer(this);
             this.playerElementOnMap = playerElementOnMap;
+            playerElementOnMap.SetMonopolyPlayer(this);
             _throwDices = throwDices;
             _communityFreeFromPrisonButton = communityFreeFromPrisonButton;
             _communityFreeFromPrisonButton.Init();
@@ -72,34 +73,64 @@ namespace Monopoly
         {
             currentTile = tileToLandOn;
             // Debug.Log($"assigning tile {tile.tileGameObject}");
-            playerElementOnMap.transform.position = new Vector3(currentTile.getTransform().position.x,
-                playerElementOnMap.transform.position.y, currentTile.getTransform().position.z);
+            playerElementOnMap.UpdateTransform(new Vector3(currentTile.getTransform().position.x,
+                playerElementOnMap.transform.position.y, currentTile.getTransform().position.z));
 
         }
 
         public IEnumerator TriggerPlay(float rollDiceTimeout, float userBuyTileTimeout)
         {
-            if (CanPlay())
+
+            if (playerElementOnMap.photonView.IsMine)
             {
-                yield return HandlePlayerRollDice(rollDiceTimeout);
-                yield return HandlePlayerBuyAction(userBuyTileTimeout);
-            }else if (IsInPrison())
-            {
-                prison--;
-                if (prison > 0)
+                if (CanPlay())
                 {
-                    _monopolyGameManager.SetGameTextEventsText($"{name} est en prison. Encore {prison} tours restant.");
-                }
-                else
+                    yield return HandlePlayerRollDice(rollDiceTimeout);
+                    yield return HandlePlayerBuyAction(userBuyTileTimeout);
+                }else if (IsInPrison())
                 {
-                    _monopolyGameManager.SetGameTextEventsText($"{name} est libéré de prison.");
-                    DisableAllFreeFromPrisonButtons();
+                    prison--;
+                    if (prison > 0)
+                    {
+                        _monopolyGameManager.SetGameTextEventsText($"{name} est en prison. Encore {prison} tours restant.");
+                    }
+                    else
+                    {
+                        _monopolyGameManager.SetGameTextEventsText($"{name} est libéré de prison.");
+                        DisableAllFreeFromPrisonButtons();
+                    }
+                    yield return new WaitForSeconds(.5f);
                 }
-                yield return new WaitForSeconds(.5f);
             }
+            else
+            {
+                yield return PerformRemoteAction();
+            }
+            
         
         }
+        public IEnumerator PerformRemoteAction()
+        {
+            if (playerElementOnMap.photonView.IsMine)
+            {
+                Debug.LogError("Cannot call remote actions on your own object!");
+                yield break;
+            }
 
+            Debug.Log("Requesting remote player to perform action...");
+
+            // Send an RPC to the owner to perform the action
+            playerElementOnMap.photonView.RPC("StartRemoteAction", playerElementOnMap.photonView.Owner);
+
+            // Wait for the action to complete
+            while (!playerElementOnMap.actionCompleted)
+            {
+                yield return null; // Wait for the next frame
+            }
+
+            Debug.Log("Remote action completed!");
+            playerElementOnMap.SetActionCompleted(false); // Reset for the next request
+        }
         public IEnumerator HandlePlayerBuyAction(float actionTimeout)
         {
             _timer = 0f;

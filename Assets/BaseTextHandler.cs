@@ -1,5 +1,6 @@
 using System;
 using Monopoly;
+using Photon.Pun;
 using UnityEngine;
 using TMPro;
 
@@ -10,6 +11,30 @@ public interface IInitComponent
 }
 
 public class MonoBehaviourWithInitComponent : MonoBehaviour, IInitComponent
+{
+    private bool _isInitialized = false;
+    public void Init()
+    {
+        if (IsAlreadyInitialized())
+        {
+            return;
+        }
+
+        _isInitialized = true;
+        OtherInit();
+    }
+
+    public virtual void OtherInit()
+    {
+        
+    }
+
+    public bool IsAlreadyInitialized()
+    {
+        return _isInitialized;
+    }
+}
+public class MonoBehaviourPunWithInitComponent : MonoBehaviourPun, IInitComponent
 {
     private bool _isInitialized = false;
     public void Init()
@@ -155,6 +180,11 @@ public class BaseTextHandler : MonoBehaviourWithInitComponent
         }
 
         return truncatedText.TrimEnd(); // Return the truncated text without trailing spaces
+    }
+
+    public string GetText()
+    {
+        return textComponent.text;
     }
 }
 

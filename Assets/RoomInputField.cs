@@ -5,9 +5,11 @@ using UnityEngine.Serialization;
 public class RoomInputField : MonoBehaviour
 {
     public ButtonHandler buttonHandler;
+    public BaseTextHandler textHandler;
+
     [SerializeField] private TMP_InputField inputField; // Drag TMP_InputField here in Inspector
 
-    private void Start()
+    private void Awake()
     {
         if (inputField == null)
         {
@@ -19,7 +21,9 @@ public class RoomInputField : MonoBehaviour
         Debug.Log("Initial Text: " + inputField.text);
 
         // Subscribe to text changes
-        inputField.onValueChanged.AddListener(buttonHandler.SetInteractableText);
+        inputField.onValueChanged.AddListener(inputStr =>buttonHandler.SetInteractableText(
+            textHandler.GetText().Trim().Length > 3 && inputStr.Trim().Length > 3 ? "XXX" : ""
+        ));
     }
 
 }
