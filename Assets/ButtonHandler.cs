@@ -16,6 +16,10 @@ public class ButtonHandler : MonoBehaviourWithInitComponent
         Init();
     }
 
+    public void SetInteractableText(string text)
+    {
+        SetButtonInteractable(text.Length > 0);
+    }
     protected virtual void OnDestroy()
     {
         // Remove the listener to avoid memory leaks
