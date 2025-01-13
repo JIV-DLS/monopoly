@@ -1,3 +1,4 @@
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
@@ -22,7 +23,8 @@ public class ManageRoom : MonoBehaviourPunCallbacks
     {
         
         // Set the player's name
-        PhotonNetwork.LocalPlayer.NickName = PlayerPieceEnum.TopHat.ToString();
+        PhotonNetwork.LocalPlayer.NickName = playerInRoomName.GetText();
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable { { "image", 0 } });
         PhotonNetwork.JoinOrCreateRoom(roomToCreateName.text, new RoomOptions(){MaxPlayers = 8}, TypedLobby.Default, null);
     }
 
@@ -30,7 +32,8 @@ public class ManageRoom : MonoBehaviourPunCallbacks
     {
         
         // Set the player's name
-        PhotonNetwork.LocalPlayer.NickName = PlayerPieceEnum.BattleShip.ToString();
+        PhotonNetwork.LocalPlayer.NickName = playerInRoomName.GetText();
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable { { "image", 0 } });
         PhotonNetwork.JoinRoom(roomToJoinName.text);
     }
     public void UpdateNickname(string newNickname)
@@ -48,7 +51,9 @@ public class ManageRoom : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         ConnectedToRoom.SetCurrentImageIndex(0);
+        roomName.Init();
         roomName.SetText($"{PhotonNetwork.CurrentRoom.Name} - {PhotonNetwork.CurrentRoom.PlayerCount}");
+        playerName.Init();
         playerName.SetText(playerInRoomName.GetText());
         gameObject.SetActive(false);
         ConnectedToRoom.gameObject.SetActive(true);

@@ -50,7 +50,7 @@ namespace Mosframe {
 		    prevTotalItemCount = 0;
 		    nextInsertItemNo = 0;
 		    prevAnchoredPosition = 0;
-
+		    indexToSkip.Clear();
 		    // Refresh the scroll view to reflect changes
 		    refresh();
 	    }
