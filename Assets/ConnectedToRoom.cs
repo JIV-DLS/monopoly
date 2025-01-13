@@ -77,6 +77,8 @@ public class ConnectedToRoom : MonoBehaviourPunCallbacks
         {
             _isDebouncing = true;
             _debounceTimer.Start();
+            
+            roomName.SetText($"{PhotonNetwork.CurrentRoom.Name} - {PhotonNetwork.CurrentRoom.PlayerCount}");
             connectedToRoomScrollView.ClearAll(); //.Where(player=>Equals(player, PhotonNetwork.LocalPlayer))
             Debug.Log("Current Players in Room:");
             foreach (Player player in PhotonNetwork.PlayerList)

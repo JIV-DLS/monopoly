@@ -28,11 +28,11 @@ namespace Mosframe {
 		    this.title.text         = string.Format("Name{0:d3}", (index + 1) );
 	        }
 
-	        if (background != null)
+	        /*if (background != null)
 	        {
 		        
 		        this.background.color   = this.colors[Mathf.Abs(index) % this.colors.Length];
-	        }
+	        }*/
         }
     }
 }
