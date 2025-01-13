@@ -133,24 +133,3 @@ public class SelfMadePlayer:MonoBehaviour
         hasPerformedAction = false;
     }
 }
-public class Player : MonoBehaviour
-{
-    [SerializeField] private string playerName; // Exposed to Unity Editor
-    public int Position { get; private set; }
-
-    public void ResetPosition()
-    {
-        Position = 0;
-        transform.position = Vector3.zero; // Reset Unity world position
-    }
-
-    public void MoveToPosition(int newPosition, System.Action onMoveComplete)
-    {
-        Position = newPosition;
-        // Optional: Update Unity position here if needed
-        // For example: transform.position = new Vector3(newPosition, transform.position.y, transform.position.z);
-
-        // Call the callback after completing the movement
-        onMoveComplete?.Invoke();
-    }
-}

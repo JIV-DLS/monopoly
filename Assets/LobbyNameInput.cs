@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 
 public class LobbyNameInput : MonoBehaviour
 {
+    public ManageRoom ManageRoom;
     public List<ButtonHandler> buttonsHandler;
     public List<BaseTextHandler> textsHandler;
     [SerializeField] private TMP_InputField inputField; // Drag TMP_InputField here in Inspector
@@ -50,6 +51,8 @@ public class LobbyNameInput : MonoBehaviour
             item.button.SetInteractableText(
                 textsHandler[item.index].GetText().Trim().Length > 3 && inputStr.Trim().Length > 3 ? "XXX" : ""
             )));
+        inputField.onValueChanged.AddListener(ManageRoom.UpdateNickname);
+        
         SetRandomNickname();
     }
     public void SetRandomNickname()

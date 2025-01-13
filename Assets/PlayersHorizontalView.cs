@@ -4,37 +4,16 @@ using Monopoly;
 using Mosframe;
 using UnityEngine;
 
-public class DynamicHScrollViewUtils<T>: DynamicHScrollView
+public class PlayersHorizontalView : DynamicHScrollView
 {
-    private RectTransform GetElementAt(int index)
-    {
-        if (index < 0 || index >= this.containers.Count)
-            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
-
-        var current = this.containers.First;
-        for (int i = 0; i < index; i++)
-        {
-            current = current.Next;
-        }
-
-        return current.Value;
-    }
     
-    public T GetChildAt(int index)
+    public PlayerSummaryButton CreateNewChildAtEnd()
     {
-        return GetElementAt(index).GetComponentInChildren<T>();
+        return AddNewItem().GetComponentInChildren<PlayerSummaryButton>();
     }
-
-    public T CreateNewChildAtEnd()
-    {
-        return AddNewItem().GetComponentInChildren<T>();
-    }
-}
-public class PlayersHorizontalView : DynamicHScrollViewUtils<PlayerSummaryButton>
-{
     public PlayerSummaryButton GetPlayer(int playerIndex)
     {
-        return GetChildAt(playerIndex);
+        return GetChildAt<PlayerSummaryButton>(playerIndex);
     }
 
     public void UpdatePlayer(int playerIndex, MonopolyPlayer selfMadePlayer)

@@ -5,7 +5,9 @@
  * 
  */
 
- namespace Mosframe {
+using System;
+
+namespace Mosframe {
 
     using System.Collections.Generic;
     using UnityEngine;
@@ -19,6 +21,61 @@
     [RequireComponent(typeof(ScrollRect))]
     public abstract class DynamicScrollView : UIBehaviour {
 
+	    public void ClearAll()
+	    {
+		    // Remove all child elements from the content
+		    foreach (var item in containers)
+		    {
+			    if (item != null)
+			    {
+				    Destroy(item.gameObject);
+			    }
+		    }
+
+		    // Clear the linked list of containers
+		    containers.Clear();
+
+		    // Reset content size
+		    if (direction == Direction.Vertical)
+		    {
+			    contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 0);
+		    }
+		    else
+		    {
+			    contentRect.sizeDelta = new Vector2(0, contentRect.sizeDelta.y);
+		    }
+
+		    // Reset state variables
+		    totalItemCount = 0;
+		    prevTotalItemCount = 0;
+		    nextInsertItemNo = 0;
+		    prevAnchoredPosition = 0;
+
+		    // Refresh the scroll view to reflect changes
+		    refresh();
+	    }
+	    private RectTransform GetElementAt(int index)
+	    {
+		    if (index < 0 || index >= this.containers.Count)
+			    throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range.");
+
+		    var current = this.containers.First;
+		    for (int i = 0; i < index; i++)
+		    {
+			    current = current.Next;
+		    }
+
+		    return current.Value;
+	    }
+	    public T GetChildAt<T>(int index)
+	    {
+		    return GetElementAt(index).GetComponentInChildren<T>();
+	    }
+
+	    public T CreateNewChildAtEnd<T>()
+	    {
+		    return AddNewItem().GetComponentInChildren<T>();
+	    }
 	    public int             totalItemCount   = 99;
 	    public RectTransform   itemPrototype    = null;
 
