@@ -13,7 +13,7 @@ public class PlayerImageChooser : BaseImageHandler
         {
             Debug.LogWarning("No images in the chosenImages list.");
         }
-        SetCurrentIndex(0);
+        // SetCurrentIndex(0);
         image.sprite = chosenImages[_currentIndex];
     }
 
