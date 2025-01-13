@@ -4,23 +4,24 @@ using Monopoly;
 using Photon.Pun;
 using UnityEngine;
 
-public class PlayerElementOnMap : MonoBehaviourPunWithInitComponent
+public class PlayerElementOnMap : MonoBehaviour
 {
+    [SerializeField] private SpriteRenderer spriteRenderer; // Drag TMP_InputField here in Inspector
+
     // Get the SpriteRenderer component of the current GameObject
-    private SpriteRenderer _spriteRenderer;
     public bool actionCompleted { get; private set; } // Tracks if the remote action is completed
     private MonopolyPlayer _monopolyPlayer;
+    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Init();
         
     }
     [PunRPC]
     private void StartRemoteAction()
     {
-        if (!photonView.IsMine)
+        if (true)
         {
             Debug.LogError("Received remote action request, but this is not the owner!");
             return;
@@ -34,7 +35,7 @@ public class PlayerElementOnMap : MonoBehaviourPunWithInitComponent
     {
         yield return _monopolyPlayer.Play(); // Simulate a 2-second action
         // Notify all players that the action is complete
-        photonView.RPC("NotifyActionComplete", RpcTarget.Others);
+        //photonView.RPC("NotifyActionComplete", RpcTarget.Others);
     }
 
     [PunRPC]
@@ -42,21 +43,7 @@ public class PlayerElementOnMap : MonoBehaviourPunWithInitComponent
     {
         actionCompleted = true;
     }
-    public override void OtherInit()
-    {
-        base.OtherInit();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
 
-        if (_spriteRenderer == null)
-        {
-            Debug.LogError("No SpriteRenderer component found on this GameObject.");
-        }
-    }
-
-    public Sprite GetSprite()
-    {
-        return _spriteRenderer.sprite;
-    }
     // Update is called once per frame
     void Update()
     {
@@ -76,5 +63,14 @@ public class PlayerElementOnMap : MonoBehaviourPunWithInitComponent
     public void SetActionCompleted(bool actionCompletedToSet)
     {
         this.actionCompleted = actionCompletedToSet;
+    }
+
+    public Sprite GetSprite()
+    {
+        return spriteRenderer.sprite;
+    }
+    public void SetSprite(Sprite sprite)
+    {
+        spriteRenderer.sprite = sprite;
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Photon.Realtime;
 
 namespace Monopoly
 {
@@ -12,7 +13,7 @@ namespace Monopoly
             return name;
         }
 
-        public MonopolyPlayer(string playerName, PlayerSummaryButton playerSummaryButton,
+        public MonopolyPlayer(Player player, PlayerSummaryButton playerSummaryButton,
             PlayerElementOnMap playerElementOnMap, 
             ThrowDices throwDices,
             FreeFromPrisonButton communityFreeFromPrisonButton,
@@ -20,7 +21,8 @@ namespace Monopoly
             MonopolyGameManager monopolyGameManager)
         {
             deck = new MonopolyPlayerDeck();
-            name = playerName;
+            name = player.NickName;
+            this.player = player;
             _playerSummaryButton = playerSummaryButton;
             _playerSummaryButton.setPlayer(this);
             this.playerElementOnMap = playerElementOnMap;
@@ -37,6 +39,8 @@ namespace Monopoly
             getOutOfJailChanceCards = new List<GetOutOfJailCard>();
             adoptPuppyCards = new List<AdoptPuppyCard>();
         }
+
+        public Player player { get; set; }
 
         public MonopolyPlayerDeck deck{get; }
         private readonly ThrowDices _throwDices;
@@ -81,7 +85,7 @@ namespace Monopoly
         public IEnumerator TriggerPlay(float rollDiceTimeout, float userBuyTileTimeout)
         {
 
-            if (playerElementOnMap.photonView.IsMine)
+            if (true)
             {
                 if (CanPlay())
                 {
@@ -111,7 +115,7 @@ namespace Monopoly
         }
         public IEnumerator PerformRemoteAction()
         {
-            if (playerElementOnMap.photonView.IsMine)
+            if (true)
             {
                 Debug.LogError("Cannot call remote actions on your own object!");
                 yield break;
@@ -120,7 +124,7 @@ namespace Monopoly
             Debug.Log("Requesting remote player to perform action...");
 
             // Send an RPC to the owner to perform the action
-            playerElementOnMap.photonView.RPC("StartRemoteAction", playerElementOnMap.photonView.Owner);
+            // playerElementOnMap.photonView.RPC("StartRemoteAction", playerElementOnMap.photonView.Owner);
 
             // Wait for the action to complete
             while (!playerElementOnMap.actionCompleted)

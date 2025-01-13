@@ -4,6 +4,17 @@ using UnityEngine;
 
 public class PlayerPieceOnBoardBuilder : MonoBehaviour
 {
+    public PlayerElementOnMap Create(PlayerElementOnMap playerElementOnMapPrefab, Sprite sprite, Transform parentTransform)
+    {
+        PlayerElementOnMap createdObject = Instantiate(playerElementOnMapPrefab,
+            playerElementOnMapPrefab.transform.position, playerElementOnMapPrefab.transform.rotation);
+        //createdObject.Init();
+        createdObject.SetSprite(sprite);
+        createdObject.transform.SetParent(parentTransform);
+        createdObject.gameObject.SetActive(true);
+        createdObject.transform.rotation = Quaternion.Euler(85.75056f, 0.05120904f, 2.250318e-08f);
+        return createdObject;
+    }
     public PlayerElementOnMap Create(string playerPieceName, Transform parentTransform)
     {
         Enum.TryParse(playerPieceName, out PlayerPieceEnum playerPiece);

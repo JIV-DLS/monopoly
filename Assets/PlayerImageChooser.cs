@@ -66,4 +66,9 @@ public class PlayerImageChooser : BaseImageHandler
         SetCurrentIndex(playerCustomProperty);
         image.sprite = chosenImages[_currentIndex];
     }
+
+    public Sprite SpriteAt(int index)
+    {
+        return chosenImages[index];
+    }
 }

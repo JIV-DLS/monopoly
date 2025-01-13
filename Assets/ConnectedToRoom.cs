@@ -7,6 +7,13 @@ using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 using System.Timers;
 
+class StartGameClickableButtonHandler:IClickableButtonHandler
+{
+    public void OnClick()
+    {
+        PhotonNetwork.LoadLevel("MonopolyMainScene");
+    }
+}
 public class ConnectedToRoom : MonoBehaviourPunCallbacks
 {
     
@@ -21,6 +28,7 @@ public class ConnectedToRoom : MonoBehaviourPunCallbacks
     {
         startGameButton.Init();
         UpdatePlayerList();
+        startGameButton.Handler = new StartGameClickableButtonHandler();
     }
 
     // Optionally, you can override events when master client changes

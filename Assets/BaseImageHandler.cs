@@ -40,6 +40,11 @@ public class BaseImageHandler : MonoBehaviourWithInitComponent
     {
         return image.sprite;
     }
+    public Sprite SetSprite(Sprite sprite)
+    {
+        image.sprite = sprite;
+        return sprite;
+    }
     public void UpdateImage(Sprite SpriteToSet)
     {
         image.sprite = SpriteToSet;

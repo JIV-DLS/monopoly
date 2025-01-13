@@ -5,12 +5,15 @@ using System;
 using System.Collections;
 using System.Linq;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine.Serialization;
 
 namespace Monopoly
 {
     public class MonopolyGameManager : MonoBehaviourPunCallbacks
     {
+        public PlayerElementOnMap playerElementOnMapPrefab;
+        public PlayerImageChooser playerImageChooser;
         public CommunitiesCards communitiesCards{get;private set;}
         public ChancesCards chancesCards{get;private set;}
         public GameCardBuy gameCardBuy;
@@ -58,20 +61,22 @@ namespace Monopoly
             }
         
 
-            localPlayer = new MonopolyPlayer("Jojo",_playersHorizontalView.CreateNewChildAtEnd(),
-                _playerPieceOnBoardBuilder.Create(PlayerPieceEnum.TopHat, transform),
-                GetComponentInChildren<ThrowDices>(),
-                ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "CommunityFreeFromPrisonButton"),
-                ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "ChanceFreeFromPrisonButton"),
-                this
-            );
-
-            currentPlayer = localPlayer;
             
             monopolyPlayers = new List<MonopolyPlayer>();
             
-            monopolyPlayers.Add(localPlayer);
-            
+            foreach (Player player in PhotonNetwork.PlayerList)
+            {
+                monopolyPlayers.Add(new MonopolyPlayer(player, _playersHorizontalView.CreateNewChildAtEnd(),
+                    _playerPieceOnBoardBuilder.Create(playerElementOnMapPrefab, playerImageChooser.SpriteAt((int)player.CustomProperties["image"]), transform),
+                    GetComponentInChildren<ThrowDices>(),
+                    ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform,
+                        "CommunityFreeFromPrisonButton"),
+                    ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "ChanceFreeFromPrisonButton"),
+                    this
+                ));
+                if (player.IsLocal)
+                    currentPlayer = localPlayer;
+            }
             // Access all players in the room
             // Photon.Realtime.Player[] players = PhotonNetwork.PlayerList.Where(player=>player.IsLocal).ToArray();
 
@@ -88,36 +93,13 @@ namespace Monopoly
             chancesCards = new ChancesCards(this);
             communitiesCards = new CommunitiesCards(this);
             // Start the waiting process
-            StartCoroutine(GameLoop());
+            if(PhotonNetwork.IsMasterClient)
+                StartCoroutine(GameLoop());
         }
-        
-        public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
-        {
-            base.OnPlayerEnteredRoom(newPlayer);
-        
-            // Get the new player's name
-            string newPlayerName = newPlayer.NickName;
 
-            Debug.Log("Player Joined: " + newPlayerName);
-            
-            monopolyPlayers.Add(new MonopolyPlayer("Ami", _playersHorizontalView.CreateNewChildAtEnd(),
-                _playerPieceOnBoardBuilder.Create(newPlayer.NickName, transform),
-                GetComponentInChildren<ThrowDices>(),
-                ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "CommunityFreeFromPrisonButton"),
-                ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "ChanceFreeFromPrisonButton"),
-                this
-            ));
-        }
-        public override void OnJoinedRoom()
+        public override void OnPlayerLeftRoom(Player otherPlayer)
         {
-            base.OnJoinedRoom();
-            monopolyPlayers.Add(new MonopolyPlayer("Jojo", _playersHorizontalView.CreateNewChildAtEnd(),
-                _playerPieceOnBoardBuilder.Create(PhotonNetwork.LocalPlayer.NickName, transform),
-                GetComponentInChildren<ThrowDices>(),
-                ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "CommunityFreeFromPrisonButton"),
-                ChildUtility.GetChildComponentByName<FreeFromPrisonButton>(transform, "ChanceFreeFromPrisonButton"),
-                this
-            ));
+            base.OnPlayerLeftRoom(otherPlayer);
         }
 
         public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, int tileIndex)
@@ -201,6 +183,7 @@ namespace Monopoly
 
         private IEnumerator GameLoop()
         {
+            currentPlayer = monopolyPlayers[0];
             foreach (MonopolyPlayer player in monopolyPlayers)
             {
                 yield return MoveAPlayerToStartTile(player);
