@@ -10,7 +10,7 @@ using UnityEngine.Serialization;
 
 namespace Monopoly
 {
-    public class MonopolyGameManager : MonoBehaviourPunCallbacks
+    public class MonopolyGameManager : RequestManager
     {
         public PlayerElementOnMap playerElementOnMapPrefab;
         public PlayerImageChooser playerImageChooser;
@@ -102,6 +102,17 @@ namespace Monopoly
             base.OnPlayerLeftRoom(otherPlayer);
         }
 
+        public IEnumerator AskAPlayerToPlay(Player player)
+        {
+            yield return WaitForRequest(player, "AskAPlayerToPlayRpc", player.UserId);
+        }
+
+        public IEnumerator AskAPlayerToPlayRpc(string userId)
+        {
+            if (userId == PhotonNetwork.LocalPlayer.UserId)
+                 yield return monopolyPlayers.First(monopolyPlayer => monopolyPlayer.player.UserId == userId).TriggerPlay(rollDiceTimeout, buyTileTimeout);
+        }
+        
         public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, int tileIndex)
         {
             yield return MoveAPlayerToATile(player, board.GetTileAtIndex(tileIndex), false, true);

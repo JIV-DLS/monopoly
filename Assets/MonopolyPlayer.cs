@@ -85,7 +85,7 @@ namespace Monopoly
         public IEnumerator TriggerPlay(float rollDiceTimeout, float userBuyTileTimeout)
         {
 
-            if (true)
+            if (player.IsLocal)
             {
                 if (CanPlay())
                 {
@@ -108,7 +108,8 @@ namespace Monopoly
             }
             else
             {
-                yield return PerformRemoteAction();
+                
+                yield return _monopolyGameManager.AskAPlayerToPlay(player);
             }
             
         
