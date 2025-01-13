@@ -51,6 +51,7 @@ public class ManageRoom : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         ConnectedToRoom.SetCurrentImageIndex(0);
+        ConnectedToRoom.startGameButton.gameObject.SetActive(PhotonNetwork.IsMasterClient);
         roomName.Init();
         roomName.SetText($"{PhotonNetwork.CurrentRoom.Name} - {PhotonNetwork.CurrentRoom.PlayerCount}");
         playerName.Init();

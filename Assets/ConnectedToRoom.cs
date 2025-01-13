@@ -15,12 +15,20 @@ public class ConnectedToRoom : MonoBehaviourPunCallbacks
     public BaseTextHandler playerName;
     public BaseTextHandler roomName;
     public DynamicVScrollView connectedToRoomScrollView;
+    public ButtonHandler startGameButton;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        startGameButton.Init();
         UpdatePlayerList();
     }
 
+    // Optionally, you can override events when master client changes
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        startGameButton.gameObject.SetActive(PhotonNetwork.IsMasterClient);
+        Debug.Log($"The new master client is: {newMasterClient.NickName}");
+    }
     // Called when a player joins the room
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
@@ -59,7 +67,7 @@ public class ConnectedToRoom : MonoBehaviourPunCallbacks
 
     public ConnectedToRoom()
     {
-        _debounceTimer = new Timer(200); // 1 second debounce delay
+        _debounceTimer = new Timer(2); // 1 second debounce delay
         _debounceTimer.Elapsed += OnDebounceElapsed;
         _debounceTimer.AutoReset = false; // Make sure it doesn't repeat
     }

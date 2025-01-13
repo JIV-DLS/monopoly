@@ -610,7 +610,26 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      monopoly_guy_0: -5676240019695259816
+      monopoly_guy_1: -8895634529796025834
+      monopoly_guy_10: 684775723540501034
+      monopoly_guy_11: 3862967312354985705
+      monopoly_guy_12: -4511742723480904144
+      monopoly_guy_13: 2401750183683447064
+      monopoly_guy_14: -8151445596218703825
+      monopoly_guy_15: 7101753016592543172
+      monopoly_guy_16: -6434917128065144124
+      monopoly_guy_17: 8510055698569749432
+      monopoly_guy_18: -850028753366074347
+      monopoly_guy_2: 5386591500421332070
+      monopoly_guy_3: 6395002536872027669
+      monopoly_guy_4: 2028523667221833894
+      monopoly_guy_5: 454344646306129385
+      monopoly_guy_6: 4018791083271717481
+      monopoly_guy_7: -5652791544122018224
+      monopoly_guy_8: -2557142723757409754
+      monopoly_guy_9: 2184942759586881243
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
