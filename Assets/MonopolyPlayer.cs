@@ -157,7 +157,7 @@ namespace Monopoly
                     {
 
                         _timer += Time.deltaTime;
-                        _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
+                        _monopolyGameManager.SetGameTextEventsText($"{name}, Veuillez decidez {actionTimeout-_timer:0.00} seconde(s)");
                         yield return null; // Wait until the next frame
                     }
 
@@ -188,7 +188,7 @@ namespace Monopoly
                             {
 
                                 _timer += Time.deltaTime;
-                                _monopolyGameManager.GameTextEvents.SetText(
+                                _monopolyGameManager.SetGameTextEventsText(
                                     $"{name}, Veuillez decider {actionTimeout - _timer:0.00} seconde(s)");
                                 yield return null; // Wait until the next frame
                             }
@@ -250,7 +250,7 @@ namespace Monopoly
             }
             else
             {
-                _monopolyGameManager.GameTextEvents.SetText($"{name} ne peut effectuer aucune action.");
+                _monopolyGameManager.SetGameTextEventsText($"{name} ne peut effectuer aucune action.");
                 yield return new WaitForSeconds(4f);
             }
 
@@ -262,6 +262,8 @@ namespace Monopoly
             _timer = 0f;
 
             EnableRollDiceAction();
+            float messageTimer = 0f; // Timer for the message
+
             // Wait for the player to perform an action or timeout
             while (_timer < actionTimeout)
             {
@@ -269,9 +271,12 @@ namespace Monopoly
                 {
                     break;
                 }
+
+                // Increment timers
                 _timer += Time.deltaTime;
-            
-                _monopolyGameManager.GameTextEvents.SetText($"{name}, Veuillez lancer les dés. Lancement automatique dans {actionTimeout-_timer:0.00} seconde(s)");
+                _monopolyGameManager.SetGameTextEventsText($"{name}, Veuillez lancer les dés. Lancement automatique dans {actionTimeout - _timer:0.00} seconde(s)");
+
+
                 yield return null; // Wait until the next frame
             }
 
@@ -280,7 +285,6 @@ namespace Monopoly
             {
                 yield return Play();
             }
-
         }
 
 
@@ -492,6 +496,11 @@ namespace Monopoly
         public void BuildOnPropertyTile(PropertyTile propertyTile)
         {
             _monopolyGameManager.BuildOnPropertyTile(propertyTile, this);
+        }
+
+        public void BroadCastDiceState(Vector3 positions1, Quaternion rotations1, Vector3 positions2, Quaternion rotations2)
+        {
+            _monopolyGameManager.BroadCastDiceState(positions1, rotations1, positions2, rotations2);
         }
     }
 }

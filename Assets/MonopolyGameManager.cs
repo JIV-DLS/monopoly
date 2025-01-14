@@ -104,13 +104,14 @@ namespace Monopoly
 
         public IEnumerator AskAPlayerToPlay(Player player)
         {
-            yield return WaitForRequest(player, "AskAPlayerToPlayRpc", player.UserId);
+            yield return WaitForRequest(player, "AskAPlayerToPlayRpc", player.ActorNumber);
         }
-
-        public IEnumerator AskAPlayerToPlayRpc(string userId)
+        
+        [PunRPC]
+        public void AskAPlayerToPlayRpc(int actorNumber)
         {
-            if (userId == PhotonNetwork.LocalPlayer.UserId)
-                 yield return monopolyPlayers.First(monopolyPlayer => monopolyPlayer.player.UserId == userId).TriggerPlay(rollDiceTimeout, buyTileTimeout);
+            if (actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+                 while(monopolyPlayers.First(monopolyPlayer => monopolyPlayer.player.ActorNumber == actorNumber).TriggerPlay(rollDiceTimeout, buyTileTimeout).MoveNext());
         }
         
         public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, int tileIndex)
@@ -128,7 +129,7 @@ namespace Monopoly
         public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, BoardTile tile, bool passHome, bool doLandAction)
         {
             player.MoveTo(tile);
-            GameTextEvents.SetText($"Le joueur {currentPlayer.name} s'est déplacé à {tile.TileName}");
+            SetGameTextEventsText($"Le joueur {currentPlayer.name} s'est déplacé à {tile.TileName}");
         
             if (doLandAction)
             {
@@ -141,7 +142,7 @@ namespace Monopoly
                 if (tile is TaxTile taxTile)
                 {
                 
-                    GameTextEvents.SetText($"{currentPlayer.name} doit payer une taxe de {taxTile.taxAmount}M.");
+                    SetGameTextEventsText($"{currentPlayer.name} doit payer une taxe de {taxTile.taxAmount}M.");
                     yield return new WaitForSeconds(.8f);
                     yield return PlayerMustPayToBank(player, taxTile.taxAmount);
                 }
@@ -150,7 +151,7 @@ namespace Monopoly
                     yield return PutPlayerIntoPrison(player);
                 } else if (tile is SpecialBoardTile specialBoardTile)
                 {
-                    GameTextEvents.SetText($"{currentPlayer.name} est sur la case speciale {specialBoardTile.TileName}");
+                    SetGameTextEventsText($"{currentPlayer.name} est sur la case speciale {specialBoardTile.TileName}");
             
                     yield return new WaitForSeconds(.5f);
                     if (specialBoardTile is CommunitySpecialTile)
@@ -188,7 +189,7 @@ namespace Monopoly
         private object PassedHome(MonopolyPlayer player)
         {
             player.HaveWon(StartTile.GetStartReward());
-            GameTextEvents.SetText($"Le joueur {currentPlayer.name} est passé par la case départ. Il reçoit 200M.");
+            SetGameTextEventsText($"Le joueur {currentPlayer.name} est passé par la case départ. Il reçoit 200M.");
             return new WaitForSeconds(.5f);
         }
 
@@ -205,7 +206,7 @@ namespace Monopoly
                 switch (gameState)
                 {
                     case GameState.WaitingForRoll:
-                        GameTextEvents.SetText($"En attente du joueur {currentPlayer.name}");
+                        SetGameTextEventsText($"En attente du joueur {currentPlayer.name}");
                         // Call the player's Play method to start their turn
                         yield return currentPlayer.TriggerPlay(rollDiceTimeout, buyTileTimeout);
                         gameState = GameState.TurnEnd;
@@ -226,7 +227,7 @@ namespace Monopoly
                     case GameState.GameOver:
                         foreach (var player in monopolyPlayers.Where(player => player.CanContinuePlaying()))
                         {
-                            GameTextEvents.SetText($"Le joueur {player.name} a remporté la partie.");
+                            SetGameTextEventsText($"Le joueur {player.name} a remporté la partie.");
                             break;
                         }
                         break;
@@ -235,7 +236,7 @@ namespace Monopoly
 
                         // Optionally wait 2 seconds before the next player's turn starts
                     
-                        GameTextEvents.SetText($"{currentPlayer.name} a finit son tour");
+                        SetGameTextEventsText($"{currentPlayer.name} a finit son tour");
                         yield return new WaitForSeconds(1.5f);
                         AdvanceToNextPlayer();
                         if (!currentPlayer.CanContinuePlaying())
@@ -252,11 +253,11 @@ namespace Monopoly
                     if (remainingPlayers.Count > 0)
                     {
                         var winner = remainingPlayers.First();
-                        GameTextEvents.SetText($"Le joueur {winner.name} a remporté la partie.");
+                        SetGameTextEventsText($"Le joueur {winner.name} a remporté la partie.");
                     }
                     else
                     {
-                        GameTextEvents.SetText($"Aucun joueur n'a gagné. Ils ont tous perdus.");
+                        SetGameTextEventsText($"Aucun joueur n'a gagné. Ils ont tous perdus.");
                     } 
                     yield return new WaitForSeconds(1.5f);
                     // break;
@@ -278,7 +279,7 @@ namespace Monopoly
                 tile.RemoveOwner();
                 monopolyPlayer.deck.RemoveByGroupAtIndex(tile.GetTargetType(), tile.groupIndex);
             
-                GameTextEvents.SetText($"{tile.TileName} est de nouveau disponible sur le marché.");
+                SetGameTextEventsText($"{tile.TileName} est de nouveau disponible sur le marché.");
                 yield return new WaitForSeconds(.5f);
             }
 
@@ -810,6 +811,17 @@ namespace Monopoly
             Debug.Assert(monopolyPlayer.CanBeChargedOf(propertyTile.GetUpgradePrice()), $"{monopolyPlayer} can not be charged of {propertyTile.GetUpgradePrice()}. It only have {monopolyPlayer.money}.");
             monopolyPlayer.ChargedOf(propertyTile.GetUpgradePrice());
             propertyTile.BuildTileGood();
+        }
+        public void BroadCastDiceState(Vector3 positions1, Quaternion rotations1, Vector3 positions2, Quaternion rotations2)
+        {
+            
+            // Call the RPC method
+            photonView.RPC("BroadCastDiceStateRpc", RpcTarget.Others, positions1, rotations1, positions2, rotations2);
+        }
+        [PunRPC]
+        public void BroadCastDiceStateRpc(Vector3 positions1, Quaternion rotations1, Vector3 positions2, Quaternion rotations2)
+        {
+            dicesManager.UpdateDicesTransform(positions1, rotations1, positions2, rotations2);
         }
     }
 }

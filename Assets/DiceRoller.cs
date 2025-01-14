@@ -263,4 +263,10 @@ public class DiceRoller : MonoBehaviour
 
     yield return faceAccordingToXYZ; // Return the rolled value
 }
+
+    public void SetTransform(Vector3 position, Quaternion rotation)
+    {
+        transform.position = position;
+        transform.rotation = rotation;
+    }
 }

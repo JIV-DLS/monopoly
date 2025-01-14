@@ -11,6 +11,7 @@ class StartGameClickableButtonHandler:IClickableButtonHandler
 {
     public void OnClick()
     {
+        PhotonNetwork.CurrentRoom.SetCustomProperties(new ExitGames.Client.Photon.Hashtable() { { "start", true } });
         PhotonNetwork.LoadLevel("MonopolyMainScene");
     }
 }
@@ -61,6 +62,7 @@ public class ConnectedToRoom : MonoBehaviourPunCallbacks
         {
             Debug.Log($"Room property updated: {entry.Key} = {entry.Value}");
         }
+        PhotonNetwork.LoadLevel("MonopolyMainScene");
     }
     // Listen for player custom property changes
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)

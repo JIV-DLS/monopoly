@@ -50,14 +50,14 @@ public class DicesManager : MonoBehaviour
     }
     public IEnumerable<List<int>> AskAPlayerToRollDices(MonopolyPlayer monopolyPlayer)
     {
-        IEnumerator<List<int>> rollDicesAndGetResult = RollDicesAndGetResult();
+        IEnumerator<List<int>> rollDicesAndGetResult = RollDicesAndGetResult(monopolyPlayer);
         while (rollDicesAndGetResult.MoveNext())
         {
             yield return rollDicesAndGetResult.Current;
         }
         yield return rollDicesAndGetResult.Current;
     }
-    public IEnumerator<List<int>> RollDicesAndGetResult()
+    public IEnumerator<List<int>> RollDicesAndGetResult(MonopolyPlayer monopolyPlayer)
     {
         // Create a dictionary to track each dice roll and its corresponding result.
         Dictionary<IEnumerator<int>, int> rollResults = new Dictionary<IEnumerator<int>, int>();
@@ -80,7 +80,7 @@ public class DicesManager : MonoBehaviour
 
         // Now gather the final results
         bool allDone = false;
-
+        
         while (!allDone)
         {
             allDone = true;
@@ -105,10 +105,19 @@ public class DicesManager : MonoBehaviour
             {
                 yield return null;
             }
+
+            monopolyPlayer.BroadCastDiceState(_dices[0].transform.position, _dices[0].transform.rotation, _dices[1].transform.position, _dices[1].transform.rotation);
         }
 
         // After all dice rolls are completed, yield the final results
         List<int> finalResults = rollEnumerators.Select(enumerator => rollResults[enumerator]).ToList();
         yield return finalResults;
+    }
+
+    public void UpdateDicesTransform(Vector3 positions1, Quaternion rotations1, Vector3 positions2, Quaternion rotations2)
+    {
+        _dices[0].SetTransform(positions1, rotations1);
+        _dices[1].SetTransform(positions2, rotations2);
+
     }
 }
