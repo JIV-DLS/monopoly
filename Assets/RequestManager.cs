@@ -68,33 +68,23 @@ public class RequestManager : MonoBehaviourPunCallbacks
 
     // This method processes the RPC method call and ensures the request is marked as processed.
     [PunRPC]
-    public void ProcessRpcMethodWithAttribute(Photon.Realtime.Player player, string methodName, string requestUuid, object[] parameters)
+    public IEnumerator ProcessRpcMethodWithAttribute(Photon.Realtime.Player player, string methodName, string requestUuid, object[] parameters)
     {
         if (player.ActorNumber != PhotonNetwork.LocalPlayer.ActorNumber)
         {
-            return;
+            yield return null;
         }
-        // Use Reflection to get the method info
-        var method = this.GetType().GetMethod(methodName);
+        else
+        {
+            // Use Reflection to get the method info
+            var method = GetType().GetMethod(methodName);
 
-        // Call the original RPC method
-        method.Invoke(this, parameters);
+            // Call the original RPC method
+            yield return method?.Invoke(this, parameters);
         
-        // Mark the request as processed
-        MarkRequestAsProcessed(player, requestUuid);
-    }
-
-    // Example RPC method (this will be called on all clients when invoked)
-    void SomeRpcMethod(Photon.Realtime.Player player, string requestUuid, string param1, int param2)
-    {
-        Debug.Log($"RPC Method 'SomeRpcMethod' called with param1: {param1}, param2: {param2}");
-        // Logic for handling the method here
-    }
-
-    void AnotherRpcMethod(Photon.Realtime.Player player, string requestUuid, int param1, bool param2)
-    {
-        Debug.Log($"RPC Method 'AnotherRpcMethod' called with param1: {param1}, param2: {param2}");
-        // Logic for handling the method here
+            // Mark the request as processed
+            MarkRequestAsProcessed(player, requestUuid);
+        }
     }
 
     // Start method to initiate requests

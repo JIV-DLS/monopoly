@@ -108,10 +108,10 @@ namespace Monopoly
         }
         
         [PunRPC]
-        public void AskAPlayerToPlayRpc(int actorNumber)
+        public IEnumerator AskAPlayerToPlayRpc(int actorNumber)
         {
             if (actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
-                 while(monopolyPlayers.First(monopolyPlayer => monopolyPlayer.player.ActorNumber == actorNumber).TriggerPlay(rollDiceTimeout, buyTileTimeout).MoveNext());
+                 yield return monopolyPlayers.First(monopolyPlayer => monopolyPlayer.player.ActorNumber == actorNumber).TriggerPlay(rollDiceTimeout, buyTileTimeout);
         }
         
         public IEnumerator MoveAPlayerToATile(MonopolyPlayer player, int tileIndex)
